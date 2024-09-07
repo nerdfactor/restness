@@ -76,6 +76,7 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 	 * Inject into a {@link MethodSpec.Builder} and add authentication
 	 * annotations.
 	 *
+	 * @param builder An existing builder object that will be used.
 	 * @return The altered {@link MethodSpec.Builder}.
 	 */
 	public MethodSpec.Builder inject(MethodSpec.Builder builder) {
