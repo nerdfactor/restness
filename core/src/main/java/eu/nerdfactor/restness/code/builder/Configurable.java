@@ -3,7 +3,7 @@ package eu.nerdfactor.restness.code.builder;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A builder that is able to build from a specific configuration object.
+ * A buildable object that is able to build from a specific configuration object.
  *
  * @param <T> The type of the configuration object.
  */
