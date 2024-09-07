@@ -41,7 +41,7 @@ import java.util.*;
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class RestnessRestProcessor extends AbstractProcessor {
+public class RestnessAnnotationProcessor extends AbstractProcessor {
 
 	private Filer filer;
 	private Elements elementUtils;
