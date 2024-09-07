@@ -1,20 +1,24 @@
 package eu.nerdfactor.restness.data;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Factory containing {@link Bean}s for RESTness entity mapper, merger and
- * specification builder. Those fallback beans should only be used during
- * development and replaced with real implementations before production.
+ * Spring configuration containing {@link Bean}s for RESTness entity mapper,
+ * merger and specification builder. Those fallback beans should only be used
+ * during development and replaced with real implementations before production.
  *
  * @author Daniel Klug
  */
 @Slf4j
 @Configuration
-public class RestnessEntityFactory {
+@AutoConfiguration
+@ComponentScan(basePackages = {"eu.nerdfactor.restness.data"})
+public class SpringAutoConfiguration {
 
 	/**
 	 * Provides a {@link DataMapper}{@link Bean} if none is configured.
