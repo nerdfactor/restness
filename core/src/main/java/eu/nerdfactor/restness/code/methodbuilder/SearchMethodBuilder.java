@@ -18,8 +18,32 @@ import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A builder that can be used to create a search method in a controller.
+ * <p>
+ * Search method consist of:
+ * <li>A method to search all entities filtered by a specification and returns
+ * a page.</li>
+ *
+ * @author Daniel Klug
+ */
 public class SearchMethodBuilder extends MethodBuilder {
 
+	/**
+	 * Create a new {@link SearchMethodBuilder}.
+	 *
+	 * @return A new {@link SearchMethodBuilder}.
+	 */
+	public static SearchMethodBuilder create() {
+		return new SearchMethodBuilder();
+	}
+
+	/**
+	 * Create a {@link TypeSpec.Builder} containing a search method.
+	 *
+	 * @param builder An existing builder object that will be used.
+	 * @return The build {@link TypeSpec.Builder}.
+	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath() + "/search")) {

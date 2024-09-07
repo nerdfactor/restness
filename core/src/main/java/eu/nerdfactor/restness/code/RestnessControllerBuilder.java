@@ -9,6 +9,9 @@ import eu.nerdfactor.restness.code.methodbuilder.ListMethodBuilder;
 import eu.nerdfactor.restness.code.methodbuilder.RelationshipMethodBuilder;
 import eu.nerdfactor.restness.code.methodbuilder.SearchMethodBuilder;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,12 +32,23 @@ import javax.lang.model.element.Modifier;
  *
  * @author Daniel Klug
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration> {
 
 	/**
 	 * The {@link ControllerConfiguration} used to create the controller.
 	 */
 	protected ControllerConfiguration configuration;
+
+	/**
+	 * Create a new {@link RestnessControllerBuilder}.
+	 *
+	 * @return A new {@link RestnessControllerBuilder}.
+	 */
+	public static RestnessControllerBuilder create() {
+		return new RestnessControllerBuilder();
+	}
 
 	/**
 	 * Set the {@link ControllerConfiguration} that will be used.
@@ -57,11 +71,11 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getControllerClassName())
 				.addAnnotation(RestController.class)
 				.addModifiers(Modifier.PUBLIC);
-		this.and(new ClassPropertiesBuilder().withConfiguration(this.configuration));
-		this.and(new CrudMethodBuilder().withConfiguration(this.configuration));
-		this.and(new ListMethodBuilder().withConfiguration(this.configuration));
-		this.and(new SearchMethodBuilder().withConfiguration(this.configuration));
-		this.and(new RelationshipMethodBuilder().withConfiguration(this.configuration));
+		this.and(ClassPropertiesBuilder.create().withConfiguration(this.configuration));
+		this.and(CrudMethodBuilder.create().withConfiguration(this.configuration));
+		this.and(ListMethodBuilder.create().withConfiguration(this.configuration));
+		this.and(SearchMethodBuilder.create().withConfiguration(this.configuration));
+		this.and(RelationshipMethodBuilder.create().withConfiguration(this.configuration));
 		this.buildAll(builder);
 		return builder.build();
 	}

@@ -12,8 +12,31 @@ import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A builder that can be used to create a list method in a controller.
+ * <p>
+ * List method consist of:
+ * <li>A method to list all entities.</li>
+ *
+ * @author Daniel Klug
+ */
 public class ListMethodBuilder extends MethodBuilder {
 
+	/**
+	 * Create a new {@link ListMethodBuilder}.
+	 *
+	 * @return A new {@link ListMethodBuilder}.
+	 */
+	public static ListMethodBuilder create() {
+		return new ListMethodBuilder();
+	}
+
+	/**
+	 * Create a {@link TypeSpec.Builder} containing a list method.
+	 *
+	 * @param builder An existing builder object that will be used.
+	 * @return The build {@link TypeSpec.Builder}.
+	 */
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath())) {
 			return builder;

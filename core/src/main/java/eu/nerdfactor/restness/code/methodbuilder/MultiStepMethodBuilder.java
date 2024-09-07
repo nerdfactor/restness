@@ -5,9 +5,6 @@ import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.MultiStepBuilder;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Daniel Klug
  */
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class MultiStepMethodBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration>, Buildable<TypeSpec.Builder> {
 
 	/**

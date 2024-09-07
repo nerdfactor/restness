@@ -26,7 +26,7 @@ public class JavaClassExporter implements RestnessExporter {
 				RestnessUtil.log("Generating " + controllerConfiguration.getControllerClassName().canonicalName() + " for " + controllerConfiguration.getEntityClassName().toString() + ".");
 				JavaFile.builder(
 								controllerConfiguration.getControllerClassName().packageName(),
-								new RestnessControllerBuilder().withConfiguration(controllerConfiguration).build()
+								RestnessControllerBuilder.create().withConfiguration(controllerConfiguration).build()
 						).indent(config.getOrDefault("indentation", "\t"))
 						.build()
 						.writeTo(filer);
