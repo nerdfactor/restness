@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,7 +43,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	}
 
 	@Override
-	public SetEntityMethodBuilder withConfiguration(ControllerConfiguration configuration) {
+	public SetEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new SetEntityMethodBuilder(
 				configuration.hasExistingRequest(RequestMethod.PUT, configuration.getRequestBasePath() + "/{id}"),
 				configuration.getRequestBasePath() + "/{id}",

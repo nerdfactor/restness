@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +40,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	}
 
 	@Override
-	public CreateEntityMethodBuilder withConfiguration(ControllerConfiguration configuration) {
+	public CreateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new CreateEntityMethodBuilder(
 				configuration.hasExistingRequest(RequestMethod.POST, configuration.getRequestBasePath()),
 				configuration.getRequestBasePath(),
