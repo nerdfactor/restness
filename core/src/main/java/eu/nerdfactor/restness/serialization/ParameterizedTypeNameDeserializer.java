@@ -10,6 +10,11 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Deserializer for {@link ParameterizedTypeName}s.
+ *
+ * @author Daniel Klug
+ */
 public class ParameterizedTypeNameDeserializer extends StdDeserializer<ParameterizedTypeName> {
 
 	public ParameterizedTypeNameDeserializer() {
@@ -20,6 +25,15 @@ public class ParameterizedTypeNameDeserializer extends StdDeserializer<Parameter
 		super(t);
 	}
 
+	/**
+	 * Deserializes a {@link ParameterizedTypeName} from a Json Node. It assumes
+	 * that the Node contains the full clas name (i.e. namespace and name) as
+	 * text.
+	 *
+	 * @param jsonParser             The {@link JsonParser} used to read from.
+	 * @param deserializationContext The context of the deserialization.
+	 * @return The deserialized {@link ParameterizedTypeName}.
+	 */
 	@Override
 	public ParameterizedTypeName deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 		// todo: this will only work with one level of parameters (ie. Map<String, String>) but not more (ie. Map<String, Map<String, String>>).
