@@ -3,15 +3,15 @@ package eu.nerdfactor.restness;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-import eu.nerdfactor.restness.annotation.GeneratedRestConfiguration;
-import eu.nerdfactor.restness.annotation.GeneratedRestController;
-import eu.nerdfactor.restness.annotation.GeneratedRestSecurity;
+import eu.nerdfactor.restness.annotation.RestnessConfiguration;
+import eu.nerdfactor.restness.annotation.RestnessController;
+import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.export.GeneratedRestExporter;
+import eu.nerdfactor.restness.export.RestnessExporter;
 import eu.nerdfactor.restness.export.JavaClassExporter;
 import eu.nerdfactor.restness.util.AnnotationValueExtractor;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,9 +24,10 @@ import javax.lang.model.util.Elements;
 import java.util.*;
 
 /**
- * Annotation processor for generated rest controllers.
- * Will check all GeneratedRestController and GeneratedRestConfiguration annotations and
- * build new controller classes out of the information.
+ * Annotation processor for generated rest controllers. Will check all
+ * {@link RestnessController}, {@link RestnessSecurity} and
+ * {@link RestnessConfiguration} annotations and build new controller classes
+ * out of the information.
  * <p>
  * <a href="https://stackoverflow.com/a/31358366">How to debug</a>
  * In directory of pom: mvnDebug clean test
@@ -34,23 +35,22 @@ import java.util.*;
  * @author Daniel Klug
  */
 @SupportedAnnotationTypes({
-		"eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestController",
-		"eu.nerdfactor.springutil.generatedrest.annotation.GeneratedRestConfiguration"
+		"eu.nerdfactor.restness.annotation.RestnessController",
+		"eu.nerdfactor.restness.annotation.RestnessSecurity",
+		"eu.nerdfactor.restness.annotation.RestnessConfiguration"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class GeneratedRestProcessor extends AbstractProcessor {
+public class RestnessRestProcessor extends AbstractProcessor {
 
 	private Filer filer;
 	private Elements elementUtils;
-	private Messager messanger;
 
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnvironment) {
 		super.init(processingEnvironment);
 		this.filer = processingEnvironment.getFiler();
 		this.elementUtils = processingEnvironment.getElementUtils();
-		this.messanger = processingEnvironment.getMessager();
 	}
 
 	@Override
@@ -59,21 +59,21 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 
 		// Get all values from DynamicRestConfiguration annotations into one map.
 		final Map<String, String> generatedConfig = new HashMap<>();
-		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestConfiguration.class)) {
+		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessConfiguration.class)) {
 			if (element.getKind() != ElementKind.CLASS) {
 				return true;
 			}
 			new AnnotationValueExtractor()
 					.withUtils(this.elementUtils)
 					.withElement(element)
-					.forClass(GeneratedRestConfiguration.class)
+					.forClass(RestnessConfiguration.class)
 					.extractInto(generatedConfig);
 
-			GeneratedRestUtil.LOG = !generatedConfig.getOrDefault("log", "false").equals("false");
+			RestnessUtil.LOG = !generatedConfig.getOrDefault("log", "false").equals("false");
 
-			GeneratedRestUtil.log("GeneratedConfig");
+			RestnessUtil.log("GeneratedConfig");
 			generatedConfig.forEach((name, value) -> {
-				GeneratedRestUtil.log(name + ": " + value, 1);
+				RestnessUtil.log(name + ": " + value, 1);
 			});
 		}
 
@@ -94,7 +94,7 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 		});
 
 		// Get all DynamicRestSecurity annotations and add them to the matching controllers.
-		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestSecurity.class)) {
+		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessSecurity.class)) {
 			if (element.getKind() != ElementKind.CLASS) {
 				return true;
 			}
@@ -115,7 +115,7 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 		try {
 			// todo: maybe a factory is better?
 			Class cls = Class.forName(exporterClassName);
-			GeneratedRestExporter exporter = (GeneratedRestExporter) cls.getDeclaredConstructor().newInstance();
+			RestnessExporter exporter = (RestnessExporter) cls.getDeclaredConstructor().newInstance();
 			exporter.withFiler(this.filer)
 					.export(generatedConfig, controllers);
 		} catch (Exception e) {
@@ -127,16 +127,16 @@ public class GeneratedRestProcessor extends AbstractProcessor {
 
 	private List<AnnotationValueExtractor.ValueWrapper> findControllerValues(RoundEnvironment roundEnvironment) {
 		List<AnnotationValueExtractor.ValueWrapper> controllerValues = new ArrayList<>();
-		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.List.class)) {
+		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessController.List.class)) {
 			controllerValues.addAll(new AnnotationValueExtractor()
-					.forClass(GeneratedRestController.List.class)
+					.forClass(RestnessController.List.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)
 					.extractList());
 		}
-		for (Element element : roundEnvironment.getElementsAnnotatedWith(GeneratedRestController.class)) {
+		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessController.class)) {
 			controllerValues.add(new AnnotationValueExtractor()
-					.forClass(GeneratedRestController.class)
+					.forClass(RestnessController.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)
 					.extract());

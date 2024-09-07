@@ -6,7 +6,7 @@ package eu.nerdfactor.restness.data;
  *
  * @author Daniel Klug
  */
-public class GeneratedEntityMapper implements DataMapper {
+public class RestnessEntityMapper implements DataMapper {
 
 	@Override
 	public <T> T map(Object obj, Class<T> cls) {

@@ -4,11 +4,11 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 
 import java.util.Map;
 
-public class GeneratedConfigFile {
+public class RestnessConfigFile {
 
 	public Map<String, String> config;
 	public Map<String, ControllerConfiguration> controllers;
 
-	public GeneratedConfigFile() {
+	public RestnessConfigFile() {
 	}
 }

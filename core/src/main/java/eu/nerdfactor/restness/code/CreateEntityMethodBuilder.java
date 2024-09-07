@@ -7,7 +7,7 @@ import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -58,7 +58,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addCreateEntityMethod", 1);
+		RestnessUtil.log("addCreateEntityMethod", 1);
 
 		// Create the method declaration.
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.requestType, this.responseType);

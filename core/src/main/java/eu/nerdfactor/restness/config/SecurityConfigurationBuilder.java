@@ -1,8 +1,8 @@
 package eu.nerdfactor.restness.config;
 
-import eu.nerdfactor.restness.annotation.GeneratedRestSecurity;
+import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.util.AnnotationValueExtractor;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
@@ -66,7 +66,7 @@ public class SecurityConfigurationBuilder {
 
 		// Find all the annotated values in the annotation
 		Map<String, String> annotatedValues = new AnnotationValueExtractor()
-				.forClass(GeneratedRestSecurity.class)
+				.forClass(RestnessSecurity.class)
 				.withElement(element)
 				.withUtils(elementUtils)
 				.extract()
@@ -86,7 +86,7 @@ public class SecurityConfigurationBuilder {
 		}
 
 		return new SecurityConfiguration(
-				GeneratedRestUtil.toClassName(generatedClassName),
+				RestnessUtil.toClassName(generatedClassName),
 				annotatedValues.getOrDefault("pattern", "{NAME}"),
 				annotatedValues.getOrDefault("inclusive", "true").equals("true")
 		);

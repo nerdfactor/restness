@@ -14,7 +14,7 @@ import java.util.List;
  * @param <T> The type of the response object.
  * @author Daniel Klug
  */
-public class GeneratedEntityWrapper<T> implements DataWrapper<T> {
+public class RestnessEntityWrapper<T> implements DataWrapper<T> {
 
 	private T item = null;
 	private List<T> items = null;

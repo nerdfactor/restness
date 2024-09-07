@@ -6,7 +6,7 @@ import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.annotation.IdAccessor;
 import eu.nerdfactor.restness.annotation.Relation;
 import eu.nerdfactor.restness.annotation.RelationAccessor;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
@@ -191,7 +191,7 @@ public class RelationConfigurationBuilder {
 	private TypeName findDtoType(ClassName typeName, Map<String, List<TypeName>> classes) {
 		String entityClassName = typeName.toString();
 		entityClassName = entityClassName.substring(entityClassName.lastIndexOf('.') + 1).trim();
-		entityClassName = GeneratedRestUtil.normalizeEntityName(entityClassName);
+		entityClassName = RestnessUtil.normalizeEntityName(entityClassName);
 		String dtoClassName = entityClassName + "Dto";
 		if (classes.containsKey(dtoClassName) && classes.get(dtoClassName).size() == 1) {
 			return (classes.get(dtoClassName).get(0));
@@ -203,7 +203,7 @@ public class RelationConfigurationBuilder {
 	private String[] findRelationAccessors(String relationName, ClassName relationEntity, Element relationElement, Map<? extends ExecutableElement, ? extends AnnotationValue> annotationValues) {
 		// Create accessors with default names based on the relation name and entity.
 		String methodSuffix = relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
-		String methodEntitySuffix = GeneratedRestUtil.removeEnd(methodSuffix, "s");
+		String methodEntitySuffix = RestnessUtil.removeEnd(methodSuffix, "s");
 		String[] accessors = new String[]{"get" + methodSuffix, "set" + methodSuffix, "add" + methodEntitySuffix, "remove" + methodEntitySuffix};
 
 		// If values from the annotation like Relation is passed as parameter, try to

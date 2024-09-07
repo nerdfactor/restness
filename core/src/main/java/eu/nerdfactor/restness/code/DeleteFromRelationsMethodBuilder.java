@@ -6,7 +6,7 @@ import eu.nerdfactor.restness.code.builder.MethodBuilder;
 import eu.nerdfactor.restness.code.builder.NoContentStatementInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.RelationConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addDeleteFromRelationsMethod", 1);
+		RestnessUtil.log("addDeleteFromRelationsMethod", 1);
 		TypeName responseType = this.relationConfiguration.isWithDtos() && this.relationConfiguration.getDtoClass() != null && !this.relationConfiguration.getDtoClass().equals(TypeName.OBJECT) ? this.relationConfiguration.getDtoClass() : this.relationConfiguration.getEntityClass();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec

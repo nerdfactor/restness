@@ -12,7 +12,7 @@ import java.util.Arrays;
  *
  * @author Daniel Klug
  */
-public class GeneratedSpecificationBuilder implements DataSpecificationBuilder {
+public class RestnessSpecificationBuilder implements DataSpecificationBuilder {
 
 	@Override
 	public <T> Specification<T> build(String filter, Class<T> cls) {

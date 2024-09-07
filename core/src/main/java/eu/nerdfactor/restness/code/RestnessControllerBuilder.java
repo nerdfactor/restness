@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.lang.model.element.Modifier;
 
-public class GeneratedControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration> {
+public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration> {
 
 	ControllerConfiguration configuration;
 
 	@Override
-	public GeneratedControllerBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
+	public RestnessControllerBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		this.configuration = configuration;
 		return this;
 	}
 
 	public TypeSpec build() {
 		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getClassName()).addAnnotation(RestController.class).addModifiers(Modifier.PUBLIC);
-		this.and(new GeneratedPropertiesBuilder().withConfiguration(this.configuration));
+		this.and(new ClassPropertiesBuilder().withConfiguration(this.configuration));
 		this.and(new CrudMethodBuilder().withConfiguration(this.configuration));
 		this.and(new ListMethodBuilder().withConfiguration(this.configuration));
 		this.and(new SearchMethodBuilder().withConfiguration(this.configuration));

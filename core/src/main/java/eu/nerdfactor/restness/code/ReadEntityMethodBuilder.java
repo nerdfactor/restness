@@ -7,7 +7,7 @@ import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -59,7 +59,7 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addGetEntityMethod", 1);
+		RestnessUtil.log("addGetEntityMethod", 1);
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType);
 

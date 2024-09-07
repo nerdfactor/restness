@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-public class YamlConfigExporter implements GeneratedRestExporter {
+public class YamlConfigExporter implements RestnessExporter {
 
 	public YamlConfigExporter withFiler(Filer filer) {
 		return this;
@@ -16,12 +16,12 @@ public class YamlConfigExporter implements GeneratedRestExporter {
 
 	@Override
 	public void export(Map<String, String> config, Map<String, ControllerConfiguration> controllers) {
-		GeneratedConfigFile file = new GeneratedConfigFile();
+		RestnessConfigFile file = new RestnessConfigFile();
 		file.config = config;
 		file.controllers = controllers;
 		ObjectMapper mapper = ConfigMapper.forYaml();
 		try {
-			mapper.writeValue(new File("generated-rest.yaml"), file);
+			mapper.writeValue(new File("restness.yaml"), file);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

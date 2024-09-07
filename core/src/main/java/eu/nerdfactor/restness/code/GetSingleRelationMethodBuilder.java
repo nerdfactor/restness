@@ -6,7 +6,7 @@ import eu.nerdfactor.restness.code.builder.MethodBuilder;
 import eu.nerdfactor.restness.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.RelationConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +29,7 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addGetSingleRelationMethod", 1);
+		RestnessUtil.log("addGetSingleRelationMethod", 1);
 		TypeName responseType = this.relationConfiguration.isWithDtos() && this.relationConfiguration.getDtoClass() != null && !this.relationConfiguration.getDtoClass().equals(TypeName.OBJECT) ? this.relationConfiguration.getDtoClass() : this.relationConfiguration.getEntityClass();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.GET))

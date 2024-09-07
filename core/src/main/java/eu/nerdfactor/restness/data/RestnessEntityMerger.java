@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
  *
  * @author Daniel Klug
  */
-public class GeneratedEntityMerger implements DataMerger {
+public class RestnessEntityMerger implements DataMerger {
 
 	@Override
 	public <T> T merge(T obj, T updated) {

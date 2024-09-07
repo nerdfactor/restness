@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface GeneratedRestConfiguration {
+public @interface RestnessConfiguration {
 
 	/**
 	 * Indentation with four spaces.

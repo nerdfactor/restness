@@ -5,7 +5,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -48,7 +48,7 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 		if (this.relation != null) {
 			security = this.securityConfig.getSecurityString(this.type, this.relation, this.method, this.method);
 		} else {
-			ClassName entityName = GeneratedRestUtil.toClassName(this.type);
+			ClassName entityName = RestnessUtil.toClassName(this.type);
 			String role = this.securityConfig.getRole(this.method, entityName.simpleName(), entityName.simpleName());
 			security = "hasRole('" + role + "')";
 		}

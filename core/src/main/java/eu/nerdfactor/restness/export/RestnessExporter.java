@@ -5,9 +5,9 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 import javax.annotation.processing.Filer;
 import java.util.Map;
 
-public interface GeneratedRestExporter {
+public interface RestnessExporter {
 
-	public GeneratedRestExporter withFiler(Filer filer);
+	public RestnessExporter withFiler(Filer filer);
 
 	public void export(Map<String, String> config, Map<String, ControllerConfiguration> controllers);
 }

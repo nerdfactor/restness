@@ -14,16 +14,16 @@ import java.util.Set;
 
 public class ConfigImporter {
 
-	public GeneratedConfigFile importFromFile(String path) {
+	public RestnessConfigFile importFromFile(String path) {
 		ObjectMapper mapper = ConfigMapper.forFile(path);
 		try {
-			return mapper.readValue(Path.of(path).toFile(), GeneratedConfigFile.class);
+			return mapper.readValue(Path.of(path).toFile(), RestnessConfigFile.class);
 		} catch (Exception e) {
-			return new GeneratedConfigFile();
+			return new RestnessConfigFile();
 		}
 	}
 
-	public GeneratedConfigFile importFromFile(String path, String schemaPath) throws IOException {
+	public RestnessConfigFile importFromFile(String path, String schemaPath) throws IOException {
 		ObjectMapper mapper = ConfigMapper.forFile(path);
 		JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
 		JsonNode json = mapper.readTree(Files.readString(Path.of(path)));

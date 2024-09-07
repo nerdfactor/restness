@@ -11,7 +11,7 @@ import java.util.Arrays;
  *
  * @author Daniel Klug
  */
-public class GeneratedRestUtil {
+public class RestnessUtil {
 
 	/**
 	 * Simple methods to normalize an entity name by removing common suffix

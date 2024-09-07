@@ -5,7 +5,7 @@ import eu.nerdfactor.restness.code.builder.AuthenticationInjector;
 import eu.nerdfactor.restness.code.builder.MethodBuilder;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.RelationConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 				this.configuration.hasExistingRequest(RequestMethod.PATCH, this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName())) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addSetSingleRelationMethod", 1);
+		RestnessUtil.log("addSetSingleRelationMethod", 1);
 		TypeName responseType = this.relationConfiguration.isWithDtos() && this.relationConfiguration.getDtoClass() != null && !this.relationConfiguration.getDtoClass().equals(TypeName.OBJECT) ? this.relationConfiguration.getDtoClass() : this.relationConfiguration.getEntityClass();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.SET))

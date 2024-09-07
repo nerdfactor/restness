@@ -12,10 +12,10 @@ import java.lang.annotation.*;
  *
  * @author Daniel Klug
  */
-@Repeatable(GeneratedRestController.List.class)
+@Repeatable(RestnessController.List.class)
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface GeneratedRestController {
+public @interface RestnessController {
 
 	/**
 	 * The path for the request.
@@ -50,7 +50,7 @@ public @interface GeneratedRestController {
 	 * Will contain the classes for a single dto, a list dto and a request dto.
 	 * Those classes will be used if dto() is not set.
 	 */
-	DtoConfiguration dtoConfig() default @DtoConfiguration(value = Object.class);
+	RestnessDto dtoConfig() default @RestnessDto(value = Object.class);
 
 	/**
 	 * By default, endpoints for all the relations annotated with OneToMany, ManyToOne,
@@ -64,6 +64,6 @@ public @interface GeneratedRestController {
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ElementType.TYPE})
 	@interface List {
-		GeneratedRestController[] value();
+		RestnessController[] value();
 	}
 }

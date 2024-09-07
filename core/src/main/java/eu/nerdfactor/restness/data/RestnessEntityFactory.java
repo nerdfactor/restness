@@ -11,23 +11,23 @@ import org.springframework.context.annotation.Configuration;
  * @author Daniel Klug
  */
 @Configuration
-public class GeneratedEntityFactory {
+public class RestnessEntityFactory {
 
 	@Bean
 	@ConditionalOnMissingBean(DataMapper.class)
 	public DataMapper getGeneratedEntityMapper() {
-		return new GeneratedEntityMapper();
+		return new RestnessEntityMapper();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(DataMerger.class)
 	public DataMerger getGeneratedEntityMerger() {
-		return new GeneratedEntityMerger();
+		return new RestnessEntityMerger();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean(DataSpecificationBuilder.class)
 	public DataSpecificationBuilder getGeneratedSpecificationBuilder() {
-		return new GeneratedSpecificationBuilder();
+		return new RestnessSpecificationBuilder();
 	}
 }

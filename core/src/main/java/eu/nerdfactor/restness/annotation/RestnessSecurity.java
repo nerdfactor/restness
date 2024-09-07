@@ -11,10 +11,10 @@ import java.lang.annotation.*;
  *
  * @author Daniel Klug
  */
-@Repeatable(GeneratedRestSecurity.List.class)
+@Repeatable(RestnessSecurity.List.class)
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-public @interface GeneratedRestSecurity {
+public @interface RestnessSecurity {
 
 
 	/**
@@ -44,7 +44,7 @@ public @interface GeneratedRestSecurity {
 	@Retention(RetentionPolicy.SOURCE)
 	@Target({ElementType.TYPE})
 	@interface List {
-		GeneratedRestSecurity[] value();
+		RestnessSecurity[] value();
 	}
 
 }

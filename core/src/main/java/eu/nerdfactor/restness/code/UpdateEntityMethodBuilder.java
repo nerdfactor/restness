@@ -7,7 +7,7 @@ import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -61,7 +61,7 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addUpdateEntityMethod", 1);
+		RestnessUtil.log("addUpdateEntityMethod", 1);
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType, this.requestType);
 

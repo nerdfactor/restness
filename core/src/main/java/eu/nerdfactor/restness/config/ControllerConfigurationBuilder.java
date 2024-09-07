@@ -8,7 +8,7 @@ import eu.nerdfactor.restness.data.DataAccessor;
 import eu.nerdfactor.restness.data.DataMapper;
 import eu.nerdfactor.restness.data.DataMerger;
 import eu.nerdfactor.restness.util.AnnotationValueExtractor;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -184,7 +184,7 @@ public class ControllerConfigurationBuilder {
 			relations = RelationConfiguration.builder().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
 		}
 
-		return new ControllerConfiguration(GeneratedRestUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, dataAccessorClass, dataMapperClass, dataMergerClass, relations, existingRequests, this.dataWrapper);
+		return new ControllerConfiguration(RestnessUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, dataAccessorClass, dataMapperClass, dataMergerClass, relations, existingRequests, this.dataWrapper);
 	}
 
 	private ClassName[] findDtoClasses(ClassName entityClass) {

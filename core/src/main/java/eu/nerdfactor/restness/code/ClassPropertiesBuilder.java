@@ -12,12 +12,12 @@ import org.springframework.data.util.Pair;
 
 import java.util.List;
 
-public class GeneratedPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
+public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
 	ControllerConfiguration configuration;
 
 	@Override
-	public GeneratedPropertiesBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
+	public ClassPropertiesBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		this.configuration = configuration;
 		return this;
 	}

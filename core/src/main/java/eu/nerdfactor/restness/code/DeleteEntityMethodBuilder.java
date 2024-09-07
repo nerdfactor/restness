@@ -7,7 +7,7 @@ import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.NoContentStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.util.GeneratedRestUtil;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -53,7 +53,7 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		GeneratedRestUtil.log("addDeleteEntityMethod", 1);
+		RestnessUtil.log("addDeleteEntityMethod", 1);
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType);
 
