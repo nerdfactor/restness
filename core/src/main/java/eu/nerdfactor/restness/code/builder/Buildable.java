@@ -3,7 +3,7 @@ package eu.nerdfactor.restness.code.builder;
 /**
  * A buildable object used with a builder object.
  *
- * @param <T> The type of object buildable object.
+ * @param <T> The type of builder object.
  */
 public interface Buildable<T> {
 
