@@ -1,4 +1,4 @@
-package eu.nerdfactor.restness.code;
+package eu.nerdfactor.restness.code.classbuilder;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeSpec;

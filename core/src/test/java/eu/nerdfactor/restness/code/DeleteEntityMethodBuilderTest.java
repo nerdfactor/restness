@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import eu.nerdfactor.restness.code.methodbuilder.DeleteEntityMethodBuilder;
 import eu.nerdfactor.restness.entity.Example;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

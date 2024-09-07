@@ -1,6 +1,7 @@
-package eu.nerdfactor.restness.code.builder;
+package eu.nerdfactor.restness.code.classbuilder;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.restness.code.builder.Buildable;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 

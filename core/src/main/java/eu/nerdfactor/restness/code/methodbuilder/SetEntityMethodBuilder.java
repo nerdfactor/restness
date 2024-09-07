@@ -1,10 +1,10 @@
-package eu.nerdfactor.restness.code;
+package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.restness.code.builder.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
-import eu.nerdfactor.restness.code.builder.ReturnStatementInjector;
+import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.With;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -26,7 +26,7 @@ import javax.lang.model.element.Modifier;
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
+public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
 	protected boolean hasExistingRequest;
 	protected String requestUrl;
@@ -38,14 +38,14 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	protected SecurityConfiguration securityConfiguration;
 	protected TypeName dataWrapperClass;
 
-	public static UpdateEntityMethodBuilder create() {
-		return new UpdateEntityMethodBuilder();
+	public static SetEntityMethodBuilder create() {
+		return new SetEntityMethodBuilder();
 	}
 
 	@Override
-	public UpdateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return new UpdateEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.PATCH, configuration.getRequestBasePath() + "/{id}"),
+	public SetEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
+		return new SetEntityMethodBuilder(
+				configuration.hasExistingRequest(RequestMethod.PUT, configuration.getRequestBasePath() + "/{id}"),
 				configuration.getRequestBasePath() + "/{id}",
 				configuration.getRequestType(),
 				configuration.getSingleResponseType(),
@@ -62,7 +62,7 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		RestnessUtil.log("addUpdateEntityMethod", 1);
+		RestnessUtil.log("addSetEntityMethod", 1);
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType, this.requestType);
 
@@ -76,15 +76,14 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 
 		method = new ReturnStatementInjector()
 				.withWrapper(this.dataWrapperClass)
-				.withResponse(this.responseType)
+				.withResponseVariable("response")
 				.inject(method);
-
 		builder.addMethod(method.build());
 		return builder;
 	}
 
 	/**
-	 * Create a Path method called "update" with the requestUrl that takes a Valid
+	 * Create a Put method called "set" with the requestUrl that takes a Valid
 	 * object of requestType from the RequestBody (called "dto") and will return an
 	 * ResponseEntity with an object of responseType.
 	 *
@@ -94,8 +93,8 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * @return The {@link MethodSpec.Builder} of the new method declaration.
 	 */
 	protected MethodSpec.Builder createMethodDeclaration(String requestUrl, TypeName identifyingType, TypeName responseType, TypeName requestType) {
-		return MethodSpec.methodBuilder("update")
-				.addAnnotation(AnnotationSpec.builder(PatchMapping.class).addMember("value", "$S", requestUrl).build())
+		return MethodSpec.methodBuilder("set")
+				.addAnnotation(AnnotationSpec.builder(PutMapping.class).addMember("value", "$S", requestUrl).build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseType))
 				.addParameter(ParameterSpec.builder(identifyingType, "id")
@@ -112,9 +111,8 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 
 	/**
 	 * Add a method body that finds an Entity with the help of the
-	 * DataAccessor and the provided id and updates it with the object
-	 * in the RequestBody with the help of the DataMerger and saves
-	 * the changes with the help of the DataAccessor and return the result.
+	 * DataAccessor and the provided id and saves the Entity as new
+	 * object with the help of the DataAccessor and return the result.
 	 * Will throw a new EntityNotFoundException if no Entity could be
 	 * found.
 	 *
@@ -133,12 +131,11 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		} else {
 			method.addStatement("$T changed = dto", entityType);
 		}
-		method.addStatement("$T updated = this.dataMerger.merge(entity, changed)", entityType);
-		method.addStatement("updated = this.dataAccessor.updateData(updated)");
+		method.addStatement("changed = this.dataAccessor.updateData(changed)");
 		if (isUsingDto) {
-			method.addStatement("$T response = this.dataMapper.map(updated, $T.class)", responseType, responseType);
+			method.addStatement("$T response = this.dataMapper.map(changed, $T.class)", responseType, responseType);
 		} else {
-			method.addStatement("$T response = updated", responseType);
+			method.addStatement("$T response = changed", responseType);
 		}
 	}
 }

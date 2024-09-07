@@ -1,43 +1,41 @@
-package eu.nerdfactor.restness.code;
+package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.restness.code.builder.AuthenticationInjector;
-import eu.nerdfactor.restness.code.builder.MethodBuilder;
-import eu.nerdfactor.restness.code.builder.NoContentStatementInjector;
+import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
 
-public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
+public class AddToRelationsMethodBuilder extends MethodBuilder {
 
 	RelationConfiguration relationConfiguration;
 
-	public DeleteFromRelationsMethodBuilder withRelation(RelationConfiguration relation) {
+	public AddToRelationsMethodBuilder withRelation(RelationConfiguration relation) {
 		this.relationConfiguration = relation;
 		return this;
 	}
 
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
-		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
+		if (this.configuration.hasExistingRequest(RequestMethod.POST, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()) ||
+				this.configuration.hasExistingRequest(RequestMethod.PUT, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()) ||
+				this.configuration.hasExistingRequest(RequestMethod.PATCH, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
-		RestnessUtil.log("addDeleteFromRelationsMethod", 1);
+		RestnessUtil.log("addAddToRelationsMethod", 1);
 		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
-				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.REMOVE))
-				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).build())
+				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.ADD))
+				.addAnnotation(AnnotationSpec.builder(RequestMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).addMember("method", "{ $T.POST, $T.PUT, $T.PATCH }", RequestMethod.class, RequestMethod.class, RequestMethod.class).build())
+				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList))
 				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
@@ -59,15 +57,19 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
 			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
 		}
-		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.REMOVE) + "ById(id, dto." + this.relationConfiguration.getIdAccessorMethodName() + "())");
+		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.ADD) + "ById(id, dto." + this.relationConfiguration.getIdAccessorMethodName() + "())");
 		builder.addMethod(method.build());
 
-		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}")) {
+
+		if (this.configuration.hasExistingRequest(RequestMethod.POST, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}") ||
+				this.configuration.hasExistingRequest(RequestMethod.PUT, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}") ||
+				this.configuration.hasExistingRequest(RequestMethod.PATCH, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}")) {
 			return builder;
 		}
 		MethodSpec.Builder methodById = MethodSpec
-				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.REMOVE) + "ById")
-				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}").build())
+				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.ADD) + "ById")
+				.addAnnotation(AnnotationSpec.builder(RequestMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}").addMember("method", "{ $T.POST, $T.PUT, $T.PATCH }", RequestMethod.class, RequestMethod.class, RequestMethod.class).build())
+				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList))
 				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
@@ -91,11 +93,11 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 		methodById.addStatement("throw new $T()", EntityNotFoundException.class);
 		methodById.endControlFlow();
 		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationConfiguration.getEntityClassName(), this.relationConfiguration.getEntityClassName());
-		methodById.addStatement("entity." + this.relationConfiguration.getRemoverMethodName() + "(rel)");
-		methodById = new NoContentStatementInjector()
-				.withWrapper(this.configuration.getResponseWrapperClassName())
-				.withResponse(responseType)
-				.inject(methodById);
+		methodById.addStatement("entity." + this.relationConfiguration.getAdderMethodName() + "(rel)");
+		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
+			methodById.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
+		}
+		methodById.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.GET) + "(id)");
 		builder.addMethod(methodById.build());
 		return builder;
 	}

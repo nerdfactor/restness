@@ -1,4 +1,4 @@
-package eu.nerdfactor.restness.code.builder;
+package eu.nerdfactor.restness.code.injector;
 
 public interface Injectable<T> {
 

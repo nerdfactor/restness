@@ -1,6 +1,8 @@
-package eu.nerdfactor.restness.code.builder;
+package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.restness.code.builder.Buildable;
+import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import org.jetbrains.annotations.NotNull;
 

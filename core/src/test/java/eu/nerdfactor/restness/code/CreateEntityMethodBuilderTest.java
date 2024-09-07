@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import eu.nerdfactor.restness.code.methodbuilder.CreateEntityMethodBuilder;
 import eu.nerdfactor.restness.entity.Example;
 import eu.nerdfactor.restness.entity.ExampleDto;
 import eu.nerdfactor.restness.entity.ExampleForm;

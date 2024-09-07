@@ -1,4 +1,4 @@
-package eu.nerdfactor.restness.code.builder;
+package eu.nerdfactor.restness.code.injector;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;

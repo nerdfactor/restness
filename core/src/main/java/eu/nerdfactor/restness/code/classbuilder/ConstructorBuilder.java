@@ -1,10 +1,11 @@
-package eu.nerdfactor.restness.code.builder;
+package eu.nerdfactor.restness.code.classbuilder;
 
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import eu.nerdfactor.restness.code.builder.Buildable;
+import eu.nerdfactor.restness.code.builder.PropertyPair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 
 import javax.lang.model.element.Modifier;
 import java.util.ArrayList;

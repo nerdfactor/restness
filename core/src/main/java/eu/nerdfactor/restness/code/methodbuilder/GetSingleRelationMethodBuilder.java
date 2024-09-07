@@ -1,9 +1,8 @@
-package eu.nerdfactor.restness.code;
+package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.restness.code.builder.AuthenticationInjector;
-import eu.nerdfactor.restness.code.builder.MethodBuilder;
-import eu.nerdfactor.restness.code.builder.ReturnStatementInjector;
+import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
