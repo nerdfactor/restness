@@ -26,38 +26,38 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
-		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName())) {
+		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
 		RestnessUtil.log("addGetSingleRelationMethod", 1);
-		TypeName responseType = this.relationConfiguration.isWithDtos() && this.relationConfiguration.getDtoClass() != null && !this.relationConfiguration.getDtoClass().equals(TypeName.OBJECT) ? this.relationConfiguration.getDtoClass() : this.relationConfiguration.getEntityClass();
+		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.GET))
-				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName()).build())
+				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseType))
-				.addParameter(ParameterSpec.builder(this.configuration.getId(), "id")
+				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
 		method = new AuthenticationInjector()
 				.withMethod("READ")
-				.withType(this.configuration.getEntity())
-				.withRelation(this.relationConfiguration.getEntityClass())
-				.withSecurityConfig(this.configuration.getSecurity())
+				.withType(this.configuration.getEntityClassName())
+				.withRelation(this.relationConfiguration.getEntityClassName())
+				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
-		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
-		if (this.relationConfiguration.isWithDtos()) {
-			method.addStatement("$T response = this.dataMapper.map(entity." + this.relationConfiguration.getGetter() + "(), $T.class)", responseType, responseType);
+		if (this.relationConfiguration.isUsingDto()) {
+			method.addStatement("$T response = this.dataMapper.map(entity." + this.relationConfiguration.getGetterMethodName() + "(), $T.class)", responseType, responseType);
 		} else {
-			method.addStatement("$T response = entity." + this.relationConfiguration.getGetter() + "()", responseType);
+			method.addStatement("$T response = entity." + this.relationConfiguration.getGetterMethodName() + "()", responseType);
 		}
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapperClass())
+				.withWrapper(this.configuration.getResponseWrapperClassName())
 				.withResponse(responseType)
 				.withResponseVariable("response")
 				.inject(method);

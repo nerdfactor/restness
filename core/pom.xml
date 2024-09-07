@@ -6,10 +6,10 @@
 	<parent>
 		<artifactId>restness</artifactId>
 		<groupId>eu.nerdfactor</groupId>
-		<version>0.0.1</version>
+		<version>0.0.20</version>
 	</parent>
 	<artifactId>restness-core</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.20</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>

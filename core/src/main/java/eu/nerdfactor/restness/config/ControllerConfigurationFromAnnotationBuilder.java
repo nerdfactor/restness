@@ -24,66 +24,123 @@ import java.util.*;
 import static javax.lang.model.util.ElementFilter.methodsIn;
 
 /**
- * Builder that creates a new controller configuration from the
- * provided information.
+ * Builder that creates a new controller configuration from annotations.
  *
  * @author Daniel Klug
  */
-public class ControllerConfigurationBuilder {
-
-	RoundEnvironment environment;
-	Elements elementUtils;
-	TypeElement element;
-
-	private String classNamePrefix;
-	private String classNamePattern;
-
-	private TypeName dataWrapper;
-
-	private Map<String, List<TypeName>> dtoClasses;
-
-	private Map<String, String> annotatedValues;
+public class ControllerConfigurationFromAnnotationBuilder {
 
 	/**
-	 * @param element The annotated Element.
-	 * @return The ControllerConfigurationCollector.
+	 * The annotation processing environment round.
 	 */
-	public ControllerConfigurationBuilder fromElement(Element element) {
-		this.element = (TypeElement) element;
-		return this;
-	}
+	protected RoundEnvironment environment;
 
-	public ControllerConfigurationBuilder withUtils(Elements utils) {
-		this.elementUtils = utils;
-		return this;
-	}
+	/**
+	 * The element utilities during annotation processing.
+	 */
+	protected Elements elementUtils;
 
-	public ControllerConfigurationBuilder withEnvironment(RoundEnvironment env) {
+	/**
+	 * The annotated element.
+	 */
+	protected TypeElement element;
+
+	/**
+	 * The prefix used during generating the class name.
+	 */
+	protected String classNamePrefix;
+
+	/**
+	 * The pattern used to generate the class name.
+	 */
+	protected String classNamePattern;
+
+	/**
+	 * The {@link TypeName} of a class used as wrapper around the data returned
+	 * by the controller.
+	 */
+	protected TypeName responseWrapperClassName;
+
+	/**
+	 * A map of possible Dto Classes.
+	 */
+	@Deprecated(since = "0.0.20")
+	protected Map<String, List<TypeName>> dtoClasses;
+
+	/**
+	 * The values from the {@link RestController} configuration.
+	 */
+	protected Map<String, String> annotatedValues;
+
+	/**
+	 * @param env The annotation processing environment round.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public ControllerConfigurationFromAnnotationBuilder withEnvironment(@NotNull RoundEnvironment env) {
 		this.environment = env;
 		return this;
 	}
 
-	public ControllerConfigurationBuilder withPrefix(@NotNull String prefix) {
+	/**
+	 * @param utils The element utilities during annotation processing.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public ControllerConfigurationFromAnnotationBuilder withUtils(@NotNull Elements utils) {
+		this.elementUtils = utils;
+		return this;
+	}
+
+	/**
+	 * @param element The annotated Element.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public ControllerConfigurationFromAnnotationBuilder withElement(@NotNull Element element) {
+		this.element = (TypeElement) element;
+		return this;
+	}
+
+	/**
+	 * @param prefix The prefix used during generating the class name.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public ControllerConfigurationFromAnnotationBuilder withPrefix(@NotNull String prefix) {
 		this.classNamePrefix = prefix;
 		return this;
 	}
 
-	public ControllerConfigurationBuilder withPattern(@NotNull String pattern) {
+	/**
+	 * @param pattern The pattern used to generate the class name.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public ControllerConfigurationFromAnnotationBuilder withPattern(@NotNull String pattern) {
 		this.classNamePattern = pattern;
 		return this;
 	}
 
-	public ControllerConfigurationBuilder withDataWrapper(@NotNull TypeName dataWrapper) {
-		this.dataWrapper = dataWrapper;
+	/**
+	 * @param responseWrapper The response wrapper class.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public ControllerConfigurationFromAnnotationBuilder withResponseWrapper(@NotNull TypeName responseWrapper) {
+		this.responseWrapperClassName = responseWrapper;
 		return this;
 	}
 
-	public ControllerConfigurationBuilder withDtoClasses(@NotNull Map<String, List<TypeName>> dtoClasses) {
+	/**
+	 * @param dtoClasses A map of possible Dto Classes.
+	 * @return The builder in a fluent api pattern.
+	 */
+	@Deprecated(since = "0.0.20")
+	public ControllerConfigurationFromAnnotationBuilder withDtoClasses(@NotNull Map<String, List<TypeName>> dtoClasses) {
 		this.dtoClasses = dtoClasses;
 		return this;
 	}
 
-	public ControllerConfigurationBuilder withAnnotatedValues(@NotNull Map<String, String> values) {
+	/**
+	 * @param values The values from the {@link RestController} configuration.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public ControllerConfigurationFromAnnotationBuilder withAnnotatedValues(@NotNull Map<String, String> values) {
 		this.annotatedValues = values;
 		return this;
 	}
@@ -91,7 +148,7 @@ public class ControllerConfigurationBuilder {
 	/**
 	 * Collect information about the controller from the annotated class.
 	 *
-	 * @return ControllerConfiguration with the found information.
+	 * @return {@link ControllerConfiguration} with the found information.
 	 */
 	public ControllerConfiguration build() {
 		// Create parts of the annotated class name.
@@ -181,13 +238,13 @@ public class ControllerConfigurationBuilder {
 
 
 			// Collect all the relations.
-			relations = RelationConfiguration.builder().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
+			relations = RelationConfiguration.annotationBuilder().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
 		}
 
-		return new ControllerConfiguration(RestnessUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, dataAccessorClass, dataMapperClass, dataMergerClass, relations, existingRequests, this.dataWrapper);
+		return new ControllerConfiguration(RestnessUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, null, relations);
 	}
 
-	private ClassName[] findDtoClasses(ClassName entityClass) {
+	protected ClassName[] findDtoClasses(ClassName entityClass) {
 		ClassName dtoClass = this.findConfiguredDtoClassInAnnotatedValues("dtoConfig/value", "dto", null);
 		if (dtoClass.equals(ClassName.OBJECT)) {
 			dtoClass = entityClass;
@@ -203,7 +260,7 @@ public class ControllerConfigurationBuilder {
 		return List.of(dtoClass, dtoListClass, dtoRequestClass).toArray(new ClassName[]{});
 	}
 
-	private @NotNull ClassName findConfiguredDtoClassInAnnotatedValues(@NotNull String primaryChoice, @Nullable String secondaryChoice, @Nullable String tertiaryChoice) {
+	protected @NotNull ClassName findConfiguredDtoClassInAnnotatedValues(@NotNull String primaryChoice, @Nullable String secondaryChoice, @Nullable String tertiaryChoice) {
 		String className = Object.class.getCanonicalName();
 		if (!this.annotatedValues.getOrDefault(primaryChoice, className).equals(className)) {
 			className = this.annotatedValues.get(primaryChoice);

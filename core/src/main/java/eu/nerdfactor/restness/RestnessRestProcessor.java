@@ -80,17 +80,17 @@ public class RestnessRestProcessor extends AbstractProcessor {
 		// Get all DynamicRestController annotations and gather information from the specified
 		// entity in order to create a ControllerConfiguration.
 		this.findControllerValues(roundEnvironment).forEach(wrapper -> {
-			ControllerConfiguration config = ControllerConfiguration.builder()
-					.fromElement(wrapper.getElement())
+			ControllerConfiguration config = ControllerConfiguration.annotationBuilder()
+					.withElement(wrapper.getElement())
 					.withUtils(this.elementUtils)
 					.withEnvironment(roundEnvironment)
 					.withAnnotatedValues(wrapper.getValues())
 					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
 					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
-					.withDataWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
+					.withResponseWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
 					.withDtoClasses(this.findDtoClasses(roundEnvironment, generatedConfig.getOrDefault("dtoNamespace", "")))
 					.build();
-			controllers.put(config.getClassName().simpleName(), config);
+			controllers.put(config.getControllerClassName().simpleName(), config);
 		});
 
 		// Get all DynamicRestSecurity annotations and add them to the matching controllers.
@@ -98,15 +98,15 @@ public class RestnessRestProcessor extends AbstractProcessor {
 			if (element.getKind() != ElementKind.CLASS) {
 				return true;
 			}
-			SecurityConfiguration security = SecurityConfiguration.builder()
-					.fromElement(element)
+			SecurityConfiguration security = SecurityConfiguration.annotationBuilder()
+					.withElement(element)
 					.withUtils(this.elementUtils)
 					.withEnvironment(roundEnvironment)
 					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
 					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
 					.build();
-			if (controllers.containsKey(security.getClassName().simpleName())) {
-				controllers.get(security.getClassName().simpleName()).setSecurity(security);
+			if (controllers.containsKey(security.getControllerClassName().simpleName())) {
+				controllers.get(security.getControllerClassName().simpleName()).setSecurityConfiguration(security);
 			}
 		}
 

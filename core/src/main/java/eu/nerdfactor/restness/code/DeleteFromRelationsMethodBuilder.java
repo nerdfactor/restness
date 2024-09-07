@@ -29,18 +29,18 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
-		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName())) {
+		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
 		RestnessUtil.log("addDeleteFromRelationsMethod", 1);
-		TypeName responseType = this.relationConfiguration.isWithDtos() && this.relationConfiguration.getDtoClass() != null && !this.relationConfiguration.getDtoClass().equals(TypeName.OBJECT) ? this.relationConfiguration.getDtoClass() : this.relationConfiguration.getEntityClass();
+		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.REMOVE))
-				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName()).build())
+				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList))
-				.addParameter(ParameterSpec.builder(this.configuration.getId(), "id")
+				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
@@ -52,48 +52,48 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 				);
 		method = new AuthenticationInjector()
 				.withMethod("UPDATE")
-				.withType(this.configuration.getEntity())
-				.withRelation(this.relationConfiguration.getEntityClass())
-				.withSecurityConfig(this.configuration.getSecurity())
+				.withType(this.configuration.getEntityClassName())
+				.withRelation(this.relationConfiguration.getEntityClassName())
+				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
-		if (this.configuration.getDataWrapperClass() != null && !this.configuration.getDataWrapperClass().equals(TypeName.OBJECT)) {
-			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getDataWrapperClass().toString()), responseType)));
+		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
+			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
 		}
-		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.REMOVE) + "ById(id, dto." + this.relationConfiguration.getIdAccessor() + "())");
+		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.REMOVE) + "ById(id, dto." + this.relationConfiguration.getIdAccessorMethodName() + "())");
 		builder.addMethod(method.build());
 
-		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName() + "/{relationId}")) {
+		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}")) {
 			return builder;
 		}
 		MethodSpec.Builder methodById = MethodSpec
 				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.REMOVE) + "ById")
-				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName() + "/{relationId}").build())
+				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}").build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList))
-				.addParameter(ParameterSpec.builder(this.configuration.getId(), "id")
+				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
 				)
-				.addParameter(ParameterSpec.builder(this.relationConfiguration.getIdClass(), "relationId")
+				.addParameter(ParameterSpec.builder(this.relationConfiguration.getIdClassName(), "relationId")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
 		methodById = new AuthenticationInjector()
 				.withMethod("UPDATE")
-				.withType(this.configuration.getEntity())
-				.withRelation(this.relationConfiguration.getEntityClass())
-				.withSecurityConfig(this.configuration.getSecurity())
+				.withType(this.configuration.getEntityClassName())
+				.withRelation(this.relationConfiguration.getEntityClassName())
+				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(methodById);
-		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntity());
+		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
 		methodById.beginControlFlow("if(entity == null)");
 		methodById.addStatement("throw new $T()", EntityNotFoundException.class);
 		methodById.endControlFlow();
-		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationConfiguration.getEntityClass(), this.relationConfiguration.getEntityClass());
-		methodById.addStatement("entity." + this.relationConfiguration.getRemover() + "(rel)");
+		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationConfiguration.getEntityClassName(), this.relationConfiguration.getEntityClassName());
+		methodById.addStatement("entity." + this.relationConfiguration.getRemoverMethodName() + "(rel)");
 		methodById = new NoContentStatementInjector()
-				.withWrapper(this.configuration.getDataWrapperClass())
+				.withWrapper(this.configuration.getResponseWrapperClassName())
 				.withResponse(responseType)
 				.inject(methodById);
 		builder.addMethod(methodById.build());

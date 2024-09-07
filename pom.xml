@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>eu.nerdfactor</groupId>
 	<artifactId>restness</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.20</version>
 	<name>RESTness</name>
 	<description>A simple library to generate REST controllers for a spring boot application.</description>
 	<packaging>pom</packaging>

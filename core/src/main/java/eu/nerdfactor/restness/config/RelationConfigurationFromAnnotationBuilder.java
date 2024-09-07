@@ -20,47 +20,77 @@ import static javax.lang.model.util.ElementFilter.fieldsIn;
 import static javax.lang.model.util.ElementFilter.methodsIn;
 
 /**
- * Builder that creates a relation configuration from the
- * provided information.
+ * Builder that creates a relation configuration from annotations.
  *
  * @author Daniel Klug
  */
-public class RelationConfigurationBuilder {
+public class RelationConfigurationFromAnnotationBuilder {
 
-	private Elements elementUtils;
+	/**
+	 * The element utilities during annotation processing.
+	 */
+	protected Elements elementUtils;
 
 	/**
 	 * The element for which the relations should be collected.
 	 */
-	private Element element;
+	protected Element element;
 
 	/**
-	 * All classes that get compiled.
+	 * A map of possible Dto Classes.
 	 */
-	private Map<String, List<TypeName>> classes;
+	@Deprecated(since = "0.0.20")
+	protected Map<String, List<TypeName>> dtoClasses;
 
-	private boolean withDtos = true;
+	/**
+	 * If the relations use Dtos.
+	 */
+	@Deprecated(since = "0.0.20")
+	protected boolean withDtos = true;
 
-	public RelationConfigurationBuilder withElement(Element element) {
+	/**
+	 * @param element The annotated Element.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public RelationConfigurationFromAnnotationBuilder withElement(Element element) {
 		this.element = element;
 		return this;
 	}
 
-	public RelationConfigurationBuilder withUtils(Elements elementUtils) {
-		this.elementUtils = elementUtils;
+	/**
+	 * @param utils The element utilities during annotation processing.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public RelationConfigurationFromAnnotationBuilder withUtils(Elements utils) {
+		this.elementUtils = utils;
 		return this;
 	}
 
-	public RelationConfigurationBuilder withClasses(Map<String, List<TypeName>> classes) {
-		this.classes = classes;
+	/**
+	 * @param dtoClasses A map of possible Dto Classes.
+	 * @return The builder in a fluent api pattern.
+	 */
+	@Deprecated(since = "0.0.20")
+	public RelationConfigurationFromAnnotationBuilder withClasses(Map<String, List<TypeName>> dtoClasses) {
+		this.dtoClasses = dtoClasses;
 		return this;
 	}
 
-	public RelationConfigurationBuilder withDtos(boolean dtos) {
+	/**
+	 * @param dtos True if the builder should use Dtos.
+	 * @return The builder in a fluent api pattern.
+	 */
+	@Deprecated(since = "0.0.20")
+	public RelationConfigurationFromAnnotationBuilder withDtos(boolean dtos) {
 		this.withDtos = dtos;
 		return this;
 	}
 
+	/**
+	 * Collect information about the relations from the annotated class.
+	 *
+	 * @return A map with all found {@link RelationConfiguration}s.
+	 */
 	public Map<String, RelationConfiguration> build() {
 		Map<String, RelationConfiguration> relations = new HashMap<>();
 		// Check every field for annotations describing a relation or the id.
@@ -133,24 +163,24 @@ public class RelationConfigurationBuilder {
 				if (annotationName.equals(Relation.class.getName())) {
 					final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = this.elementUtils.getElementValuesWithDefaults(annotation);
 					RelationConfiguration relation = new RelationConfiguration();
-					relation.setName(field.getSimpleName().toString());
-					relation.setEntityClass(fieldClass);
-					relation.setDtoClass(this.withDtos ? this.findDtoType(fieldClass, this.classes) : null);
-					relation.setIdClass(idClass);
-					relation.setIdAccessor(idAccessor);
-					relation.setType(this.findRelationType(relationType, elementValues));
-					relation.setAccessors(this.findRelationAccessors(field.getSimpleName().toString(), fieldClass, entityElement, elementValues));
+					relation.setRelationName(field.getSimpleName().toString());
+					relation.setEntityClassName(fieldClass);
+					relation.setResponseObjectClassName(this.withDtos ? this.findDtoType(fieldClass, this.dtoClasses) : null);
+					relation.setIdClassName(idClass);
+					relation.setIdAccessorMethodName(idAccessor);
+					relation.setRelationType(this.findRelationType(relationType, elementValues));
+					relation.setAccessorMethodNames(this.findRelationAccessors(field.getSimpleName().toString(), fieldClass, entityElement, elementValues));
 					relations.put(field.getSimpleName().toString(), relation);
 				} else if (!relations.containsKey(field.getSimpleName().toString()) && (annotationName.equals(OneToMany.class.getName()) || annotationName.equals(ManyToMany.class.getName()) || annotationName.equals(ManyToOne.class.getName()))) {
 					final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = this.elementUtils.getElementValuesWithDefaults(annotation);
 					RelationConfiguration relation = new RelationConfiguration();
-					relation.setName(field.getSimpleName().toString());
-					relation.setEntityClass(fieldClass);
-					relation.setDtoClass(this.withDtos ? this.findDtoType(fieldClass, this.classes) : null);
-					relation.setIdClass(idClass);
-					relation.setIdAccessor(idAccessor);
-					relation.setType(relationType);
-					relation.setAccessors(this.findRelationAccessors(field.getSimpleName().toString(), fieldClass, entityElement, elementValues));
+					relation.setRelationName(field.getSimpleName().toString());
+					relation.setEntityClassName(fieldClass);
+					relation.setResponseObjectClassName(this.withDtos ? this.findDtoType(fieldClass, this.dtoClasses) : null);
+					relation.setIdClassName(idClass);
+					relation.setIdAccessorMethodName(idAccessor);
+					relation.setRelationType(relationType);
+					relation.setAccessorMethodNames(this.findRelationAccessors(field.getSimpleName().toString(), fieldClass, entityElement, elementValues));
 					relations.put(field.getSimpleName().toString(), relation);
 				}
 			}
@@ -163,9 +193,10 @@ public class RelationConfigurationBuilder {
 	 *
 	 * @param relationType     The possible relation type.
 	 * @param annotationValues The values of the annotation.
-	 * @return The original relation type or the new relation type of the annotation.
+	 * @return The original relation type or the new relation type of the
+	 * annotation.
 	 */
-	private RelationType findRelationType(RelationType relationType, Map<? extends ExecutableElement, ? extends AnnotationValue> annotationValues) {
+	protected RelationType findRelationType(RelationType relationType, Map<? extends ExecutableElement, ? extends AnnotationValue> annotationValues) {
 		for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationValues.entrySet()) {
 			try {
 				String name = entry.getKey().getSimpleName().toString();
@@ -182,13 +213,14 @@ public class RelationConfigurationBuilder {
 	}
 
 	/**
-	 * Auto discover Dto Type for the type by checking all current classes for the same name with a Dto Suffix.
+	 * Auto discover Dto Type for the type by checking all current classes for
+	 * the same name with a Dto Suffix.
 	 *
 	 * @param typeName The class for which the Dto should be found.
 	 * @param classes  A map of all possible Dto classes.
 	 * @return The found Dto type or the original class type, if none was found.
 	 */
-	private TypeName findDtoType(ClassName typeName, Map<String, List<TypeName>> classes) {
+	protected TypeName findDtoType(ClassName typeName, Map<String, List<TypeName>> classes) {
 		String entityClassName = typeName.toString();
 		entityClassName = entityClassName.substring(entityClassName.lastIndexOf('.') + 1).trim();
 		entityClassName = RestnessUtil.normalizeEntityName(entityClassName);
@@ -200,7 +232,7 @@ public class RelationConfigurationBuilder {
 	}
 
 
-	private String[] findRelationAccessors(String relationName, ClassName relationEntity, Element relationElement, Map<? extends ExecutableElement, ? extends AnnotationValue> annotationValues) {
+	protected String[] findRelationAccessors(String relationName, ClassName relationEntity, Element relationElement, Map<? extends ExecutableElement, ? extends AnnotationValue> annotationValues) {
 		// Create accessors with default names based on the relation name and entity.
 		String methodSuffix = relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
 		String methodEntitySuffix = RestnessUtil.removeEnd(methodSuffix, "s");

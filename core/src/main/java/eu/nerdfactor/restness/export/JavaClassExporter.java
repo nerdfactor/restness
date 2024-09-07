@@ -23,15 +23,15 @@ public class JavaClassExporter implements RestnessExporter {
 	public void export(Map<String, String> config, Map<String, ControllerConfiguration> controllers) {
 		controllers.values().forEach(controllerConfiguration -> {
 			try {
-				RestnessUtil.log("Generating " + controllerConfiguration.getClassName().canonicalName() + " for " + controllerConfiguration.getEntity().toString() + ".");
+				RestnessUtil.log("Generating " + controllerConfiguration.getControllerClassName().canonicalName() + " for " + controllerConfiguration.getEntityClassName().toString() + ".");
 				JavaFile.builder(
-								controllerConfiguration.getClassName().packageName(),
+								controllerConfiguration.getControllerClassName().packageName(),
 								new RestnessControllerBuilder().withConfiguration(controllerConfiguration).build()
 						).indent(config.getOrDefault("indentation", "\t"))
 						.build()
 						.writeTo(filer);
 			} catch (IOException e) {
-				RestnessUtil.log("Could not generate " + controllerConfiguration.getClassName().canonicalName() + ".");
+				RestnessUtil.log("Could not generate " + controllerConfiguration.getControllerClassName().canonicalName() + ".");
 				e.printStackTrace();
 			}
 		});

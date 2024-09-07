@@ -41,14 +41,14 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	@Override
 	public CreateEntityMethodBuilder withConfiguration(ControllerConfiguration configuration) {
 		return new CreateEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.POST, configuration.getRequest()),
-				configuration.getRequest(),
+				configuration.hasExistingRequest(RequestMethod.POST, configuration.getRequestBasePath()),
+				configuration.getRequestBasePath(),
 				configuration.getRequestType(),
 				configuration.getSingleResponseType(),
-				configuration.getEntity(),
+				configuration.getEntityClassName(),
 				configuration.isUsingDto(),
-				configuration.getSecurity(),
-				configuration.getDataWrapperClass()
+				configuration.getSecurityConfiguration(),
+				configuration.getResponseWrapperClassName()
 		);
 	}
 

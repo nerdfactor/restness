@@ -20,7 +20,7 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 	}
 
 	public TypeSpec build() {
-		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getClassName()).addAnnotation(RestController.class).addModifiers(Modifier.PUBLIC);
+		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getControllerClassName()).addAnnotation(RestController.class).addModifiers(Modifier.PUBLIC);
 		this.and(new ClassPropertiesBuilder().withConfiguration(this.configuration));
 		this.and(new CrudMethodBuilder().withConfiguration(this.configuration));
 		this.and(new ListMethodBuilder().withConfiguration(this.configuration));

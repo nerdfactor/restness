@@ -44,15 +44,15 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	@Override
 	public SetEntityMethodBuilder withConfiguration(ControllerConfiguration configuration) {
 		return new SetEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.PUT, configuration.getRequest() + "/{id}"),
-				configuration.getRequest() + "/{id}",
+				configuration.hasExistingRequest(RequestMethod.PUT, configuration.getRequestBasePath() + "/{id}"),
+				configuration.getRequestBasePath() + "/{id}",
 				configuration.getRequestType(),
 				configuration.getSingleResponseType(),
-				configuration.getEntity(),
-				configuration.getId(),
+				configuration.getEntityClassName(),
+				configuration.getIdClassName(),
 				configuration.isUsingDto(),
-				configuration.getSecurity(),
-				configuration.getDataWrapperClass()
+				configuration.getSecurityConfiguration(),
+				configuration.getResponseWrapperClassName()
 		);
 	}
 

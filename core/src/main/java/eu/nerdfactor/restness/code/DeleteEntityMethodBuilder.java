@@ -39,12 +39,12 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	@Override
 	public DeleteEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new DeleteEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.DELETE, configuration.getRequest() + "/{id}"),
-				configuration.getRequest() + "/{id}",
-				configuration.getEntity(),
-				configuration.getId(),
-				configuration.getSecurity(),
-				configuration.getDataWrapperClass()
+				configuration.hasExistingRequest(RequestMethod.DELETE, configuration.getRequestBasePath() + "/{id}"),
+				configuration.getRequestBasePath() + "/{id}",
+				configuration.getEntityClassName(),
+				configuration.getIdClassName(),
+				configuration.getSecurityConfiguration(),
+				configuration.getResponseWrapperClassName()
 		);
 	}
 

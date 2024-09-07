@@ -16,7 +16,7 @@ import java.util.List;
 public class ListMethodBuilder extends MethodBuilder {
 
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
-		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequest())) {
+		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath())) {
 			return builder;
 		}
 		RestnessUtil.log("addGetAllEntitiesMethod", 1);
@@ -24,16 +24,16 @@ public class ListMethodBuilder extends MethodBuilder {
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("all")
-				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.configuration.getRequest()).build())
+				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath()).build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList));
 		method = new AuthenticationInjector()
 				.withMethod("READ")
-				.withType(this.configuration.getEntity())
-				.withSecurityConfig(this.configuration.getSecurity())
+				.withType(this.configuration.getEntityClassName())
+				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
-		method.beginControlFlow("for($T entity : this.dataAccessor.listData())", this.configuration.getEntity());
+		method.beginControlFlow("for($T entity : this.dataAccessor.listData())", this.configuration.getEntityClassName());
 		if (this.configuration.isUsingDto()) {
 			method.addStatement("$T response = this.dataMapper.map(entity, $T.class)", responseType, responseType);
 		} else {
@@ -42,7 +42,7 @@ public class ListMethodBuilder extends MethodBuilder {
 		method.addStatement("responseList.add(response)");
 		method.endControlFlow();
 		method = new ReturnStatementInjector()
-				.withWrapper(this.configuration.getDataWrapperClass())
+				.withWrapper(this.configuration.getResponseWrapperClassName())
 				.withResponse(responseType)
 				.withResponseVariable("responseList")
 				.inject(method);

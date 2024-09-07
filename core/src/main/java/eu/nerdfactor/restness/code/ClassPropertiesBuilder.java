@@ -25,9 +25,9 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
 		ConstructorBuilder constructor = new ConstructorBuilder();
 		List.of(
-				Pair.of("dataAccessor", (TypeName) configuration.getDataAccessorClass()),
-				Pair.of("dataMapper", configuration.getDataMapperClass()),
-				Pair.of("dataMerger", configuration.getDataMergerClass()),
+				Pair.of("dataAccessor", (TypeName) configuration.getDataAccessorClassName()),
+				Pair.of("dataMapper", configuration.getDataMapperClassName()),
+				Pair.of("dataMerger", configuration.getDataMergerClassName()),
 				Pair.of("specificationBuilder", (TypeName) ClassName.get(DataSpecificationBuilder.class)),
 				Pair.of("entityManager", (TypeName) ClassName.get(EntityManager.class))
 		).forEach(pair -> {

@@ -42,14 +42,14 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	@Override
 	public ReadEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new ReadEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.GET, configuration.getRequest() + "/{id}"),
-				configuration.getRequest() + "/{id}",
+				configuration.hasExistingRequest(RequestMethod.GET, configuration.getRequestBasePath() + "/{id}"),
+				configuration.getRequestBasePath() + "/{id}",
 				configuration.getSingleResponseType(),
-				configuration.getEntity(),
-				configuration.getId(),
+				configuration.getEntityClassName(),
+				configuration.getIdClassName(),
 				configuration.isUsingDto(),
-				configuration.getSecurity(),
-				configuration.getDataWrapperClass()
+				configuration.getSecurityConfiguration(),
+				configuration.getResponseWrapperClassName()
 		);
 	}
 

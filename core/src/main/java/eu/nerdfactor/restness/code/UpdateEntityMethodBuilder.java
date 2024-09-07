@@ -44,15 +44,15 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	@Override
 	public UpdateEntityMethodBuilder withConfiguration(ControllerConfiguration configuration) {
 		return new UpdateEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.PATCH, configuration.getRequest() + "/{id}"),
-				configuration.getRequest() + "/{id}",
+				configuration.hasExistingRequest(RequestMethod.PATCH, configuration.getRequestBasePath() + "/{id}"),
+				configuration.getRequestBasePath() + "/{id}",
 				configuration.getRequestType(),
 				configuration.getSingleResponseType(),
-				configuration.getEntity(),
-				configuration.getId(),
+				configuration.getEntityClassName(),
+				configuration.getIdClassName(),
 				configuration.isUsingDto(),
-				configuration.getSecurity(),
-				configuration.getDataWrapperClass()
+				configuration.getSecurityConfiguration(),
+				configuration.getResponseWrapperClassName()
 		);
 	}
 

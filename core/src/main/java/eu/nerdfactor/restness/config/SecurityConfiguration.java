@@ -3,64 +3,85 @@ package eu.nerdfactor.restness.config;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.util.RestnessUtil;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Security configuration for controller generation.
+ * Security Configuration for RESTness controller generation.
  *
  * @author Daniel Klug
  */
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(setterPrefix = "with")
 public class SecurityConfiguration {
 
-	ClassName className;
+	/**
+	 * The {@link ClassName} of the controller this configuration is for. This
+	 * includes the full namespace and the name of the class.
+	 *
+	 * <li>{@code com.example.controller.ProductRestController}</li>
+	 * <li>{@code com.example.controller.UserController}</li>
+	 * <li>{@code com.example.controller.GeneratedOrderController}</li>
+	 */
+	protected ClassName controllerClassName;
 
 	/**
-	 * Pattern for roles that will be checked on rest methods.
-	 * <li>METHOD: Type of method - CREATE, READ, UPDATE, DELETE</li>
+	 * The pattern used for the role to restrict access of controller action.
+	 * The pattern can include placeholders for:
+	 * <li>METHOD: Type of the method - CREATE, READ, UPDATE, DELETE</li>
 	 * <li>ENTITY: Name of the entity.</li>
-	 * <li>Name: Name of relation or entity.</li>
+	 * <li>NAME: Name of relation or entity.</li>
 	 */
-	String pattern = "ROLE_{METHOD}_{ENTITY}";
+	protected String securityRolePattern = "ROLE_{METHOD}_{ENTITY}";
 
 	/**
-	 * The security checks can include the base check on relations. The user
-	 * has to have READ permissions for the base element to access any relations
-	 * of it and UPDATE permissions to change a relation.
+	 * Decide if the actions to access relations only require the permissions
+	 * for the related entity. Otherwise, they also require the READ or UPDATE
+	 * permission for the base entity.
 	 */
-	boolean inclusive = true;
+	protected boolean inclusiveRelationPermissions = true;
 
-	public String getRole(String method, String entity, String name) {
-		return this.pattern
+	/**
+	 * Get the Spring security ROLE guarding the set of method, entity and
+	 * name.
+	 *
+	 * @param method The method that should be guarded against.
+	 * @param entity The guarded entity.
+	 * @param name   The name of the guarded entity.
+	 * @return A Spring security ROLE.
+	 */
+	public String getSecurityRole(String method, String entity, String name) {
+		return this.securityRolePattern
 				.replace("{METHOD}", method)
 				.replace("{ENTITY}", RestnessUtil.normalizeEntityName(entity))
 				.replace("{NAME}", name)
 				.toUpperCase();
 	}
 
-	public String getSecurityString(TypeName entity, TypeName relation, String method, String methodBase) {
-		String relationEntityName = RestnessUtil.toClassName(relation).simpleName();
-		String relationRole = this.getRole(method, relationEntityName, relationEntityName);
+	public String getSecurityExpression(TypeName entityClassName, TypeName relatedEntityClassName, String method, String methodBase) {
+		String relationEntityName = RestnessUtil.toClassName(relatedEntityClassName).simpleName();
+		String relationRole = this.getSecurityRole(method, relationEntityName, relationEntityName);
 		String security = "hasRole('" + relationRole + "')";
-		if (this.inclusive) {
-			String baseEntityName = RestnessUtil.toClassName(entity).simpleName();
-			String baseRole = this.getRole(methodBase, baseEntityName, baseEntityName);
+		if (this.inclusiveRelationPermissions) {
+			String baseEntityName = RestnessUtil.toClassName(entityClassName).simpleName();
+			String baseRole = this.getSecurityRole(methodBase, baseEntityName, baseEntityName);
 			security += " and hasRole('" + baseRole + "')";
 		}
 		return security;
 	}
 
-	public SecurityConfiguration(){}
-
-	public SecurityConfiguration(ClassName className, String pattern, boolean inclusive) {
-		this.className = className;
-		this.pattern = pattern;
-		this.inclusive = inclusive;
-	}
-
-	public static @NotNull SecurityConfigurationBuilder builder() {
-		return new SecurityConfigurationBuilder();
+	/**
+	 * Creates a builder for security configuration from annotations.
+	 *
+	 * @return A new {@link SecurityConfigurationFromAnnotationBuilder}.
+	 */
+	public static @NotNull SecurityConfigurationFromAnnotationBuilder annotationBuilder() {
+		return new SecurityConfigurationFromAnnotationBuilder();
 	}
 
 }

@@ -46,10 +46,10 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 		// todo: separate relationship into separate injector or find a way to combine the underlying role generation.
 		String security = "";
 		if (this.relation != null) {
-			security = this.securityConfig.getSecurityString(this.type, this.relation, this.method, this.method);
+			security = this.securityConfig.getSecurityExpression(this.type, this.relation, this.method, this.method);
 		} else {
 			ClassName entityName = RestnessUtil.toClassName(this.type);
-			String role = this.securityConfig.getRole(this.method, entityName.simpleName(), entityName.simpleName());
+			String role = this.securityConfig.getSecurityRole(this.method, entityName.simpleName(), entityName.simpleName());
 			security = "hasRole('" + role + "')";
 		}
 		builder.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());

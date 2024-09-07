@@ -27,35 +27,35 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
-		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName())) {
+		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
 		RestnessUtil.log("addDeleteSingleRelationMethod", 1);
-		TypeName responseType = this.relationConfiguration.isWithDtos() && this.relationConfiguration.getDtoClass() != null && !this.relationConfiguration.getDtoClass().equals(TypeName.OBJECT) ? this.relationConfiguration.getDtoClass() : this.relationConfiguration.getEntityClass();
+		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.REMOVE))
-				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequest() + "/{id}/" + this.relationConfiguration.getName()).build())
+				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).build())
 				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ClassName.get(ResponseEntity.class))
-				.addParameter(ParameterSpec.builder(this.configuration.getId(), "id")
+				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
 		method = new AuthenticationInjector()
 				.withMethod("UPDATE")
-				.withType(this.configuration.getEntity())
-				.withRelation(this.relationConfiguration.getEntityClass())
-				.withSecurityConfig(this.configuration.getSecurity())
+				.withType(this.configuration.getEntityClassName())
+				.withRelation(this.relationConfiguration.getEntityClassName())
+				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
-		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntity());
+		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
 		method.beginControlFlow("if(entity == null)");
 		method.addStatement("throw new $T()", EntityNotFoundException.class);
 		method.endControlFlow();
-		method.addStatement("entity." + this.relationConfiguration.getSetter() + "(null)");
+		method.addStatement("entity." + this.relationConfiguration.getSetterMethodName() + "(null)");
 		method = new NoContentStatementInjector()
-				.withWrapper(this.configuration.getDataWrapperClass())
+				.withWrapper(this.configuration.getResponseWrapperClassName())
 				.withResponse(responseType)
 				.inject(method);
 		builder.addMethod(method.build());

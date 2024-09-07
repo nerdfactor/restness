@@ -21,16 +21,16 @@ public class RelationshipMethodBuilder extends MultiStepBuilder<TypeSpec.Builder
 
 	@Override
 	public TypeSpec.Builder build(TypeSpec.Builder builder) {
-		if (!configuration.isUsingRelations() || configuration.getRelations() == null || configuration.getRelations().isEmpty()) {
+		if (!configuration.isUsingRelations() || configuration.getRelationConfigurations() == null || configuration.getRelationConfigurations().isEmpty()) {
 			return builder;
 		}
-		for (RelationConfiguration relation : configuration.getRelations().values()) {
-			if (relation.getType() == RelationType.SINGLE) {
+		for (RelationConfiguration relation : configuration.getRelationConfigurations().values()) {
+			if (relation.getRelationType() == RelationType.SINGLE) {
 				this.and(new GetSingleRelationMethodBuilder().withRelation(relation).withConfiguration(configuration));
 				this.and(new SetSingleRelationMethodBuilder().withRelation(relation).withConfiguration(configuration));
 				this.and(new DeleteSingleRelationMethodBuilder().withRelation(relation).withConfiguration(configuration));
 			}
-			if (relation.getType() == RelationType.MULTIPLE) {
+			if (relation.getRelationType() == RelationType.MULTIPLE) {
 				this.and(new GetMultipleRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
 				this.and(new AddToRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
 				this.and(new DeleteFromRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
