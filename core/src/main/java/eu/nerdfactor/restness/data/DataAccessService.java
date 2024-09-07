@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 /**
@@ -19,8 +20,18 @@ import java.util.stream.StreamSupport;
  */
 public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 
+	/**
+	 * Get the repository used to access the entities.
+	 *
+	 * @return A {@link CrudRepository} for data access.
+	 */
 	CrudRepository<E, ID> getRepository();
 
+	/**
+	 * List all entities.
+	 *
+	 * @return An Iterable of entities.
+	 */
 	default Iterable<E> listData() {
 		return this.getRepository().findAll();
 	}
@@ -51,22 +62,50 @@ public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 				.toList());
 	}
 
+	/**
+	 * Create a new entity with the provided data.
+	 *
+	 * @param entity The new entity.
+	 * @return The same entity after it was created.
+	 */
 	default E createData(@NotNull E entity) {
 		return this.updateData(entity);
 	}
 
-	default E readData(ID id) {
-		return this.getRepository().findById(id).orElse(null);
+	/**
+	 * Read the entity specified by the id.
+	 *
+	 * @param id The id of the entity.
+	 * @return An {@link Optional} of the read entity.
+	 */
+	default Optional<E> readData(ID id) {
+		return this.getRepository().findById(id);
 	}
 
+	/**
+	 * Update the provided entity.
+	 *
+	 * @param entity The entity with updated data.
+	 * @return The same entity after it was updated.
+	 */
 	default E updateData(@NotNull E entity) {
 		return this.getRepository().save(entity);
 	}
 
+	/**
+	 * Delete the provided entity.
+	 *
+	 * @param entity The entity to delete.
+	 */
 	default void deleteData(@NotNull E entity) {
 		this.getRepository().delete(entity);
 	}
 
+	/**
+	 * Delete the entity with the specified id.
+	 *
+	 * @param id The id of the entity to delete.
+	 */
 	default void deleteDataById(@NotNull ID id) {
 		this.getRepository().deleteById(id);
 	}

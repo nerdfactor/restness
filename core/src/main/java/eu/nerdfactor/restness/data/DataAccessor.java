@@ -5,10 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Optional;
+
 /**
  * Generic way to access entity data.
  *
- * @param <E> Type of the entity.
+ * @param <E>  Type of the entity.
  * @param <ID> Type of the entity's id.
  * @author Daniel Klug
  */
@@ -22,11 +24,11 @@ public interface DataAccessor<E, ID> {
 	Iterable<E> listData();
 
 	/**
-	 * Search all entities. Filter the result with a specification and
-	 * contain them inside a page.
+	 * Search all entities. Filter the result with a specification and contain
+	 * them inside a page.
 	 *
-	 * @param spec
-	 * @param page
+	 * @param spec A {@link Specification} to restrict the searched entities.
+	 * @param page A {@link Pageable} to restrict the returned data.
 	 * @return A Page of entities.
 	 */
 	Page<E> searchData(Specification<E> spec, Pageable page);
@@ -34,38 +36,38 @@ public interface DataAccessor<E, ID> {
 	/**
 	 * Create a new entity with the provided data.
 	 *
-	 * @param entity
-	 * @return
+	 * @param entity The new entity.
+	 * @return The same entity after it was created.
 	 */
 	E createData(@NotNull E entity);
 
 	/**
 	 * Read the entity specified by the id.
 	 *
-	 * @param id
-	 * @return
+	 * @param id The id of the entity.
+	 * @return An {@link Optional} of the read entity.
 	 */
-	E readData(ID id);
+	Optional<E> readData(ID id);
 
 	/**
 	 * Update the provided entity.
 	 *
-	 * @param entity
-	 * @return
+	 * @param entity The entity with updated data.
+	 * @return The same entity after it was updated.
 	 */
 	E updateData(@NotNull E entity);
 
 	/**
 	 * Delete the provided entity.
 	 *
-	 * @param entity
+	 * @param entity The entity to delete.
 	 */
 	void deleteData(@NotNull E entity);
 
 	/**
 	 * Delete the entity with the specified id.
 	 *
-	 * @param id
+	 * @param id The id of the entity to delete.
 	 */
 	void deleteDataById(@NotNull ID id);
 }

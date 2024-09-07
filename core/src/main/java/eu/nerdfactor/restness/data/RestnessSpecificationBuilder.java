@@ -14,6 +14,14 @@ import java.util.Arrays;
  */
 public class RestnessSpecificationBuilder implements DataSpecificationBuilder {
 
+	/**
+	 * Build a {@link Specification} from a filter string.
+	 *
+	 * @param filter The filter string.
+	 * @param cls    The class to filter.
+	 * @param <T>    The type of the filtered class.
+	 * @return A new {@link Specification} to filter a class.
+	 */
 	@Override
 	public <T> Specification<T> build(String filter, Class<T> cls) {
 		Specification<T> spec = Specification.where(null);

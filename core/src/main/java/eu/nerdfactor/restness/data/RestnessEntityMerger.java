@@ -4,27 +4,35 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * A simplistic entity merger that will try to merge PersistentEntities
- * or use reflection of getter and setters.
+ * A simplistic entity merger that will try to merge {@link PersistentEntity} or
+ * use reflection of getter and setters.
  *
  * @author Daniel Klug
  */
 public class RestnessEntityMerger implements DataMerger {
 
+	/**
+	 * Update an object by merging it with an updated version.
+	 *
+	 * @param original The original object.
+	 * @param updated The object with updated values.
+	 * @param <T> Type of the updated object.
+	 * @return The original object with the updated values.
+	 */
 	@Override
-	public <T> T merge(T obj, T updated) {
-		if (obj instanceof PersistentEntity) {
-			return (T) ((PersistentEntity<?>) obj).mergeWithEntity(updated);
+	public <T> T merge(T original, T updated) {
+		if (original instanceof PersistentEntity) {
+			return (T) ((PersistentEntity<?>) original).mergeWithEntity(updated);
 		}
-		return this.reflectMerge(obj, updated);
+		return this.reflectMerge(original, updated);
 	}
 
 	/**
 	 * Merges two objects of the same type by accessing getters and setters.
 	 *
 	 * @param original The original object.
-	 * @param updated The object with updated values.
-	 * @param <T> Type of the merged objects.
+	 * @param updated  The object with updated values.
+	 * @param <T>      Type of the merged objects.
 	 * @return The original object with the merged values.
 	 */
 	protected <T> T reflectMerge(T original, T updated) {
@@ -49,7 +57,8 @@ public class RestnessEntityMerger implements DataMerger {
 					try {
 						Method method = original.getClass().getMethod(setter, type);
 						method.invoke(original, value);
-					} catch (NoSuchMethodException | SecurityException | IllegalAccessError | IllegalAccessException |
+					} catch (NoSuchMethodException | SecurityException |
+					         IllegalAccessError | IllegalAccessException |
 					         InvocationTargetException e) {
 						// setter may not exist or can't be accessed.
 					}
