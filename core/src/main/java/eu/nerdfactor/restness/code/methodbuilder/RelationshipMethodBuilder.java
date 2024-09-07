@@ -36,7 +36,7 @@ public class RelationshipMethodBuilder extends MultiStepBuilder<TypeSpec.Builder
 				this.and(new DeleteFromRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
 			}
 		}
-		this.steps.forEach(buildStep -> buildStep.buildWith(builder));
+		this.buildAll(builder);
 		return builder;
 	}
 }

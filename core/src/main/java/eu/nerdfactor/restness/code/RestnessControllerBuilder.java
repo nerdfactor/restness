@@ -49,7 +49,7 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 		this.and(new ListMethodBuilder().withConfiguration(this.configuration));
 		this.and(new SearchMethodBuilder().withConfiguration(this.configuration));
 		this.and(new RelationshipMethodBuilder().withConfiguration(this.configuration));
-		this.steps.forEach(buildStep -> buildStep.buildWith(builder));
+		this.buildAll(builder);
 		return builder.build();
 	}
 }
