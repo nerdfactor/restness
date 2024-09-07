@@ -15,18 +15,29 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.lang.model.element.Modifier;
 
 /**
- * A builder that can be used to create a RESTness controller. It will use a set of additional builders that in turn each build a small part of
- * the controller.
+ * A builder that can be used to create a RESTness controller. It will use a set
+ * of additional builders that in turn each build a small part of the
+ * controller.
+ * <p>
+ * A RESTness controller consist of:
+ * <li>A Spring RestController class.</li>
+ * <li>Fields for entity data access.</li>
+ * <li>Methods for CRUD access to the entity.</li>
+ * <li>Methods to list the entity.</li>
+ * <li>Methods to search for the entity.</li>
+ * <li>Methods to manage related entities.</li>
+ *
+ * @author Daniel Klug
  */
 public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration> {
 
 	/**
-	 * The configuration used to create the controller.
+	 * The {@link ControllerConfiguration} used to create the controller.
 	 */
 	protected ControllerConfiguration configuration;
 
 	/**
-	 * Set the {@link ControllerConfiguration} that will be used to build.
+	 * Set the {@link ControllerConfiguration} that will be used.
 	 *
 	 * @param configuration The {@link ControllerConfiguration}.
 	 * @return The builder in a fluent api pattern.
@@ -43,7 +54,9 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 	 * @return The build {@link TypeSpec}.
 	 */
 	public TypeSpec build() {
-		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getControllerClassName()).addAnnotation(RestController.class).addModifiers(Modifier.PUBLIC);
+		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getControllerClassName())
+				.addAnnotation(RestController.class)
+				.addModifiers(Modifier.PUBLIC);
 		this.and(new ClassPropertiesBuilder().withConfiguration(this.configuration));
 		this.and(new CrudMethodBuilder().withConfiguration(this.configuration));
 		this.and(new ListMethodBuilder().withConfiguration(this.configuration));
