@@ -1,57 +1,112 @@
 package eu.nerdfactor.restness.code.builder;
 
 import com.squareup.javapoet.*;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 
 import javax.lang.model.element.Modifier;
 
+/**
+ * A builder that creates a class property with getter and setter.
+ *
+ * @author Daniel Klug
+ */
 public class PropertyBuilder implements Buildable<TypeSpec.Builder> {
 
+	/**
+	 * The name of the property.
+	 */
+	@Getter
 	protected String name;
+
+	/**
+	 * The {@link TypeName} of the property.
+	 */
+	@Getter
 	protected TypeName type;
+
+	/**
+	 * If the property should have a getter.
+	 */
 	protected boolean hasGetter;
+
+	/**
+	 * If the property should have a setter.
+	 */
 	protected boolean hasSetter;
 
+	/**
+	 * Set the name of the property.
+	 *
+	 * @param name The name of the property.
+	 * @return The builder in a fluent api pattern.
+	 */
 	public PropertyBuilder withName(String name) {
 		this.name = name;
 		return this;
 	}
 
+	/**
+	 * Set the {@link TypeName} of the property.
+	 *
+	 * @param type The {@link TypeName} of the property.
+	 * @return The builder in a fluent api pattern.
+	 */
 	public PropertyBuilder withType(TypeName type) {
 		this.type = type;
 		return this;
 	}
 
+	/**
+	 * Set the {@link TypeName} of the property.
+	 *
+	 * @param type A {@link Class} that will be used as the properties type.
+	 * @return The builder in a fluent api pattern.
+	 */
 	public PropertyBuilder withType(Class<?> type) {
 		this.type = ClassName.get(type);
 		return this;
 	}
 
-	public PropertyBuilder withProperty(Pair<String, TypeName> prop) {
-		this.name = prop.getFirst();
-		this.type = prop.getSecond();
+	/**
+	 * Set the name and {@link TypeName} of the property.
+	 *
+	 * @param name The name of the property.
+	 * @param type The {@link TypeName} of the property.
+	 * @return The builder in a fluent api pattern.
+	 */
+	public PropertyBuilder withProperty(String name, TypeName type) {
+		this.name = name;
+		this.type = type;
 		return this;
 	}
 
+	/**
+	 * Set the property to use a getter.
+	 *
+	 * @return The builder in a fluent api pattern.
+	 */
 	public PropertyBuilder withGetter() {
 		this.hasGetter = true;
 		return this;
 	}
 
+	/**
+	 * Set the property to use a setter.
+	 *
+	 * @return The builder in a fluent api pattern.
+	 */
 	public PropertyBuilder withSetter() {
 		this.hasSetter = true;
 		return this;
 	}
 
-	public String getName() {
-		return this.name;
-	}
-
-	public TypeName getType() {
-		return this.type;
-	}
-
+	/**
+	 * Create a {@link TypeSpec.Builder} containing the properties with getters and setters.
+	 *
+	 * @param builder An existing builder object that will be appended.
+	 * @return The build {@link TypeSpec.Builder}.
+	 */
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.name == null || this.name.isBlank() || this.type == null) {
 			return builder;
