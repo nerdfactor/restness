@@ -54,7 +54,7 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	}
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Get method with the Request Url and an id parameter.
 		if (this.hasExistingRequest) {
 			return builder;

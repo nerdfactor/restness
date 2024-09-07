@@ -53,7 +53,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	}
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Post method with the Request Url.
 		if (this.hasExistingRequest) {
 			return builder;

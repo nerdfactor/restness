@@ -34,7 +34,7 @@ public class UpdateEntityMethodBuilderTest {
 				.withIdentifyingType(ClassName.get(Integer.class))
 				.withSecurityConfiguration(null)
 				.withDataWrapperClass(TypeName.OBJECT)
-				.build(builder);
+				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """
@@ -74,7 +74,7 @@ public class UpdateEntityMethodBuilderTest {
 				.withIdentifyingType(ClassName.get(Integer.class))
 				.withSecurityConfiguration(null)
 				.withDataWrapperClass(TypeName.OBJECT)
-				.build(builder);
+				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """

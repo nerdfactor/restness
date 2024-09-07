@@ -52,7 +52,7 @@ public class PropertyBuilder implements Buildable<TypeSpec.Builder> {
 		return this.type;
 	}
 
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.name == null || this.name.isBlank() || this.type == null) {
 			return builder;
 		}

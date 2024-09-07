@@ -20,7 +20,7 @@ public class RelationshipMethodBuilder extends MultiStepBuilder<TypeSpec.Builder
 	}
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (!configuration.isUsingRelations() || configuration.getRelationConfigurations() == null || configuration.getRelationConfigurations().isEmpty()) {
 			return builder;
 		}
@@ -36,7 +36,7 @@ public class RelationshipMethodBuilder extends MultiStepBuilder<TypeSpec.Builder
 				this.and(new DeleteFromRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
 			}
 		}
-		this.steps.forEach(buildStep -> buildStep.build(builder));
+		this.steps.forEach(buildStep -> buildStep.buildWith(builder));
 		return builder;
 	}
 }

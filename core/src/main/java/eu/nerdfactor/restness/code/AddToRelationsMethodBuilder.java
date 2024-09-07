@@ -24,7 +24,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	}
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.configuration.hasExistingRequest(RequestMethod.POST, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()) ||
 				this.configuration.hasExistingRequest(RequestMethod.PUT, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()) ||
 				this.configuration.hasExistingRequest(RequestMethod.PATCH, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {

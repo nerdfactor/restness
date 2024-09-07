@@ -9,7 +9,7 @@ public class MethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<
 	protected ControllerConfiguration configuration;
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		return builder;
 	}
 

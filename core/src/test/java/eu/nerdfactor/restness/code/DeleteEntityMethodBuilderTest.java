@@ -29,7 +29,7 @@ public class DeleteEntityMethodBuilderTest {
 				.withIdentifyingType(ClassName.get(Integer.class))
 				.withSecurityConfiguration(null)
 				.withDataWrapperClass(TypeName.OBJECT)
-				.build(builder);
+				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """

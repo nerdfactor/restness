@@ -9,16 +9,34 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.lang.model.element.Modifier;
 
+/**
+ * A builder that can be used to create a RESTness controller. It will use a set of additional builders that in turn each build a small part of
+ * the controller.
+ */
 public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration> {
 
-	ControllerConfiguration configuration;
+	/**
+	 * The configuration used to create the controller.
+	 */
+	protected ControllerConfiguration configuration;
 
+	/**
+	 * Set the {@link ControllerConfiguration} that will be used to build.
+	 *
+	 * @param configuration The {@link ControllerConfiguration}.
+	 * @return The builder in a fluent api pattern.
+	 */
 	@Override
 	public RestnessControllerBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		this.configuration = configuration;
 		return this;
 	}
 
+	/**
+	 * Build a {@link TypeSpec} for a RESTness controller.
+	 *
+	 * @return The build {@link TypeSpec}.
+	 */
 	public TypeSpec build() {
 		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getControllerClassName()).addAnnotation(RestController.class).addModifiers(Modifier.PUBLIC);
 		this.and(new ClassPropertiesBuilder().withConfiguration(this.configuration));
@@ -26,7 +44,7 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 		this.and(new ListMethodBuilder().withConfiguration(this.configuration));
 		this.and(new SearchMethodBuilder().withConfiguration(this.configuration));
 		this.and(new RelationshipMethodBuilder().withConfiguration(this.configuration));
-		this.steps.forEach(buildStep -> buildStep.build(builder));
+		this.steps.forEach(buildStep -> buildStep.buildWith(builder));
 		return builder.build();
 	}
 }

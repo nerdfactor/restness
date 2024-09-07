@@ -32,7 +32,7 @@ public class ReadEntityMethodBuilderTest {
 				.withResponseType(ClassName.get(Example.class))
 				.withSecurityConfiguration(null)
 				.withDataWrapperClass(TypeName.OBJECT)
-				.build(builder);
+				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """
@@ -67,7 +67,7 @@ public class ReadEntityMethodBuilderTest {
 				.withResponseType(ClassName.get(ExampleDto.class))
 				.withSecurityConfiguration(null)
 				.withDataWrapperClass(TypeName.OBJECT)
-				.build(builder);
+				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
 		String expected = """

@@ -22,7 +22,7 @@ import java.util.List;
 public class SearchMethodBuilder extends MethodBuilder {
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath() + "/search")) {
 			return builder;
 		}

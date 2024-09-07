@@ -22,7 +22,7 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 		return this;
 	}
 
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		ConstructorBuilder constructor = new ConstructorBuilder();
 		List.of(
 				Pair.of("dataAccessor", (TypeName) configuration.getDataAccessorClassName()),
@@ -35,7 +35,7 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 			constructor.withProperty(pair);
 		});
 		this.and(constructor);
-		this.steps.forEach(buildStep -> buildStep.build(builder));
+		this.steps.forEach(buildStep -> buildStep.buildWith(builder));
 		return builder;
 	}
 }

@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ListMethodBuilder extends MethodBuilder {
 
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath())) {
 			return builder;
 		}

@@ -26,7 +26,7 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	}
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}

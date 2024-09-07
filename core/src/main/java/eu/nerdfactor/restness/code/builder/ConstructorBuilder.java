@@ -28,7 +28,7 @@ public class ConstructorBuilder implements Buildable<TypeSpec.Builder> {
 		return this.withProperty(propertyBuilder.getName(), propertyBuilder.getType());
 	}
 
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		final MethodSpec.Builder method = MethodSpec
 				.constructorBuilder()
 				.addAnnotation(Autowired.class)

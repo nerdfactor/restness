@@ -57,7 +57,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	}
 
 	@Override
-	public TypeSpec.Builder build(TypeSpec.Builder builder) {
+	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.hasExistingRequest) {
 			return builder;
 		}
