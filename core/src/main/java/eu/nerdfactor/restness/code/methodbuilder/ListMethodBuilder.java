@@ -28,7 +28,7 @@ public class ListMethodBuilder extends MethodBuilder {
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList));
 		method = new AuthenticationInjector()
 				.withMethod("READ")
-				.withType(this.configuration.getEntityClassName())
+				.withEntityClassName(this.configuration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);

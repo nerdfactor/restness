@@ -68,7 +68,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 
 		new AuthenticationInjector()
 				.withMethod("UPDATE")
-				.withType(this.entityType)
+				.withEntityClassName(this.entityType)
 				.withSecurityConfig(this.securityConfiguration)
 				.inject(method);
 

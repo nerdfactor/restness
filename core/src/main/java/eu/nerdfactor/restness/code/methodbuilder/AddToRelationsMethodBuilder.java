@@ -50,8 +50,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 				);
 		method = new AuthenticationInjector()
 				.withMethod("UPDATE")
-				.withType(this.configuration.getEntityClassName())
-				.withRelation(this.relationConfiguration.getEntityClassName())
+				.withEntityClassName(this.configuration.getEntityClassName())
+				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
 		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
@@ -84,8 +84,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 				);
 		methodById = new AuthenticationInjector()
 				.withMethod("UPDATE")
-				.withType(this.configuration.getEntityClassName())
-				.withRelation(this.relationConfiguration.getEntityClassName())
+				.withEntityClassName(this.configuration.getEntityClassName())
+				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(methodById);
 		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());

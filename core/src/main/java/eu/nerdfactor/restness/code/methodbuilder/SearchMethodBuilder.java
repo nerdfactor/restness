@@ -46,7 +46,7 @@ public class SearchMethodBuilder extends MethodBuilder {
 				);
 		method = new AuthenticationInjector()
 				.withMethod("READ")
-				.withType(this.configuration.getEntityClassName())
+				.withEntityClassName(this.configuration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
 		method.addStatement("$T<$T> spec = this.specificationBuilder.build(filter, $T.class)", Specification.class, this.configuration.getEntityClassName(), this.configuration.getEntityClassName());

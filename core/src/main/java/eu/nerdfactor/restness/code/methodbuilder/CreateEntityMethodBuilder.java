@@ -67,7 +67,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		// Inject a Security Annotation that will require a role of "CREATE"
 		// for the Entity.
 		new AuthenticationInjector().withMethod("CREATE")
-				.withType(this.entityType)
+				.withEntityClassName(this.entityType)
 				.withSecurityConfig(this.securityConfiguration)
 				.inject(method);
 

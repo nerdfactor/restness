@@ -59,7 +59,7 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 
 		new AuthenticationInjector()
 				.withMethod("DELETE")
-				.withType(this.entityType)
+				.withEntityClassName(this.entityType)
 				.withSecurityConfig(this.securityConfiguration)
 				.inject(method);
 

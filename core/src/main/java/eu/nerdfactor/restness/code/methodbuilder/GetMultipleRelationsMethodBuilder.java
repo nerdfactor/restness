@@ -45,8 +45,8 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 				);
 		method = new AuthenticationInjector()
 				.withMethod("READ")
-				.withType(this.configuration.getEntityClassName())
-				.withRelation(this.relationConfiguration.getEntityClassName())
+				.withEntityClassName(this.configuration.getEntityClassName())
+				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
 		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());

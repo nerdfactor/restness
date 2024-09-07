@@ -65,7 +65,7 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 
 		new AuthenticationInjector()
 				.withMethod("READ")
-				.withType(this.entityType)
+				.withEntityClassName(this.entityType)
 				.withSecurityConfig(this.securityConfiguration)
 				.inject(method);
 
