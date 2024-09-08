@@ -15,14 +15,15 @@ public class RestnessEntityMerger implements DataMerger {
 	 * Update an object by merging it with an updated version.
 	 *
 	 * @param original The original object.
-	 * @param updated The object with updated values.
-	 * @param <T> Type of the updated object.
+	 * @param updated  The object with updated values.
+	 * @param <T>      Type of the updated object.
 	 * @return The original object with the updated values.
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> T merge(T original, T updated) {
-		if (original instanceof PersistentEntity) {
-			return (T) ((PersistentEntity<?>) original).mergeWithEntity(updated);
+		if (original instanceof PersistentEntity<?> entity) {
+			return (T) entity.mergeWithEntity((PersistentEntity<?>) updated);
 		}
 		return this.reflectMerge(original, updated);
 	}
@@ -52,8 +53,9 @@ public class RestnessEntityMerger implements DataMerger {
 					value = m.invoke(updated);
 					setter = name.replace("is", "set");
 				}
-				if (value != null && (type == String.class && !value.equals(""))) {
-					// only merge non empty values.
+				if (value != null && (type == String.class && !value.equals(""))
+						|| (type.isPrimitive() && !type.equals(Void.TYPE))) {
+					// only merge non-empty values or primitive types.
 					try {
 						Method method = original.getClass().getMethod(setter, type);
 						method.invoke(original, value);

@@ -20,10 +20,9 @@ public interface PersistentEntity<D> {
 	 * Merge the entity with a dto by converting the dto to a matching entity.
 	 *
 	 * @param dto The dto to merge with.
-	 * @param <E> The type of the entity.
 	 * @return The merged entity.
 	 */
-	default <E> E mergeWithDto(DataTransferObject<E> dto) {
+	default PersistentEntity<D> mergeWithDto(DataTransferObject<PersistentEntity<D>> dto) {
 		return mergeWithEntity(dto.convertToEntity());
 	}
 
@@ -31,10 +30,10 @@ public interface PersistentEntity<D> {
 	 * Merge with an entity.
 	 *
 	 * @param entity The entity to merge with.
-	 * @param <E>    The type of the entity.
 	 * @return The merged entity.
 	 */
-	default <E> E mergeWithEntity(E entity) {
-		return entity;
+	@SuppressWarnings("unchecked")
+	default PersistentEntity<D> mergeWithEntity(PersistentEntity<?> entity) {
+		return (PersistentEntity<D>) entity;
 	}
 }

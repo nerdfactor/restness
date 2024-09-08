@@ -27,15 +27,15 @@ public class RestnessSpecificationBuilder implements DataSpecificationBuilder {
 		Specification<T> spec = Specification.where(null);
 		if (filter != null && !filter.isBlank()) {
 			try {
-				Arrays.stream(filter.split(";")).forEach(pair -> {
+				String[] pairs = filter.contains(";") ? filter.split(";") : new String[] { filter };
+				for (String pair : pairs) {
 					String[] params = pair.split(":");
-					spec.and((root, query, cb) -> cb.equal(root.get(params[0]), params[1]));
-				});
+					spec = spec.and((root, query, cb) -> cb.equal(root.get(params[0]), params[1]));
+				}
 			} catch (Exception e) {
 				// ignore wrong formatted filters.
 			}
 		}
 		return spec;
 	}
-
 }

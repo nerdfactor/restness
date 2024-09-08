@@ -32,6 +32,4 @@ public class RestnessEntityMapper implements DataMapper {
 		}
 		return (T) obj;
 	}
-
-
 }
