@@ -70,6 +70,7 @@ public class RelationConfiguration {
 	 * <li>{@code com.example.dto.UserDto}</li>
 	 * <li>{@code com.example.viewmodel.OrderViewModel}</li>
 	 */
+	@Builder.Default
 	protected TypeName responseObjectClassName = TypeName.OBJECT;
 
 	/**
@@ -92,6 +93,7 @@ public class RelationConfiguration {
 	 * <li>{@code getIdentifier}</li>
 	 * <li>{@code getOrderNumber}</li>
 	 */
+	@Builder.Default
 	protected String idAccessorMethodName = "getId";
 
 	/**

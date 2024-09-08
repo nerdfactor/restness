@@ -78,6 +78,7 @@ public class ControllerConfiguration {
 	 * <li>{@code getIdentifier}</li>
 	 * <li>{@code getOrderNumber}</li>
 	 */
+	@Builder.Default
 	protected String idAccessorMethodName = "getId";
 
 	/**
@@ -94,6 +95,7 @@ public class ControllerConfiguration {
 	 * <li>{@code com.example.dto.UserDto}</li>
 	 * <li>{@code com.example.form.OrderUpdateForm}</li>
 	 */
+	@Builder.Default
 	protected TypeName requestObjectClassName = TypeName.OBJECT;
 
 	/**
@@ -110,6 +112,7 @@ public class ControllerConfiguration {
 	 * <li>{@code com.example.dto.UserDto}</li>
 	 * <li>{@code com.example.viewmodel.OrderViewModel}</li>
 	 */
+	@Builder.Default
 	protected TypeName responseObjectClassName = TypeName.OBJECT;
 
 	/**
@@ -127,6 +130,7 @@ public class ControllerConfiguration {
 	 * <li>{@code
 	 * com.example.ViewModelList<com.example.viewmodel.OrderViewModel>}</li>
 	 */
+	@Builder.Default
 	protected TypeName responseListClassName = TypeName.OBJECT;
 
 	/**
@@ -212,6 +216,7 @@ public class ControllerConfiguration {
 	 * the controller.
 	 */
 	@JsonIgnore
+	@Builder.Default
 	protected Map<String, RelationConfiguration> relationConfigurations = new HashMap<>();
 
 	/**

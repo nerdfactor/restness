@@ -37,6 +37,7 @@ public class SecurityConfiguration {
 	 * <li>ENTITY: Name of the entity.</li>
 	 * <li>NAME: Name of relation or entity.</li>
 	 */
+	@Builder.Default
 	protected String securityRolePattern = "ROLE_{METHOD}_{ENTITY}";
 
 	/**
@@ -44,6 +45,7 @@ public class SecurityConfiguration {
 	 * for the related entity. Otherwise, they also require the READ or UPDATE
 	 * permission for the base entity.
 	 */
+	@Builder.Default
 	protected boolean inclusiveRelationPermissions = true;
 
 	/**
