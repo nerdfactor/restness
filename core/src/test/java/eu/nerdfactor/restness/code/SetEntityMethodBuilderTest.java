@@ -44,10 +44,7 @@ public class SetEntityMethodBuilderTest {
 				  @PutMapping("/api/example")
 				  public ResponseEntity<Example> set(@PathVariable final Integer id,
 				      @RequestBody @Valid Example dto) {
-				    Example entity = this.dataAccessor.readData(id);
-				    if(entity == null) {
-				      throw new EntityNotFoundException();
-				    }
+				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
 				    Example changed = dto;
 				    changed = this.dataAccessor.updateData(changed);
 				    Example response = changed;
@@ -83,10 +80,7 @@ public class SetEntityMethodBuilderTest {
 				  @PutMapping("/api/example")
 				  public ResponseEntity<ExampleDto> set(@PathVariable final Integer id,
 				      @RequestBody @Valid ExampleForm dto) {
-				    Example entity = this.dataAccessor.readData(id);
-				    if(entity == null) {
-				      throw new EntityNotFoundException();
-				    }
+				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
 				    Example changed = this.dataMapper.map(dto, Example.class);
 				    changed = this.dataAccessor.updateData(changed);
 				    ExampleDto response = this.dataMapper.map(changed, ExampleDto.class);

@@ -41,10 +41,7 @@ public class ReadEntityMethodBuilderTest {
 				public class ExampleController {
 				  @GetMapping("/api/example")
 				  public ResponseEntity<Example> get(@PathVariable final Integer id) {
-				    Example entity = this.dataAccessor.readData(id);
-				    if(entity == null) {
-				      throw new EntityNotFoundException();
-				    }
+				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
 				    Example response = entity;
 				    return new ResponseEntity<>(response, HttpStatus.OK);
 				  }
@@ -76,10 +73,7 @@ public class ReadEntityMethodBuilderTest {
 				public class ExampleController {
 				  @GetMapping("/api/example")
 				  public ResponseEntity<ExampleDto> get(@PathVariable final Integer id) {
-				    Example entity = this.dataAccessor.readData(id);
-				    if(entity == null) {
-				      throw new EntityNotFoundException();
-				    }
+				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
 				    ExampleDto response = this.dataMapper.map(entity, ExampleDto.class);
 				    return new ResponseEntity<>(response, HttpStatus.OK);
 				  }

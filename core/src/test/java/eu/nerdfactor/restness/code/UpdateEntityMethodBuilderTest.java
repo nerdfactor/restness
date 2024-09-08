@@ -44,10 +44,7 @@ public class UpdateEntityMethodBuilderTest {
 				  @PatchMapping("/api/example")
 				  public ResponseEntity<Example> update(@PathVariable final Integer id,
 				      @RequestBody @Valid Example dto) {
-				    Example entity = this.dataAccessor.readData(id);
-				    if(entity == null) {
-				      throw new EntityNotFoundException();
-				    }
+				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
 				    Example changed = dto;
 				    Example updated = this.dataMerger.merge(entity, changed);
 				    updated = this.dataAccessor.updateData(updated);
@@ -84,10 +81,7 @@ public class UpdateEntityMethodBuilderTest {
 				  @PatchMapping("/api/example")
 				  public ResponseEntity<ExampleDto> update(@PathVariable final Integer id,
 				      @RequestBody @Valid ExampleForm dto) {
-				    Example entity = this.dataAccessor.readData(id);
-				    if(entity == null) {
-				      throw new EntityNotFoundException();
-				    }
+				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
 				    Example changed = this.dataMapper.map(dto, Example.class);
 				    Example updated = this.dataMerger.merge(entity, changed);
 				    updated = this.dataAccessor.updateData(updated);

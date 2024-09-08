@@ -48,11 +48,9 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
-		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
-		method.beginControlFlow("if(entity == null)");
-		method.addStatement("throw new $T()", EntityNotFoundException.class);
-		method.endControlFlow();
+		method.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.configuration.getEntityClassName(), EntityNotFoundException.class);
 		method.addStatement("entity." + this.relationConfiguration.getSetterMethodName() + "(null)");
+		method.addStatement("this.dataAccessor.updateData(entity)");
 		method = new NoContentStatementInjector()
 				.withWrapper(this.configuration.getResponseWrapperClassName())
 				.withResponse(responseType)

@@ -46,10 +46,7 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
-		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
-		method.beginControlFlow("if(entity == null)");
-		method.addStatement("throw new $T()", EntityNotFoundException.class);
-		method.endControlFlow();
+		method.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.configuration.getEntityClassName(), EntityNotFoundException.class);
 		if (this.relationConfiguration.isUsingDto()) {
 			method.addStatement("$T response = this.dataMapper.map(entity." + this.relationConfiguration.getGetterMethodName() + "(), $T.class)", responseType, responseType);
 		} else {

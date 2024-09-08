@@ -39,7 +39,7 @@ import java.util.*;
 		"eu.nerdfactor.restness.annotation.RestnessSecurity",
 		"eu.nerdfactor.restness.annotation.RestnessConfiguration"
 })
-@SupportedSourceVersion(SourceVersion.RELEASE_21)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @AutoService(Processor.class)
 public class RestnessAnnotationProcessor extends AbstractProcessor {
 

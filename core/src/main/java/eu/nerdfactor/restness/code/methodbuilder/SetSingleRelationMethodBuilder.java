@@ -52,16 +52,14 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
-		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
-		method.beginControlFlow("if(entity == null)");
-		method.addStatement("throw new $T()", EntityNotFoundException.class);
-		method.endControlFlow();
+		method.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.configuration.getEntityClassName(), EntityNotFoundException.class);
 		if (this.relationConfiguration.isUsingDto()) {
 			method.addStatement("$T rel = this.dataMapper.map(dto, $T.class)", this.relationConfiguration.getEntityClassName(), this.relationConfiguration.getEntityClassName());
 		} else {
 			method.addStatement("$T rel = dto", this.relationConfiguration.getEntityClassName());
 		}
 		method.addStatement("entity." + this.relationConfiguration.getSetterMethodName() + "(rel)");
+		method.addStatement("this.dataAccessor.updateData(entity)");
 		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
 			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
 		}

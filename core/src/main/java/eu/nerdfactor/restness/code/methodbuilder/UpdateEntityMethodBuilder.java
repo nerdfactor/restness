@@ -124,10 +124,7 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * @param isUsingDto   If the method is using DTOs.
 	 */
 	protected void addMethodBody(MethodSpec.Builder method, TypeName entityType, TypeName responseType, boolean isUsingDto) {
-		method.addStatement("$T entity = this.dataAccessor.readData(id)", entityType);
-		method.beginControlFlow("if(entity == null)");
-		method.addStatement("throw new $T()", EntityNotFoundException.class);
-		method.endControlFlow();
+		method.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", entityType, EntityNotFoundException.class);
 		if (isUsingDto) {
 			method.addStatement("$T changed = this.dataMapper.map(dto, $T.class)", entityType, entityType);
 		} else {

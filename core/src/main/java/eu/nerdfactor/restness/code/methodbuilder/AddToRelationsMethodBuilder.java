@@ -88,12 +88,10 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(methodById);
-		methodById.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
-		methodById.beginControlFlow("if(entity == null)");
-		methodById.addStatement("throw new $T()", EntityNotFoundException.class);
-		methodById.endControlFlow();
+		methodById.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.configuration.getEntityClassName(), EntityNotFoundException.class);
 		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationConfiguration.getEntityClassName(), this.relationConfiguration.getEntityClassName());
 		methodById.addStatement("entity." + this.relationConfiguration.getAdderMethodName() + "(rel)");
+		methodById.addStatement("this.dataAccessor.updateData(entity)");
 		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
 			methodById.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
 		}

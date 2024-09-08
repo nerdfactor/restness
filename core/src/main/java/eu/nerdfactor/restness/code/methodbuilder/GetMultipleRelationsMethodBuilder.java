@@ -49,10 +49,7 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
 				.withSecurityConfig(this.configuration.getSecurityConfiguration())
 				.inject(method);
-		method.addStatement("$T entity = this.dataAccessor.readData(id)", this.configuration.getEntityClassName());
-		method.beginControlFlow("if(entity == null)");
-		method.addStatement("throw new $T()", EntityNotFoundException.class);
-		method.endControlFlow();
+		method.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.configuration.getEntityClassName(), EntityNotFoundException.class);
 		method.addStatement("$T<$T> responseList = new $T<>()", List.class, responseType, ArrayList.class);
 		method.beginControlFlow("for($T rel : entity." + this.relationConfiguration.getGetterMethodName() + "())", this.relationConfiguration.getEntityClassName());
 		if (this.relationConfiguration.isUsingDto()) {
