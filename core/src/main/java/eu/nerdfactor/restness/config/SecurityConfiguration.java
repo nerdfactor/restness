@@ -76,14 +76,4 @@ public class SecurityConfiguration {
 		}
 		return security;
 	}
-
-	/**
-	 * Creates a builder for security configuration from annotations.
-	 *
-	 * @return A new {@link SecurityConfigurationFromAnnotationBuilder}.
-	 */
-	public static @NotNull SecurityConfigurationFromAnnotationBuilder annotationBuilder() {
-		return new SecurityConfigurationFromAnnotationBuilder();
-	}
-
 }

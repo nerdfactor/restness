@@ -1,9 +1,5 @@
-package eu.nerdfactor.restness.util;
+package eu.nerdfactor.restness.processing;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,15 +12,16 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
- * Extracts values from {@link Annotation Annotations} during annotation processing.
+ * Extracts values from {@link Annotation Annotations} during annotation
+ * processing.
  *
  * @author Daniel Klug
  */
 public class AnnotationValueExtractor {
 
 	/**
-	 * The canonical name (with full package) of the annotation class
-	 * that will be checked during extraction.
+	 * The canonical name (with full package) of the annotation class that will
+	 * be checked during extraction.
 	 */
 	protected String className;
 
@@ -54,7 +51,7 @@ public class AnnotationValueExtractor {
 	}
 
 	public ValueWrapper extract() {
-		return this.extract(new ValueWrapper(this.element, this.className));
+		return this.extract(new ValueWrapper(this.element, this.className, new HashMap<>()));
 	}
 
 	public List<ValueWrapper> extractList() {
@@ -87,7 +84,7 @@ public class AnnotationValueExtractor {
 	}
 
 	public ValueWrapper extract(ValueWrapper values) {
-		this.extractInto(values.getValues());
+		this.extractInto(values.values);
 		return values;
 	}
 
@@ -127,7 +124,8 @@ public class AnnotationValueExtractor {
 	 *
 	 * @param element             The annotated {@link Element}.
 	 * @param annotationClassName The name of the {@link Annotation}.
-	 * @return The specified {@link AnnotationMirror} if the element is annotated by the specified {@link Annotation}.
+	 * @return The specified {@link AnnotationMirror} if the element is
+	 * annotated by the specified {@link Annotation}.
 	 */
 	protected @Nullable AnnotationMirror getAnnotationMirror(@NotNull Element element, @NotNull final String annotationClassName) {
 		return element.getAnnotationMirrors().stream()
@@ -137,19 +135,12 @@ public class AnnotationValueExtractor {
 	}
 
 	/**
-	 * A simple wrapper class containing the
-	 * extracted values, the name of the annotation
-	 * and the element, that was annotated.
+	 * A simple wrapper class containing the extracted values, the name of the
+	 * annotation and the element, that was annotated.
 	 */
-	@Getter
-	@Setter
-	@RequiredArgsConstructor
-	@AllArgsConstructor
-	public static class ValueWrapper {
+	public record ValueWrapper(Element element, String annotationClassName,
+	                           Map<String, String> values) {
 
-		private final Element element;
-		private final String annotationClassName;
-		private Map<String, String> values = new HashMap<>();
 	}
 
 }

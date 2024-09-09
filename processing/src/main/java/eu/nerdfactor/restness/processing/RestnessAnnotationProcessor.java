@@ -1,4 +1,4 @@
-package eu.nerdfactor.restness;
+package eu.nerdfactor.restness.processing;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
@@ -8,9 +8,8 @@ import eu.nerdfactor.restness.annotation.RestnessController;
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.export.RestnessExporter;
 import eu.nerdfactor.restness.export.JavaClassExporter;
-import eu.nerdfactor.restness.util.AnnotationValueExtractor;
+import eu.nerdfactor.restness.export.RestnessExporter;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,11 +79,11 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		// Get all DynamicRestController annotations and gather information from the specified
 		// entity in order to create a ControllerConfiguration.
 		this.findControllerValues(roundEnvironment).forEach(wrapper -> {
-			ControllerConfiguration config = ControllerConfiguration.annotationBuilder()
-					.withElement(wrapper.getElement())
+			ControllerConfiguration config = ControllerConfigurationFromAnnotationBuilder.create()
+					.withElement(wrapper.element())
 					.withUtils(this.elementUtils)
 					.withEnvironment(roundEnvironment)
-					.withAnnotatedValues(wrapper.getValues())
+					.withAnnotatedValues(wrapper.values())
 					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
 					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
 					.withResponseWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
@@ -98,7 +97,7 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 			if (element.getKind() != ElementKind.CLASS) {
 				return true;
 			}
-			SecurityConfiguration security = SecurityConfiguration.annotationBuilder()
+			SecurityConfiguration security = SecurityConfigurationFromAnnotationBuilder.create()
 					.withElement(element)
 					.withUtils(this.elementUtils)
 					.withEnvironment(roundEnvironment)

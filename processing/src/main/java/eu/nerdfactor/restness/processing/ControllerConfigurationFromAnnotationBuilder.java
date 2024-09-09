@@ -1,13 +1,14 @@
-package eu.nerdfactor.restness.config;
+package eu.nerdfactor.restness.processing;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.annotation.IdAccessor;
+import eu.nerdfactor.restness.config.ControllerConfiguration;
+import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.data.DataAccessor;
 import eu.nerdfactor.restness.data.DataMapper;
 import eu.nerdfactor.restness.data.DataMerger;
-import eu.nerdfactor.restness.util.AnnotationValueExtractor;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -145,6 +146,10 @@ public class ControllerConfigurationFromAnnotationBuilder {
 		return this;
 	}
 
+	public static ControllerConfigurationFromAnnotationBuilder create() {
+		return new ControllerConfigurationFromAnnotationBuilder();
+	}
+
 	/**
 	 * Collect information about the controller from the annotated class.
 	 *
@@ -205,7 +210,7 @@ public class ControllerConfigurationFromAnnotationBuilder {
 									.withElement(method)
 									.forClass(cls)
 									.extract()
-									.getValues();
+									.values();
 
 							String requestMapping = requestMappingAnnotatedValues.getOrDefault("value", "/").replaceAll("\"$", "").replaceAll("^\"", "");
 							if (requestMapping.length() > 1) {
@@ -238,7 +243,7 @@ public class ControllerConfigurationFromAnnotationBuilder {
 
 
 			// Collect all the relations.
-			relations = RelationConfiguration.annotationBuilder().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
+			relations = RelationConfigurationFromAnnotationBuilder.create().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
 		}
 
 		return new ControllerConfiguration(RestnessUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, null, relations);

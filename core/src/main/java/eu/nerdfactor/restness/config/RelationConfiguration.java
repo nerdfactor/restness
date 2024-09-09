@@ -149,14 +149,4 @@ public class RelationConfiguration {
 			case REMOVE -> "remove" + singularName;
 		};
 	}
-
-	/**
-	 * Creates a builder for relation configuration from annotations.
-	 *
-	 * @return A new {@link RelationConfigurationFromAnnotationBuilder}.
-	 */
-	public static RelationConfigurationFromAnnotationBuilder annotationBuilder() {
-		return new RelationConfigurationFromAnnotationBuilder();
-	}
-
 }

@@ -305,13 +305,4 @@ public class ControllerConfiguration {
 	public boolean isUsingDto() {
 		return this.responseObjectClassName != null && !this.responseObjectClassName.equals(TypeName.OBJECT);
 	}
-
-	/**
-	 * Creates a builder for controller configuration from annotations.
-	 *
-	 * @return A new {@link ControllerConfigurationFromAnnotationBuilder}.
-	 */
-	public static @NotNull ControllerConfigurationFromAnnotationBuilder annotationBuilder() {
-		return new ControllerConfigurationFromAnnotationBuilder();
-	}
 }

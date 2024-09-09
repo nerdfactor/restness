@@ -1,7 +1,7 @@
-package eu.nerdfactor.restness.config;
+package eu.nerdfactor.restness.processing;
 
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
-import eu.nerdfactor.restness.util.AnnotationValueExtractor;
+import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +22,7 @@ public class SecurityConfigurationFromAnnotationBuilder {
 	 * The annotation processing environment round.
 	 */
 	protected RoundEnvironment environment;
-	
+
 	/**
 	 * The element utilities during annotation processing.
 	 */
@@ -88,6 +88,10 @@ public class SecurityConfigurationFromAnnotationBuilder {
 		return this;
 	}
 
+	public static SecurityConfigurationFromAnnotationBuilder create() {
+		return new SecurityConfigurationFromAnnotationBuilder();
+	}
+
 	/**
 	 * Collect information about the security from the annotated class.
 	 *
@@ -104,7 +108,7 @@ public class SecurityConfigurationFromAnnotationBuilder {
 				.withElement(element)
 				.withUtils(elementUtils)
 				.extract()
-				.getValues();
+				.values();
 
 		// Combine the generated class name and package.
 		String generatedClassName = annotatedValues.getOrDefault("className", "");

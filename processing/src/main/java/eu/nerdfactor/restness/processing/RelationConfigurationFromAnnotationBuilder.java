@@ -1,4 +1,4 @@
-package eu.nerdfactor.restness.config;
+package eu.nerdfactor.restness.processing;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -6,6 +6,9 @@ import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.annotation.IdAccessor;
 import eu.nerdfactor.restness.annotation.Relation;
 import eu.nerdfactor.restness.annotation.RelationAccessor;
+import eu.nerdfactor.restness.config.AccessorType;
+import eu.nerdfactor.restness.config.RelationConfiguration;
+import eu.nerdfactor.restness.config.RelationType;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
@@ -84,6 +87,10 @@ public class RelationConfigurationFromAnnotationBuilder {
 	public RelationConfigurationFromAnnotationBuilder withDtos(boolean dtos) {
 		this.withDtos = dtos;
 		return this;
+	}
+
+	public static RelationConfigurationFromAnnotationBuilder create(){
+		return new RelationConfigurationFromAnnotationBuilder();
 	}
 
 	/**

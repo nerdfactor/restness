@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -8,11 +9,14 @@
 		<version>3.3.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>eu.nerdfactor</groupId>
-	<artifactId>restness</artifactId>
+	<groupId>eu.nerdfactor.restness</groupId>
+	<artifactId>restness-parent</artifactId>
 	<version>0.0.20</version>
 	<name>RESTness</name>
-	<description>A simple library to generate REST controllers for a spring boot application.</description>
+	<description>
+		A simple library to generate REST controllers for a spring boot
+		application.
+	</description>
 	<packaging>pom</packaging>
 	<properties>
 		<java.version>17</java.version>
@@ -23,6 +27,7 @@
 		<module>core</module>
 		<module>data</module>
 		<module>example</module>
+		<module>processing</module>
 	</modules>
 	<distributionManagement>
 		<repository>
