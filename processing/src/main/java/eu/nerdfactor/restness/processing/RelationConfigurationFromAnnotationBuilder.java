@@ -89,7 +89,7 @@ public class RelationConfigurationFromAnnotationBuilder {
 		return this;
 	}
 
-	public static RelationConfigurationFromAnnotationBuilder create(){
+	public static RelationConfigurationFromAnnotationBuilder create() {
 		return new RelationConfigurationFromAnnotationBuilder();
 	}
 

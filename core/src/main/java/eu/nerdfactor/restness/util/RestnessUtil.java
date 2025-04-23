@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.util;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
+import eu.nerdfactor.restness.config.AccessorType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -75,6 +76,24 @@ public class RestnessUtil {
 		String className = typeName.substring(typeName.lastIndexOf('.') + 1).trim();
 		String packageName = removeEnd(typeName, "." + className);
 		return ClassName.get(packageName, prefix + className);
+	}
+
+	/**
+	 * Get the method name for the given {@link AccessorType}. Trys to
+	 * singularize the relation name and adds the prefix for the method name.
+	 *
+	 * @param type The {@link AccessorType} to get the method name for.
+	 * @return The method name for the given {@link AccessorType}.
+	 **/
+	public static String getRelationMethodName(String relationName, AccessorType type) {
+		String methodName = relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
+		String singularName = WordInflector.getInstance().singularize(methodName);
+		return switch (type) {
+			case GET -> "get" + methodName;
+			case SET -> "set" + methodName;
+			case ADD -> "add" + singularName;
+			case REMOVE -> "remove" + singularName;
+		};
 	}
 
 	public static boolean LOG = false;

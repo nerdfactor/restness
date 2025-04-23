@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.example.customer;
 
 import eu.nerdfactor.restness.data.DataAccessor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,5 +47,17 @@ public interface CustomerRepository extends JpaRepository<CustomerDao, String>, 
 
 	default void deleteDataById(@NotNull String s) {
 		this.deleteById(s);
+	}
+
+	default boolean existsDataById(@NotNull String s) {
+		return this.existsById(s);
+	}
+
+	default boolean existsData(@NotNull Specification<CustomerDao> spec) {
+		return this.exists(spec);
+	}
+
+	default boolean existsData(@NotNull Example<CustomerDao> example) {
+		return this.exists(example);
 	}
 }

@@ -1,7 +1,6 @@
 package eu.nerdfactor.restness.code.injector;
 
 import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
@@ -85,14 +84,42 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 		}
 		// todo: separate relationship into separate injector or find a way to combine the underlying role generation.
 		String security = "";
+		String baseEntityClassName = RestnessUtil.toClassName(this.entityClassName).simpleName();
 		if (this.relatedClassName != null) {
-			security = this.securityConfig.getSecurityExpression(this.entityClassName, this.relatedClassName, this.method, this.method);
+			String baseRealtedClassName = RestnessUtil.toClassName(this.relatedClassName).simpleName();
+			security = this.getSecurityExpression(baseEntityClassName, baseRealtedClassName, this.method, this.method);
 		} else {
-			ClassName entityName = RestnessUtil.toClassName(this.entityClassName);
-			String role = this.securityConfig.getSecurityRole(this.method, entityName.simpleName(), entityName.simpleName());
+			String role = this.getSecurityRole(this.method, baseEntityClassName, baseEntityClassName);
 			security = "hasRole('" + role + "')";
 		}
 		builder.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		return builder;
+	}
+
+	/**
+	 * Get the Spring security ROLE guarding the set of method, entity and
+	 * name.
+	 *
+	 * @param method The method that should be guarded against.
+	 * @param entity The guarded entity.
+	 * @param name   The name of the guarded entity.
+	 * @return A Spring security ROLE.
+	 */
+	public String getSecurityRole(String method, String entity, String name) {
+		return this.securityConfig.getSecurityRolePattern()
+				.replace("{METHOD}", method)
+				.replace("{ENTITY}", RestnessUtil.normalizeEntityName(entity))
+				.replace("{NAME}", name)
+				.toUpperCase();
+	}
+
+	public String getSecurityExpression(String baseEntityName, String relationEntityName, String method, String methodBase) {
+		String relationRole = this.getSecurityRole(method, relationEntityName, relationEntityName);
+		String security = "hasRole('" + relationRole + "')";
+		if (this.securityConfig.isInclusiveRelationPermissions()) {
+			String baseRole = this.getSecurityRole(methodBase, baseEntityName, baseEntityName);
+			security += " and hasRole('" + baseRole + "')";
+		}
+		return security;
 	}
 }

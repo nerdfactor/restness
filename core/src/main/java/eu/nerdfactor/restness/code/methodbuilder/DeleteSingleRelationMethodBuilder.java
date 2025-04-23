@@ -32,7 +32,7 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 		RestnessUtil.log("addDeleteSingleRelationMethod", 1);
 		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		MethodSpec.Builder method = MethodSpec
-				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.REMOVE))
+				.methodBuilder(RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.REMOVE))
 				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).build())
 				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)

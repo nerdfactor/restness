@@ -33,7 +33,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec
-				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.ADD))
+				.methodBuilder(RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.ADD))
 				.addAnnotation(AnnotationSpec.builder(RequestMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).addMember("method", "{ $T.POST, $T.PUT, $T.PATCH }", RequestMethod.class, RequestMethod.class, RequestMethod.class).build())
 				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
@@ -57,7 +57,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
 			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
 		}
-		method.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.ADD) + "ById(id, dto." + this.relationConfiguration.getIdAccessorMethodName() + "())");
+		method.addStatement("return this." + RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.ADD) + "ById(id, dto." + this.relationConfiguration.getIdAccessorMethodName() + "())");
 		builder.addMethod(method.build());
 
 
@@ -67,7 +67,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 			return builder;
 		}
 		MethodSpec.Builder methodById = MethodSpec
-				.methodBuilder(this.relationConfiguration.getMethodName(AccessorType.ADD) + "ById")
+				.methodBuilder(RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.ADD) + "ById")
 				.addAnnotation(AnnotationSpec.builder(RequestMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}").addMember("method", "{ $T.POST, $T.PUT, $T.PATCH }", RequestMethod.class, RequestMethod.class, RequestMethod.class).build())
 				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
@@ -95,7 +95,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
 			methodById.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
 		}
-		methodById.addStatement("return this." + this.relationConfiguration.getMethodName(AccessorType.GET) + "(id)");
+		methodById.addStatement("return this." + RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.GET) + "(id)");
 		builder.addMethod(methodById.build());
 		return builder;
 	}

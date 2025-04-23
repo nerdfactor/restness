@@ -3,7 +3,6 @@ package eu.nerdfactor.restness.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
-import eu.nerdfactor.restness.util.WordInflector;
 import lombok.*;
 
 /**
@@ -137,16 +136,5 @@ public class RelationConfiguration {
 		if (accessorMethodNames.length > 4) {
 			this.setIdAccessorMethodName(accessorMethodNames[4]);
 		}
-	}
-
-	public String getMethodName(AccessorType type) {
-		String methodName = this.relationName.substring(0, 1).toUpperCase() + this.relationName.substring(1);
-		String singularName = WordInflector.getInstance().singularize(methodName);
-		return switch (type) {
-			case GET -> "get" + methodName;
-			case SET -> "set" + methodName;
-			case ADD -> "add" + singularName;
-			case REMOVE -> "remove" + singularName;
-		};
 	}
 }

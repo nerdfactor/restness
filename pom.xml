@@ -28,6 +28,7 @@
 		<module>data</module>
 		<module>example</module>
 		<module>processing</module>
+		<module>config</module>
 	</modules>
 	<distributionManagement>
 		<repository>

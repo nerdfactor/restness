@@ -9,7 +9,6 @@ import eu.nerdfactor.restness.data.DataMapper;
 import eu.nerdfactor.restness.data.DataMerger;
 import eu.nerdfactor.restness.data.DataWrapper;
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.HashMap;

@@ -61,7 +61,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.34</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -110,6 +109,13 @@
 					<source>17</source>
 					<target>17</target>
 					<generatedSourcesDirectory>${project.build.directory}/generated-sources/</generatedSourcesDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar</argLine>
 				</configuration>
 			</plugin>
 		</plugins>

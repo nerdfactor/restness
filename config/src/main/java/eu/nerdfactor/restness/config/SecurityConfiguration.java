@@ -1,13 +1,10 @@
 package eu.nerdfactor.restness.config;
 
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.TypeName;
-import eu.nerdfactor.restness.util.RestnessUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Security Configuration for RESTness controller generation.
@@ -47,33 +44,4 @@ public class SecurityConfiguration {
 	 */
 	@Builder.Default
 	protected boolean inclusiveRelationPermissions = true;
-
-	/**
-	 * Get the Spring security ROLE guarding the set of method, entity and
-	 * name.
-	 *
-	 * @param method The method that should be guarded against.
-	 * @param entity The guarded entity.
-	 * @param name   The name of the guarded entity.
-	 * @return A Spring security ROLE.
-	 */
-	public String getSecurityRole(String method, String entity, String name) {
-		return this.securityRolePattern
-				.replace("{METHOD}", method)
-				.replace("{ENTITY}", RestnessUtil.normalizeEntityName(entity))
-				.replace("{NAME}", name)
-				.toUpperCase();
-	}
-
-	public String getSecurityExpression(TypeName entityClassName, TypeName relatedEntityClassName, String method, String methodBase) {
-		String relationEntityName = RestnessUtil.toClassName(relatedEntityClassName).simpleName();
-		String relationRole = this.getSecurityRole(method, relationEntityName, relationEntityName);
-		String security = "hasRole('" + relationRole + "')";
-		if (this.inclusiveRelationPermissions) {
-			String baseEntityName = RestnessUtil.toClassName(entityClassName).simpleName();
-			String baseRole = this.getSecurityRole(methodBase, baseEntityName, baseEntityName);
-			security += " and hasRole('" + baseRole + "')";
-		}
-		return security;
-	}
 }
