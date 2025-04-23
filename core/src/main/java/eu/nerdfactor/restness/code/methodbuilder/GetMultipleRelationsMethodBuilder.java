@@ -7,6 +7,7 @@ import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import javax.lang.model.element.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 
 	RelationConfiguration relationConfiguration;
@@ -30,7 +32,7 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
-		RestnessUtil.log("addGetMultipleRelationsMethod", 1);
+		log.info("addGetMultipleRelationsMethod");
 		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec

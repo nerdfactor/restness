@@ -5,6 +5,7 @@ import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.data.DataPage;
 import eu.nerdfactor.restness.util.RestnessUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,6 +28,7 @@ import java.util.List;
  *
  * @author Daniel Klug
  */
+@Slf4j
 public class SearchMethodBuilder extends MethodBuilder {
 
 	/**
@@ -49,7 +51,7 @@ public class SearchMethodBuilder extends MethodBuilder {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath() + "/search")) {
 			return builder;
 		}
-		RestnessUtil.log("addSearchAllEntitiesMethod", 1);
+		log.info("addSearchAllEntitiesMethod");
 		TypeName responseType = this.configuration.getResponseType();
 		ParameterizedTypeName responsePage = ParameterizedTypeName.get(ClassName.get(Page.class), responseType);
 		MethodSpec.Builder method = MethodSpec

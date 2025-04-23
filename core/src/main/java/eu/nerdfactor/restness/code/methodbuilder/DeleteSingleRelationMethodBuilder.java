@@ -7,6 +7,7 @@ import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.lang.model.element.Modifier;
 
+@Slf4j
 public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 
 	RelationConfiguration relationConfiguration;
@@ -29,7 +31,7 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
-		RestnessUtil.log("addDeleteSingleRelationMethod", 1);
+		log.info("addDeleteSingleRelationMethod");
 		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.REMOVE))

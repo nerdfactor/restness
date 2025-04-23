@@ -4,6 +4,7 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.util.RestnessUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author Daniel Klug
  */
+@Slf4j
 public class ListMethodBuilder extends MethodBuilder {
 
 	/**
@@ -41,7 +43,7 @@ public class ListMethodBuilder extends MethodBuilder {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath())) {
 			return builder;
 		}
-		RestnessUtil.log("addGetAllEntitiesMethod", 1);
+		log.info("addGetAllEntitiesMethod");
 		TypeName responseType = this.configuration.getResponseType();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec

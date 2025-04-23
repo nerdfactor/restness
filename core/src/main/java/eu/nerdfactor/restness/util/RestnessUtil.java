@@ -95,21 +95,4 @@ public class RestnessUtil {
 			case REMOVE -> "remove" + singularName;
 		};
 	}
-
-	public static boolean LOG = false;
-
-	/**
-	 * Simplistic log helper.
-	 *
-	 * @param str The log string.
-	 */
-	public static void log(String str) {
-		log(str, 0);
-	}
-
-	public static void log(String str, int indentation) {
-		if (LOG) {
-			System.out.println("[INFO] " + "  ".repeat(indentation) + str);
-		}
-	}
 }

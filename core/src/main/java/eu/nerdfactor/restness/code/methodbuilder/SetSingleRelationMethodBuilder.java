@@ -7,11 +7,13 @@ import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.Modifier;
 
+@Slf4j
 public class SetSingleRelationMethodBuilder extends MethodBuilder {
 
 	RelationConfiguration relationConfiguration;
@@ -28,7 +30,7 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 				this.configuration.hasExistingRequest(RequestMethod.PATCH, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
-		RestnessUtil.log("addSetSingleRelationMethod", 1);
+		log.info("addSetSingleRelationMethod");
 		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder(RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.SET))

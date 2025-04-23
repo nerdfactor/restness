@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
+@Slf4j
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -59,7 +61,7 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		RestnessUtil.log("addGetEntityMethod", 1);
+		log.info("addGetEntityMethod");
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType);
 

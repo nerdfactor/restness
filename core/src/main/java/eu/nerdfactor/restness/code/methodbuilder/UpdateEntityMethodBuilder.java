@@ -1,19 +1,19 @@
 package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
+import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
+@Slf4j
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -62,7 +63,7 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		if (this.hasExistingRequest) {
 			return builder;
 		}
-		RestnessUtil.log("addUpdateEntityMethod", 1);
+		log.info("addUpdateEntityMethod");
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType, this.requestType);
 

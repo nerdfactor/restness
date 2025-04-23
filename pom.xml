@@ -29,6 +29,7 @@
 		<module>example</module>
 		<module>processing</module>
 		<module>config</module>
+		<module>exporter</module>
 	</modules>
 	<distributionManagement>
 		<repository>

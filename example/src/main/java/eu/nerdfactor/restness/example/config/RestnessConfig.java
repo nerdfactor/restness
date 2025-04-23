@@ -35,7 +35,7 @@ import static eu.nerdfactor.restness.annotation.RestnessConfiguration.INDENT_SPA
  */
 @Component
 @RequiredArgsConstructor
-@RestnessConfiguration(indentation = INDENT_SPACE, classNamePattern = "Restness{NAME_NORMALIZED}Controller", log = true)
+@RestnessConfiguration(indentation = INDENT_SPACE, classNamePattern = "Restness{NAME_NORMALIZED}Controller")
 @RestnessController(className = "eu.nerdfactor.restness.example.controller.OrderController", value = "/api/orders", entity = OrderModel.class, id = Integer.class, dto = OrderDto.class)
 @RestnessSecurity(className = "eu.nerdfactor.restness.example.controller.OrderController")
 public class RestnessConfig {

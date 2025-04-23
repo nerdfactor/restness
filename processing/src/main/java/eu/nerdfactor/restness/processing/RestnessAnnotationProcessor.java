@@ -10,7 +10,7 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.export.JavaClassExporter;
 import eu.nerdfactor.restness.export.RestnessExporter;
-import eu.nerdfactor.restness.util.RestnessUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +33,7 @@ import java.util.*;
  *
  * @author Daniel Klug
  */
+@Slf4j
 @SupportedAnnotationTypes({
 		"eu.nerdfactor.restness.annotation.RestnessController",
 		"eu.nerdfactor.restness.annotation.RestnessSecurity",
@@ -68,11 +69,9 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 					.forClass(RestnessConfiguration.class)
 					.extractInto(generatedConfig);
 
-			RestnessUtil.LOG = !generatedConfig.getOrDefault("log", "false").equals("false");
-
-			RestnessUtil.log("GeneratedConfig");
+			log.info("GeneratedConfig");
 			generatedConfig.forEach((name, value) -> {
-				RestnessUtil.log(name + ": " + value, 1);
+				log.info("{}: {}", name, value);
 			});
 		}
 

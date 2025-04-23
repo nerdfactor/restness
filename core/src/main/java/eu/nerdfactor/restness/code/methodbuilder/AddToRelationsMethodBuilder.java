@@ -7,12 +7,14 @@ import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
 
+@Slf4j
 public class AddToRelationsMethodBuilder extends MethodBuilder {
 
 	RelationConfiguration relationConfiguration;
@@ -29,7 +31,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 				this.configuration.hasExistingRequest(RequestMethod.PATCH, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
 			return builder;
 		}
-		RestnessUtil.log("addAddToRelationsMethod", 1);
+		log.info("addAddToRelationsMethod");
 		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
 		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
 		MethodSpec.Builder method = MethodSpec

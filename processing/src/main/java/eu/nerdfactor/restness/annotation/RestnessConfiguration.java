@@ -58,6 +58,4 @@ public @interface RestnessConfiguration {
 	String dtoNamespace() default "";
 
 	Class<?> exporter() default JavaClassExporter.class;
-
-	boolean log() default false;
 }
