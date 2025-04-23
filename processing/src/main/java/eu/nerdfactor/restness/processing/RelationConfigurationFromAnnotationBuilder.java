@@ -214,6 +214,7 @@ public class RelationConfigurationFromAnnotationBuilder {
 					break;
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		return relationType;
@@ -267,6 +268,7 @@ public class RelationConfigurationFromAnnotationBuilder {
 							break;
 					}
 				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			});
 		}
@@ -290,7 +292,6 @@ public class RelationConfigurationFromAnnotationBuilder {
 									String enumName = o.toString().substring(o.toString().lastIndexOf('.') + 1).trim();
 									relationTypes.add(AccessorType.valueOf(enumName));
 								});
-								int i = 0;
 							}
 						} catch (Exception e) {
 							e.printStackTrace();

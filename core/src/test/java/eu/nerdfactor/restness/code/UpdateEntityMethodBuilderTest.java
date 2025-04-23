@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.lang.model.element.Modifier;
 
 @ExtendWith(MockitoExtension.class)
-public class UpdateEntityMethodBuilderTest {
+class UpdateEntityMethodBuilderTest {
 
 	@Test
 	void shouldCreateBasicMethod() {

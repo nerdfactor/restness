@@ -259,7 +259,7 @@ public class ControllerConfiguration {
 	 *
 	 * @return The Type of the response object.
 	 */
-	@Deprecated
+	@Deprecated(since = "0.0.20")
 	@JsonIgnore
 	public TypeName getSingleResponseType() {
 		return this.isUsingDto() ? this.responseObjectClassName : this.entityClassName;

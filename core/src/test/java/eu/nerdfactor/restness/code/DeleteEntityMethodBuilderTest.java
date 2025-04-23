@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.lang.model.element.Modifier;
 
 @ExtendWith(MockitoExtension.class)
-public class DeleteEntityMethodBuilderTest {
+class DeleteEntityMethodBuilderTest {
 
 	@Test
 	void shouldCreateBasicMethod() {

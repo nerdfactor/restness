@@ -38,6 +38,7 @@ public class ListMethodBuilder extends MethodBuilder {
 	 * @param builder An existing builder object that will be used.
 	 * @return The build {@link TypeSpec.Builder}.
 	 */
+	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.configuration.hasExistingRequest(RequestMethod.GET, this.configuration.getRequestBasePath())) {
 			return builder;
