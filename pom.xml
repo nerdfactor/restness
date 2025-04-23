@@ -10,7 +10,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>eu.nerdfactor.restness</groupId>
-	<artifactId>restness-parent</artifactId>
+	<artifactId>restness</artifactId>
 	<version>0.0.20</version>
 	<name>RESTness</name>
 	<description>
