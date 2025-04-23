@@ -2,9 +2,9 @@ package eu.nerdfactor.restness.example.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.nerdfactor.restness.data.DataPage;
 import eu.nerdfactor.restness.example.customer.CustomerDao;
 import eu.nerdfactor.restness.example.customer.CustomerRepository;
-import eu.nerdfactor.restness.data.DataPage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

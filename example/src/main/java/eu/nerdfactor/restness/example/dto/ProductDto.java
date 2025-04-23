@@ -25,6 +25,10 @@ public class ProductDto implements DataTransferObject<ProductEntity> {
 	@JsonIgnore
 	private Set<OrderModel> orders;
 
+	public ProductDto() {
+		this.orders = new HashSet<>();
+	}
+
 	@Override
 	public ProductEntity convertToEntity() {
 		ProductEntity productEntity = new ProductEntity();
@@ -32,9 +36,5 @@ public class ProductDto implements DataTransferObject<ProductEntity> {
 		productEntity.setName(this.name);
 		productEntity.setOrders(this.orders);
 		return productEntity;
-	}
-
-	public ProductDto() {
-		this.orders = new HashSet<>();
 	}
 }

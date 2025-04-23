@@ -2,10 +2,10 @@ package eu.nerdfactor.restness.example.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.nerdfactor.restness.data.DataPage;
 import eu.nerdfactor.restness.example.customer.CustomerDao;
 import eu.nerdfactor.restness.example.entity.Employee;
 import eu.nerdfactor.restness.example.repository.EmployeeRepository;
-import eu.nerdfactor.restness.data.DataPage;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

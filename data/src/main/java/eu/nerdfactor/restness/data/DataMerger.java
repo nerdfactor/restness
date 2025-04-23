@@ -12,8 +12,8 @@ public interface DataMerger {
 	 * Update an object by merging it with an updated version.
 	 *
 	 * @param original The original object.
-	 * @param updated The object with updated values.
-	 * @param <T> Type of the updated object.
+	 * @param updated  The object with updated values.
+	 * @param <T>      Type of the updated object.
 	 * @return The original object with the updated values.
 	 */
 	<T> T merge(T original, T updated);

@@ -73,6 +73,10 @@ public class ControllerConfigurationFromAnnotationBuilder {
 	 */
 	protected Map<String, String> annotatedValues;
 
+	public static ControllerConfigurationFromAnnotationBuilder create() {
+		return new ControllerConfigurationFromAnnotationBuilder();
+	}
+
 	/**
 	 * @param env The annotation processing environment round.
 	 * @return The builder in a fluent api pattern.
@@ -144,10 +148,6 @@ public class ControllerConfigurationFromAnnotationBuilder {
 	public ControllerConfigurationFromAnnotationBuilder withAnnotatedValues(@NotNull Map<String, String> values) {
 		this.annotatedValues = values;
 		return this;
-	}
-
-	public static ControllerConfigurationFromAnnotationBuilder create() {
-		return new ControllerConfigurationFromAnnotationBuilder();
 	}
 
 	/**

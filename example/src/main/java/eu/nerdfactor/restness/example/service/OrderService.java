@@ -4,7 +4,6 @@ import eu.nerdfactor.restness.data.DataAccessService;
 import eu.nerdfactor.restness.example.entity.OrderModel;
 import eu.nerdfactor.restness.example.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 

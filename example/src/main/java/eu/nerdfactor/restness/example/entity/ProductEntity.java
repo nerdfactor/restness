@@ -38,6 +38,10 @@ public class ProductEntity implements PersistentEntity<ProductDto> {
 	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<OrderModel> orders;
 
+	public ProductEntity() {
+		this.orders = new HashSet<>();
+	}
+
 	public void sendOrder(OrderModel order) {
 		this.orders.add(order);
 	}
@@ -49,9 +53,5 @@ public class ProductEntity implements PersistentEntity<ProductDto> {
 	@Override
 	public ProductDto convertToDto() {
 		return null;
-	}
-
-	public ProductEntity() {
-		this.orders = new HashSet<>();
 	}
 }

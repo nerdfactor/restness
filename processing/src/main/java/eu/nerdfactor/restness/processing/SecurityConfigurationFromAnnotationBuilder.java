@@ -43,6 +43,10 @@ public class SecurityConfigurationFromAnnotationBuilder {
 	 */
 	protected String classNamePattern;
 
+	public static SecurityConfigurationFromAnnotationBuilder create() {
+		return new SecurityConfigurationFromAnnotationBuilder();
+	}
+
 	/**
 	 * @param env The annotation processing environment round.
 	 * @return The builder in a fluent api pattern.
@@ -86,10 +90,6 @@ public class SecurityConfigurationFromAnnotationBuilder {
 	public SecurityConfigurationFromAnnotationBuilder withPattern(@NotNull String pattern) {
 		this.classNamePattern = pattern;
 		return this;
-	}
-
-	public static SecurityConfigurationFromAnnotationBuilder create() {
-		return new SecurityConfigurationFromAnnotationBuilder();
 	}
 
 	/**

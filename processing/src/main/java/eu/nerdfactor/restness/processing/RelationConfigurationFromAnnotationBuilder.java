@@ -51,6 +51,10 @@ public class RelationConfigurationFromAnnotationBuilder {
 	@Deprecated(since = "0.0.20")
 	protected boolean withDtos = true;
 
+	public static RelationConfigurationFromAnnotationBuilder create() {
+		return new RelationConfigurationFromAnnotationBuilder();
+	}
+
 	/**
 	 * @param element The annotated Element.
 	 * @return The builder in a fluent api pattern.
@@ -87,10 +91,6 @@ public class RelationConfigurationFromAnnotationBuilder {
 	public RelationConfigurationFromAnnotationBuilder withDtos(boolean dtos) {
 		this.withDtos = dtos;
 		return this;
-	}
-
-	public static RelationConfigurationFromAnnotationBuilder create() {
-		return new RelationConfigurationFromAnnotationBuilder();
 	}
 
 	/**

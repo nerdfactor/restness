@@ -5,7 +5,10 @@ import eu.nerdfactor.restness.annotation.RelationAccessor;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.example.entity.Employee;
 import eu.nerdfactor.restness.example.entity.OrderModel;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -16,6 +16,19 @@ class RestnessEntityMergerTest {
 	private final DataMerger merger = new RestnessEntityMerger();
 
 	/**
+	 * Provides test scenarios for entity merging with different name values.
+	 *
+	 * @return Stream of arguments with [updatedName, expectedName]
+	 */
+	static Stream<Arguments> provideMergeScenarios() {
+		return Stream.of(
+				Arguments.of("updated", "updated"),   // Non-empty name should be merged
+				Arguments.of(null, "original"),       // Null values should be ignored
+				Arguments.of("", "original")          // Empty strings should be ignored
+		);
+	}
+
+	/**
 	 * Test that a {@link PersistentEntity} is merged with a different entity of
 	 * the same type using the {@link PersistentEntity#mergeWithEntity}
 	 * implementation.
@@ -107,18 +120,5 @@ class RestnessEntityMergerTest {
 		Assertions.assertEquals(Double.valueOf(30.5), result.getDoubleValue());
 		Assertions.assertEquals(Boolean.TRUE, result.getBooleanValue());
 		Assertions.assertEquals(Character.valueOf('A'), result.getCharValue());
-	}
-
-	/**
-	 * Provides test scenarios for entity merging with different name values.
-	 *
-	 * @return Stream of arguments with [updatedName, expectedName]
-	 */
-	static Stream<Arguments> provideMergeScenarios() {
-		return Stream.of(
-				Arguments.of("updated", "updated"),   // Non-empty name should be merged
-				Arguments.of(null, "original"),       // Null values should be ignored
-				Arguments.of("", "original")          // Empty strings should be ignored
-		);
 	}
 }

@@ -4,7 +4,6 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.data.DataPage;
-import eu.nerdfactor.restness.util.RestnessUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
