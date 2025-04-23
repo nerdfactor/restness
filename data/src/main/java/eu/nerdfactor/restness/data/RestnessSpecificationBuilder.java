@@ -2,8 +2,6 @@ package eu.nerdfactor.restness.data;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Arrays;
-
 /**
  * A simplistic specification builder that will directly map a filter string
  * into a specification for query filtering.
@@ -26,14 +24,17 @@ public class RestnessSpecificationBuilder implements DataSpecificationBuilder {
 	public <T> Specification<T> build(String filter, Class<T> cls) {
 		Specification<T> spec = Specification.where(null);
 		if (filter != null && !filter.isBlank()) {
+			if (!filter.matches("^([^:;]+:[^:;]+)(;[^:;]+:[^:;]+)*+$")) {
+				return spec; // Return the empty specification if filter format is invalid
+			}
 			try {
-				String[] pairs = filter.contains(";") ? filter.split(";") : new String[] { filter };
+				String[] pairs = filter.contains(";") ? filter.split(";") : new String[]{filter};
 				for (String pair : pairs) {
 					String[] params = pair.split(":");
 					spec = spec.and((root, query, cb) -> cb.equal(root.get(params[0]), params[1]));
 				}
 			} catch (Exception e) {
-				// ignore wrong formatted filters.
+				// ignore otherwise wrong filters.
 			}
 		}
 		return spec;

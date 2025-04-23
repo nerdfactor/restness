@@ -1,6 +1,7 @@
 package eu.nerdfactor.restness.data;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -70,4 +71,35 @@ public interface DataAccessor<E, ID> {
 	 * @param id The id of the entity to delete.
 	 */
 	void deleteDataById(@NotNull ID id);
+
+	/**
+	 * Checks if an entity with the given ID exists.
+	 *
+	 * @param id must not be {@literal null}.
+	 * @return {@literal true} if an entity with the given ID exists,
+	 *         {@literal false} otherwise.
+	 * @throws IllegalArgumentException if {@literal id} is {@literal null}.
+	 */
+	boolean existsDataById(@NotNull ID id);
+
+	/**
+	 * Checks whether the data store contains elements that match the given
+	 * {@link Specification}.
+	 *
+	 * @param spec the {@link Specification} to check for. Can be {@literal null}.
+	 * @return {@literal true} if the data store contains elements that match the
+	 *         given {@link Specification}, {@literal false} otherwise.
+	 */
+	boolean existsData(Specification<E> spec);
+
+	/**
+	 * Checks whether the data store contains elements that match the given
+	 * {@link Example}.
+	 *
+	 * @param example the {@link Example} to check for. Must not be {@literal null}.
+	 * @return {@literal true} if the data store contains elements that match the
+	 *         given {@link Example}, {@literal false} otherwise.
+	 * @throws IllegalArgumentException if {@literal example} is {@literal null}.
+	 */
+	boolean existsData(Example<E> example);
 }

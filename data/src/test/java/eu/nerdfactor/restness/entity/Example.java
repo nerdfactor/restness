@@ -4,6 +4,9 @@ import eu.nerdfactor.restness.data.PersistentEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Test class for merging and mapping entities.
+ */
 @Getter
 @AllArgsConstructor
 public class Example implements PersistentEntity<ExampleDto> {

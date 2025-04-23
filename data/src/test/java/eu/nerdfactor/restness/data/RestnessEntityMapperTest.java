@@ -5,7 +5,7 @@ import eu.nerdfactor.restness.entity.ExampleDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class RestnessEntityMapperTest {
+class RestnessEntityMapperTest {
 
 	private final DataMapper mapper = new RestnessEntityMapper();
 

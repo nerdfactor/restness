@@ -1,12 +1,14 @@
 package eu.nerdfactor.restness.data;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -41,6 +43,7 @@ public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 	 * to a {@link Page}. Filtering and paging is only applied if the repository
 	 * implements the corresponding interfaces. Otherwise, a page with all data
 	 * will be returned.
+	 * Supports {@link JpaSpecificationExecutor} and {@link PagingAndSortingRepository}.
 	 *
 	 * @param spec The {@link Specification} for filtering.
 	 * @param page The {@link Pageable} for paging.
@@ -108,5 +111,61 @@ public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 	 */
 	default void deleteDataById(@NotNull ID id) {
 		this.getRepository().deleteById(id);
+	}
+
+	/**
+	 * Checks if an entity with the given ID exists.
+	 *
+	 * @param id must not be {@literal null}.
+	 * @return {@literal true} if an entity with the given ID exists,
+	 * {@literal false} otherwise.
+	 * @throws IllegalArgumentException if {@literal id} is {@literal null}.
+	 */
+	@Override
+	default boolean existsDataById(@NotNull ID id) {
+		return this.getRepository().existsById(id);
+	}
+
+	/**
+	 * Checks whether the data store contains elements that match the given
+	 * {@link Specification}.
+	 * Requires the repository to implement {@link JpaSpecificationExecutor}.
+	 *
+	 * @param spec the {@link Specification} to check for. Can be {@literal null}.
+	 * @return {@literal true} if the data store contains elements that match the
+	 * given {@link Specification}
+	 * and the repository supports it, {@literal false} otherwise.
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	default boolean existsData(Specification<E> spec) {
+		CrudRepository<E, ID> repository = this.getRepository();
+		if (repository instanceof JpaSpecificationExecutor) {
+			JpaSpecificationExecutor<E> executor = (JpaSpecificationExecutor<E>) repository;
+			return executor.exists(spec);
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether the data store contains elements that match the given
+	 * {@link Example}.
+	 * Requires the repository to implement {@link QueryByExampleExecutor}.
+	 *
+	 * @param example the {@link Example} to check for. Must not be {@literal null}.
+	 * @return {@literal true} if the data store contains elements that match the
+	 * given {@link Example}
+	 * and the repository supports it, {@literal false} otherwise.
+	 * @throws IllegalArgumentException if {@literal example} is {@literal null}.
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	default boolean existsData(Example<E> example) {
+		CrudRepository<E, ID> repository = this.getRepository();
+		if (repository instanceof QueryByExampleExecutor) {
+			QueryByExampleExecutor<E> executor = (QueryByExampleExecutor<E>) repository;
+			return executor.exists(example);
+		}
+		return false;
 	}
 }

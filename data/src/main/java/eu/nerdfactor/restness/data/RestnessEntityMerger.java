@@ -37,39 +37,79 @@ public class RestnessEntityMerger implements DataMerger {
 	 * @return The original object with the merged values.
 	 */
 	protected <T> T reflectMerge(T original, T updated) {
+		return this.reflectMerge(original, updated, true);
+	}
+
+	/**
+	 * Merges two objects of the same type by accessing getters and setters.
+	 *
+	 * @param original     The original object.
+	 * @param updated      The object with updated values.
+	 * @param failSilently If true, the method will not throw an exception on failure.
+	 *                     Silent Failure may be preferred in a fire and forget merging scenario for
+	 *                     values that are known to not be mergeable with this simple implementation.
+	 * @param <T>          Type of the merged objects.
+	 * @return The original object with the merged values.
+	 * @throws EntityMergerException If an error occurs during the merging process.
+	 */
+	protected <T> T reflectMerge(T original, T updated, boolean failSilently) throws EntityMergerException {
 		Method[] methods = original.getClass().getDeclaredMethods();
 		for (Method m : methods) {
 			String name = m.getName();
 			try {
-				String setter = name;
-				Class<?> type = m.getReturnType();
-				Object value = null;
-				if (name.startsWith("get") && m.getParameterCount() == 0) {
-					value = m.invoke(updated);
-					setter = name.replace("get", "set");
-				}
-				if (name.startsWith("is") && m.getParameterCount() == 0) {
-					// getters for booleans may start with "is", per java code conventions.
-					value = m.invoke(updated);
-					setter = name.replace("is", "set");
-				}
-				if (value != null && (type == String.class && !value.equals(""))
-						|| (type.isPrimitive() && !type.equals(Void.TYPE))) {
-					// only merge non-empty values or primitive types.
-					try {
-						Method method = original.getClass().getMethod(setter, type);
-						method.invoke(original, value);
-					} catch (NoSuchMethodException | SecurityException |
-					         IllegalAccessError | IllegalAccessException |
-					         InvocationTargetException e) {
-						// setter may not exist or can't be accessed.
-					}
-				}
+				this.mergeFieldValueByReflection(original, updated, m, name);
 			} catch (Exception e) {
-				// merge may fail.
-				// todo: throw Exception to be handled upstream or fail silently?
+				if (!failSilently) {
+					throw new EntityMergerException("Error merging Entity because of field: " + name, e);
+				}
 			}
 		}
 		return original;
+	}
+
+	/**
+	 * Merge a single field value from the updated object to the original object using reflection.
+	 * This method works by:
+	 * 1. Identifying getter methods in the updated object
+	 * 2. Retrieving the corresponding value
+	 * 3. Finding the matching setter method in the original object
+	 * 4. Setting the value in the original object
+	 * <p>
+	 * The method transfers:
+	 * - Non-empty strings
+	 * - Primitive types
+	 * - Wrapper types (Integer, Long, Double, etc.)
+	 *
+	 * @param original        The target object to be updated
+	 * @param updated         The source object containing updated values
+	 * @param reflectedMethod The current method being examined (potential getter)
+	 * @param methodName      The name of the current method
+	 * @param <T>             The type of both objects
+	 * @throws IllegalAccessException    If reflection access fails
+	 * @throws InvocationTargetException If the invoked method throws an exception
+	 * @throws NoSuchMethodException     If the corresponding setter method is not found
+	 */
+	protected <T> void mergeFieldValueByReflection(T original, T updated, Method reflectedMethod, String methodName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		String setter = methodName;
+		Class<?> type = reflectedMethod.getReturnType();
+		Object value = null;
+		if (methodName.startsWith("get") && reflectedMethod.getParameterCount() == 0) {
+			value = reflectedMethod.invoke(updated);
+			setter = methodName.replace("get", "set");
+		}
+		if (methodName.startsWith("is") && reflectedMethod.getParameterCount() == 0) {
+			// getters for booleans may start with "is", per java code conventions.
+			value = reflectedMethod.invoke(updated);
+			setter = methodName.replace("is", "set");
+		}
+		if (value != null && ((type == String.class && !value.equals(""))
+				|| type.isPrimitive() && !type.equals(Void.TYPE)
+				|| Number.class.isAssignableFrom(type)
+				|| Boolean.class.equals(type)
+				|| Character.class.equals(type))) {
+			// Merge non-empty strings, primitive types, and wrapper types
+			Method method = original.getClass().getMethod(setter, type);
+			method.invoke(original, value);
+		}
 	}
 }

@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Test class for merging and mapping DTOs.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
