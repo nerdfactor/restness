@@ -4,8 +4,10 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.config.AccessorType;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility methods for generated rest.
@@ -94,5 +96,39 @@ public class RestnessUtil {
 			case ADD -> "add" + singularName;
 			case REMOVE -> "remove" + singularName;
 		};
+	}
+
+	/**
+	 * Check if there already exists a request mapping for the given path and methods.
+	 *
+	 * @param existingRequestMappings The list of existing request mappings.
+	 * @param path                    The path to check.
+	 * @param methods                 The methods to check.
+	 * @return True if there is an existing request mapping for the given path and methods.
+	 */
+	public static boolean hasExistingRequest(List<String> existingRequestMappings, String path, RequestMethod... methods) {
+		return hasExistingRequest(existingRequestMappings, path, Arrays.stream(methods).map(RequestMethod::name).toArray(String[]::new));
+	}
+
+	/**
+	 * Check if there already exists a request mapping for the given path and methods.
+	 *
+	 * @param existingRequestMappings The list of existing request mappings.
+	 * @param path                    The path to check.
+	 * @param methods                 The methods to check.
+	 * @return True if there is an existing request mapping for the given path and methods.
+	 */
+	public static boolean hasExistingRequest(List<String> existingRequestMappings, String path, String... methods) {
+		if (methods == null || methods.length == 0) {
+			return false;
+		}
+
+		String lowerPath = path.toLowerCase();
+		for (String method : methods) {
+			if (existingRequestMappings.contains(method.toUpperCase() + lowerPath)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

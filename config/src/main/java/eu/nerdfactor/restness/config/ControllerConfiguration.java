@@ -225,7 +225,9 @@ public class ControllerConfiguration {
 	 * @param method The method used for the request (i.e. GET or POST).
 	 * @param path   The path used for this request (i.e. /api/users).
 	 * @return True if there already exists a matching RequestMapping.
+	 * @deprecated since 0.0.20, use RestnessUtil.hasExistingRequest(List, String, RequestMethod...) instead.
 	 */
+	@Deprecated(since = "0.0.20")
 	@JsonIgnore
 	public boolean hasExistingRequest(RequestMethod method, String path) {
 		return this.hasExistingRequest(method.name().toUpperCase(), path);
@@ -238,7 +240,9 @@ public class ControllerConfiguration {
 	 * @param method The method used for the request (i.e. GET or POST).
 	 * @param path   The path used for this request (i.e. /api/users).
 	 * @return True if there already exists a matching RequestMapping.
+	 * @deprecated since 0.0.20, use RestnessUtil.hasExistingRequest(List, String, String...) instead.
 	 */
+	@Deprecated(since = "0.0.20")
 	@JsonIgnore
 	public boolean hasExistingRequest(String method, String path) {
 		return this.existingRequestMappings.contains(method.toUpperCase() + path.toLowerCase());
