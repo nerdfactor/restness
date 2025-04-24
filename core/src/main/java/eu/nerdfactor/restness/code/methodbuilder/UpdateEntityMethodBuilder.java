@@ -23,26 +23,74 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
+/**
+ * Builder for creating the method that updates an existing entity in a REST controller.
+ * This builder is responsible for generating the {@code update(id, dto)} method, typically
+ * annotated with {@code @PatchMapping("/{id}")}. It handles checking for existing methods,
+ * injecting authentication logic, defining the method body for retrieving the entity,
+ * merging changes from the request DTO, saving the updated entity, mapping DTOs if
+ * necessary, and wrapping the response.
+ */
 @Slf4j
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
+	/**
+	 * Flag indicating if a request mapping for updating an entity already exists.
+	 */
 	protected boolean hasExistingRequest;
+	/**
+	 * The URL path for the update entity request (e.g., "/entities/{id}").
+	 */
 	protected String requestUrl;
+	/**
+	 * The {@link TypeName} of the request body object (DTO or entity).
+	 */
 	protected TypeName requestType;
+	/**
+	 * The {@link TypeName} of the response object (DTO or entity).
+	 */
 	protected TypeName responseType;
+	/**
+	 * The {@link TypeName} of the entity being updated.
+	 */
 	protected TypeName entityType;
+	/**
+	 * The {@link TypeName} of the entity's identifier (e.g., Long, String).
+	 */
 	protected TypeName identifyingType;
+	/**
+	 * Flag indicating if Data Transfer Objects (DTOs) are used for request/response.
+	 */
 	protected boolean isUsingDto;
+	/**
+	 * Security configuration for the controller method.
+	 */
 	protected SecurityConfiguration securityConfiguration;
+	/**
+	 * The {@link TypeName} of the class used to wrap the response data, if any.
+	 */
 	protected TypeName dataWrapperClass;
 
+	/**
+	 * Creates a new instance of {@link UpdateEntityMethodBuilder}.
+	 *
+	 * @return A new {@link UpdateEntityMethodBuilder}.
+	 */
 	public static UpdateEntityMethodBuilder create() {
 		return new UpdateEntityMethodBuilder();
 	}
 
+	/**
+	 * Configures the builder with the provided {@link ControllerConfiguration}.
+	 * It extracts necessary information like request paths, types, DTO usage,
+	 * security settings, and response wrapping.
+	 *
+	 * @param configuration The {@link ControllerConfiguration} for the controller.
+	 * @return A new configured instance of {@link UpdateEntityMethodBuilder}.
+	 */
 	@Override
 	public UpdateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new UpdateEntityMethodBuilder(
@@ -58,6 +106,16 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		);
 	}
 
+	/**
+	 * Builds the update entity method and adds it to the provided {@link TypeSpec.Builder}.
+	 * If a method with the same signature already exists, it skips the generation.
+	 * Otherwise, it creates the method declaration, injects authentication, adds the
+	 * method body (including entity retrieval, merging, saving, and DTO mapping),
+	 * and injects the return statement logic.
+	 *
+	 * @param builder The {@link TypeSpec.Builder} for the controller class.
+	 * @return The updated {@link TypeSpec.Builder} with the new method added (if applicable).
+	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.hasExistingRequest) {

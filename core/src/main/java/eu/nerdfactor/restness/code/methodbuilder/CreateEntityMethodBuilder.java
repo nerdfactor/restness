@@ -21,25 +21,69 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
+/**
+ * Builder for creating the method that creates a new entity in a REST controller.
+ * This builder is responsible for generating the {@code create(dto)} method, typically annotated
+ * with {@code @PostMapping}. It handles checking for existing methods, injecting
+ * authentication logic, defining the method body for creating the entity, mapping
+ * DTOs if necessary, and wrapping the response.
+ */
 @Slf4j
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
+	/**
+	 * Flag indicating if a request mapping for creating an entity already exists.
+	 */
 	protected boolean hasExistingRequest;
+	/**
+	 * The URL path for the create entity request (e.g., "/entities").
+	 */
 	protected String requestUrl;
+	/**
+	 * The {@link TypeName} of the request body object (DTO or entity).
+	 */
 	protected TypeName requestType;
+	/**
+	 * The {@link TypeName} of the response object (DTO or entity).
+	 */
 	protected TypeName responseType;
+	/**
+	 * The {@link TypeName} of the entity being created.
+	 */
 	protected TypeName entityType;
+	/**
+	 * Flag indicating if Data Transfer Objects (DTOs) are used for request/response.
+	 */
 	protected boolean isUsingDto;
+	/**
+	 * Security configuration for the controller method.
+	 */
 	protected SecurityConfiguration securityConfiguration;
+	/**
+	 * The {@link TypeName} of the class used to wrap the response data, if any.
+	 */
 	protected TypeName dataWrapperClass;
 
+	/**
+	 * Creates a new instance of {@link CreateEntityMethodBuilder}.
+	 *
+	 * @return A new {@link CreateEntityMethodBuilder}.
+	 */
 	public static CreateEntityMethodBuilder create() {
 		return new CreateEntityMethodBuilder();
 	}
 
+	/**
+	 * Configures the builder with the provided {@link ControllerConfiguration}.
+	 * It extracts necessary information like request paths, types, DTO usage,
+	 * security settings, and response wrapping.
+	 *
+	 * @param configuration The {@link ControllerConfiguration} for the controller.
+	 * @return A new configured instance of {@link CreateEntityMethodBuilder}.
+	 */
 	@Override
 	public CreateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new CreateEntityMethodBuilder(
@@ -54,6 +98,16 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		);
 	}
 
+	/**
+	 * Builds the create entity method and adds it to the provided {@link TypeSpec.Builder}.
+	 * If a method with the same signature already exists, it skips the generation.
+	 * Otherwise, it creates the method declaration, injects authentication, adds the
+	 * method body (including DTO mapping and data access logic), and injects the
+	 * return statement logic.
+	 *
+	 * @param builder The {@link TypeSpec.Builder} for the controller class.
+	 * @return The updated {@link TypeSpec.Builder} with the new method added (if applicable).
+	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Post method with the Request Url.
@@ -106,7 +160,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 
 	/**
 	 * Add a method body that creates a new Entity from the object in the RequestBody
-	 * with the help of the DataAccessor and return the result.
+	 * with the help of the DataAccessor and return the result. Handles potential DTO mapping.
 	 *
 	 * @param method       The existing {@link MethodSpec.Builder}.
 	 * @param entityType   The type of the Entity.

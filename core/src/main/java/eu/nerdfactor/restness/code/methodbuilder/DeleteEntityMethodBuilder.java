@@ -20,23 +20,62 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
+/**
+ * Builder for creating the method that deletes an existing entity in a REST controller.
+ * This builder is responsible for generating the {@code delete(id)} method, typically
+ * annotated with {@code @DeleteMapping("/{id}")}. It handles checking for existing methods,
+ * injecting authentication logic, defining the method body for deleting the entity,
+ * and returning a no-content response.
+ */
 @Slf4j
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
+	/**
+	 * Flag indicating if a request mapping for deleting an entity already exists.
+	 */
 	protected boolean hasExistingRequest;
+	/**
+	 * The URL path for the delete entity request (e.g., "/entities/{id}").
+	 */
 	protected String requestUrl;
+	/**
+	 * The {@link TypeName} of the entity being deleted.
+	 */
 	protected TypeName entityType;
+	/**
+	 * The {@link TypeName} of the entity's identifier (e.g., Long, String).
+	 */
 	protected TypeName identifyingType;
+	/**
+	 * Security configuration for the controller method.
+	 */
 	protected SecurityConfiguration securityConfiguration;
+	/**
+	 * The {@link TypeName} of the class used to wrap the response data, if any.
+	 * Although delete typically returns no content, a wrapper might be used for consistency.
+	 */
 	protected TypeName dataWrapperClass;
 
+	/**
+	 * Creates a new instance of {@link DeleteEntityMethodBuilder}.
+	 *
+	 * @return A new {@link DeleteEntityMethodBuilder}.
+	 */
 	public static DeleteEntityMethodBuilder create() {
 		return new DeleteEntityMethodBuilder();
 	}
 
+	/**
+	 * Configures the builder with the provided {@link ControllerConfiguration}.
+	 * It extracts necessary information like request paths, types, security settings,
+	 * and response wrapping.
+	 *
+	 * @param configuration The {@link ControllerConfiguration} for the controller.
+	 * @return A new configured instance of {@link DeleteEntityMethodBuilder}.
+	 */
 	@Override
 	public DeleteEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new DeleteEntityMethodBuilder(
@@ -49,6 +88,16 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		);
 	}
 
+	/**
+	 * Builds the delete entity method and adds it to the provided {@link TypeSpec.Builder}.
+	 * If a method with the same signature already exists, it skips the generation.
+	 * Otherwise, it creates the method declaration, injects authentication, adds the
+	 * method body (calling the data accessor to delete), and injects the no-content
+	 * return statement logic.
+	 *
+	 * @param builder The {@link TypeSpec.Builder} for the controller class.
+	 * @return The updated {@link TypeSpec.Builder} with the new method added (if applicable).
+	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.hasExistingRequest) {
@@ -91,6 +140,12 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 				.addParameter(ParameterSpec.builder(identifyingType, "id").addModifiers(Modifier.FINAL).addAnnotation(PathVariable.class).build());
 	}
 
+	/**
+	 * Add a method body that deletes the Entity identified by the provided id
+	 * using the DataAccessor.
+	 *
+	 * @param method The existing {@link MethodSpec.Builder}.
+	 */
 	protected void addMethodBody(MethodSpec.Builder method) {
 		method.addStatement("this.dataAccessor.deleteDataById(id)");
 	}

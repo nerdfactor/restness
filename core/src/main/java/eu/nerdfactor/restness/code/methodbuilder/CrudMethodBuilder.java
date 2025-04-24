@@ -3,35 +3,41 @@ package eu.nerdfactor.restness.code.methodbuilder;
 import com.squareup.javapoet.TypeSpec;
 
 /**
- * A builder that can be used to create a CRUD methods in a controller. It will
- * use a set of additional builders that build each method.
- * <p>
+ * A builder that orchestrates the creation of standard CRUD (Create, Read, Update, Delete)
+ * methods within a REST controller class.
  * CRUD methods consist of:
- * <li>A method to create an entity.</li>
- * <li>A method to read an entity.</li>
- * <li>A method to update an entity.</li>
- * <li>A method to set an entity.</li>
- * <li>A method to delete an entity<./li>
- * <li>A method to delete an entity by its id.</li>
+ * <ul>
+ *  <li>A method to create an entity.</li>
+ *  <li>A method to read an entity.</li>
+ *  <li>A method to update an entity.</li>
+ *  <li>A method to set an entity.</li>
+ *  <li>A method to delete an entity<./li>
+ *  <li>A method to delete an entity by its id.</li>
+ * </ul>
  *
  * @author Daniel Klug
  */
 public class CrudMethodBuilder extends MultiStepMethodBuilder {
 
 	/**
-	 * Create a new {@link CrudMethodBuilder}.
+	 * Creates a new instance of {@link CrudMethodBuilder}.
 	 *
-	 * @return A new {@link CrudMethodBuilder}.
+	 * @return A new, unconfigured {@link CrudMethodBuilder}.
 	 */
 	public static CrudMethodBuilder create() {
 		return new CrudMethodBuilder();
 	}
 
 	/**
-	 * Create a {@link TypeSpec.Builder} containing CRUD methods.
+	 * Builds all standard CRUD methods (Create, Read, Update, Set, Delete) and adds them
+	 * to the provided {@link TypeSpec.Builder}.
+	 * It configures each individual method builder (Create, Read, Update, Set, Delete)
+	 * with the stored {@link #configuration} and then executes them sequentially
+	 * to add the generated methods to the controller class specification.
 	 *
-	 * @param builder An existing builder object that will be used.
-	 * @return The build {@link TypeSpec.Builder}.
+	 * @param builder An existing {@link TypeSpec.Builder} representing the controller class
+	 *                to which the generated CRUD methods should be added.
+	 * @return The {@link TypeSpec.Builder} updated with the newly added CRUD methods.
 	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {

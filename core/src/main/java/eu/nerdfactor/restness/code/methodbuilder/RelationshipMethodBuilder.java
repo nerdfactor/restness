@@ -5,33 +5,46 @@ import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.config.RelationType;
 
 /**
- * A builder that can be used to create a methods to manage relationships in a
- * controller.
- * <p>
+ * A builder that orchestrates the creation of methods for managing entity relationships
+ * within a REST controller class.
  * Relationship methods consist of:
- * <li>A method to read every relationship</li>
- * <li>A method to set or add every relationship</li>
- * <li>A method to delete every relationship</li>
+ * <ul>
+ *   <li>A method to read every relationship</li>
+ *   <li>A method to set or add every relationship</li>
+ *   <li>A method to delete every relationship</li>
+ * </ul>
  *
  * @author Daniel Klug
  */
 public class RelationshipMethodBuilder extends MultiStepMethodBuilder {
 
 	/**
-	 * Create a new {@link RelationshipMethodBuilder}.
+	 * Creates a new instance of {@link RelationshipMethodBuilder}.
 	 *
-	 * @return A new {@link RelationshipMethodBuilder}.
+	 * @return A new, unconfigured {@link RelationshipMethodBuilder}.
 	 */
 	public static RelationshipMethodBuilder create() {
 		return new RelationshipMethodBuilder();
 	}
 
 	/**
-	 * Create a {@link TypeSpec.Builder} containing a methods to manage
-	 * relationships.
+	 * Builds the relationship management methods based on the configured relations
+	 * and adds them to the provided {@link TypeSpec.Builder}.
+	 * <p>
+	 * It first checks if relations are enabled and configured. If so, it iterates
+	 * through each {@link RelationConfiguration}. Depending on whether the relation
+	 * type is {@link RelationType#SINGLE} or {@link RelationType#MULTIPLE}, it adds
+	 * the corresponding specialized method builders (e.g., {@link GetSingleRelationMethodBuilder},
+	 * {@link SetSingleRelationMethodBuilder}, {@link DeleteSingleRelationMethodBuilder} for single;
+	 * {@link GetMultipleRelationsMethodBuilder}, {@link AddToRelationsMethodBuilder},
+	 * {@link DeleteFromRelationsMethodBuilder} for multiple) to its internal list.
+	 * Finally, it executes all added builders to generate and add the methods to the
+	 * controller class specification.
 	 *
-	 * @param builder An existing builder object that will be used.
-	 * @return The build {@link TypeSpec.Builder}.
+	 * @param builder An existing {@link TypeSpec.Builder} representing the controller class
+	 *                to which the generated relationship methods should be added.
+	 * @return The {@link TypeSpec.Builder} updated with the newly added relationship methods,
+	 * or the original builder if no relations are configured.
 	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
@@ -46,7 +59,7 @@ public class RelationshipMethodBuilder extends MultiStepMethodBuilder {
 			}
 			if (relation.getRelationType() == RelationType.MULTIPLE) {
 				this.and(new GetMultipleRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
-				this.and(new AddToRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
+				this.and(AddToRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
 				this.and(new DeleteFromRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
 			}
 		}

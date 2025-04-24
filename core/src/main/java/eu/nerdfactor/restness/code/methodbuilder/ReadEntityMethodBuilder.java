@@ -21,25 +21,68 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 
+/**
+ * Builder for creating the method that reads a single entity by its id in a REST controller.
+ * This builder is responsible for generating the {@code get(id)} method, typically annotated
+ * with {@code @GetMapping("/{id}")}. It handles checking for existing methods, injecting
+ * authentication logic, defining the method body for retrieving the entity, and wrapping
+ * the response.
+ */
 @Slf4j
 @With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
+	/**
+	 * Flag indicating if a request mapping for reading a single entity already exists.
+	 */
 	protected boolean hasExistingRequest;
+	/**
+	 * The URL path for the read entity request (e.g., "/{id}").
+	 */
 	protected String requestUrl;
+	/**
+	 * The {@link TypeName} of the response object (DTO or entity).
+	 */
 	protected TypeName responseType;
+	/**
+	 * The {@link TypeName} of the entity being read.
+	 */
 	protected TypeName entityType;
+	/**
+	 * The {@link TypeName} of the entity's identifier (e.g., Long, String).
+	 */
 	protected TypeName identifyingType;
+	/**
+	 * Flag indicating if Data Transfer Objects (DTOs) are used for the response.
+	 */
 	protected boolean isUsingDto;
+	/**
+	 * Security configuration for the controller method.
+	 */
 	protected SecurityConfiguration securityConfiguration;
+	/**
+	 * The {@link TypeName} of the class used to wrap the response data, if any.
+	 */
 	protected TypeName dataWrapperClass;
 
+	/**
+	 * Creates a new instance of {@link ReadEntityMethodBuilder}.
+	 *
+	 * @return A new {@link ReadEntityMethodBuilder}.
+	 */
 	public static ReadEntityMethodBuilder create() {
 		return new ReadEntityMethodBuilder();
 	}
 
+	/**
+	 * Configures the builder with the provided {@link ControllerConfiguration}.
+	 * It extracts necessary information like request paths, types, and security settings.
+	 *
+	 * @param configuration The {@link ControllerConfiguration} for the controller.
+	 * @return A new configured instance of {@link ReadEntityMethodBuilder}.
+	 */
 	@Override
 	public ReadEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return new ReadEntityMethodBuilder(
@@ -54,6 +97,15 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 		);
 	}
 
+	/**
+	 * Builds the read entity method and adds it to the provided {@link TypeSpec.Builder}.
+	 * If a method with the same signature already exists, it skips the generation.
+	 * Otherwise, it creates the method declaration, injects authentication, adds the
+	 * method body, and injects the return statement logic.
+	 *
+	 * @param builder The {@link TypeSpec.Builder} for the controller class.
+	 * @return The updated {@link TypeSpec.Builder} with the new method added (if applicable).
+	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Get method with the Request Url and an id parameter.
@@ -103,7 +155,7 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	 * Add a method body that finds an Entity with the help of the
 	 * DataAccessor and the provided id and return the result. Will
 	 * throw a new EntityNotFoundException if no Entity could be
-	 * found.
+	 * found. Handles potential DTO mapping.
 	 *
 	 * @param method       The existing {@link MethodSpec.Builder}.
 	 * @param entityType   The type of the Entity.

@@ -8,22 +8,29 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A builder that can be used to create methods in a controller.
- *
+ * Abstract base class for builders that construct multiple methods within a controller class.
+ * This class extends {@link MultiStepBuilder} and implements {@link Configurable} and {@link Buildable}
+ * to provide a common structure for method builders that operate based on a {@link ControllerConfiguration}.
+ * Subclasses will typically override the {@link #buildWith(TypeSpec.Builder)} method to add specific
+ * methods (like CRUD operations) to the controller being built.
+ * 
  * @author Daniel Klug
  */
 public abstract class MultiStepMethodBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration>, Buildable<TypeSpec.Builder> {
 
 	/**
-	 * The {@link ControllerConfiguration} used to create the method.
+	 * The {@link ControllerConfiguration} containing settings and type information
+	 * used by the builder to generate controller methods.
 	 */
 	protected ControllerConfiguration configuration;
 
 	/**
-	 * Set the {@link ControllerConfiguration} that will be used.
+	 * Configures the builder with the provided {@link ControllerConfiguration}.
+	 * This configuration provides the necessary context (entity types, DTO usage, security, etc.)
+	 * for generating the controller methods.
 	 *
-	 * @param configuration The {@link ControllerConfiguration}.
-	 * @return The builder in a fluent api pattern.
+	 * @param configuration The {@link ControllerConfiguration} to use.
+	 * @return The current builder instance for fluent chaining.
 	 */
 	@Override
 	public MultiStepMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
@@ -32,10 +39,14 @@ public abstract class MultiStepMethodBuilder extends MultiStepBuilder<TypeSpec.B
 	}
 
 	/**
-	 * Create a {@link TypeSpec.Builder} containing multiple methods.
+	 * Builds the methods defined by the specific builder implementation and adds them
+	 * to the provided {@link TypeSpec.Builder}.
+	 * This base implementation simply returns the builder unmodified. Subclasses should
+	 * override this method to add their generated methods.
 	 *
-	 * @param builder An existing builder object that will be used.
-	 * @return The build {@link TypeSpec.Builder}.
+	 * @param builder An existing {@link TypeSpec.Builder} representing the controller class
+	 *                to which the generated methods should be added.
+	 * @return The {@link TypeSpec.Builder} potentially modified with newly added methods.
 	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
