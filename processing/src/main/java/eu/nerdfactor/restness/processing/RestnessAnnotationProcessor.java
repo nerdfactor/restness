@@ -8,8 +8,8 @@ import eu.nerdfactor.restness.annotation.RestnessController;
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.export.JavaClassExporter;
-import eu.nerdfactor.restness.export.RestnessExporter;
+import eu.nerdfactor.restness.generate.JavaClassGenerator;
+import eu.nerdfactor.restness.generate.RestnessGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,47 +75,63 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 			});
 		}
 
-		// Get all DynamicRestController annotations and gather information from the specified
-		// entity in order to create a ControllerConfiguration.
-		this.findControllerValues(roundEnvironment).forEach(wrapper -> {
-			ControllerConfiguration config = ControllerConfigurationFromAnnotationBuilder.create()
-					.withElement(wrapper.element())
-					.withUtils(this.elementUtils)
-					.withEnvironment(roundEnvironment)
-					.withAnnotatedValues(wrapper.values())
-					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
-					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
-					.withResponseWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
-					.withDtoClasses(this.findDtoClasses(roundEnvironment, generatedConfig.getOrDefault("dtoNamespace", "")))
-					.build();
-			controllers.put(config.getControllerClassName().simpleName(), config);
-		});
+		boolean importedConfiguration = false;
+		String importerClassName = generatedConfig.getOrDefault("importer", null);
+		String importPath = generatedConfig.getOrDefault("importPath", "");
+		if (importerClassName != null && !importerClassName.isEmpty() && !importPath.isEmpty()) {
+			// todo: Import the configuration from a file.
+			importedConfiguration = true;
+		}
 
-		// Get all DynamicRestSecurity annotations and add them to the matching controllers.
-		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessSecurity.class)) {
-			if (element.getKind() != ElementKind.CLASS) {
-				return true;
-			}
-			SecurityConfiguration security = SecurityConfigurationFromAnnotationBuilder.create()
-					.withElement(element)
-					.withUtils(this.elementUtils)
-					.withEnvironment(roundEnvironment)
-					.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
-					.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
-					.build();
-			if (controllers.containsKey(security.getControllerClassName().simpleName())) {
-				controllers.get(security.getControllerClassName().simpleName()).setSecurityConfiguration(security);
+		if (!importedConfiguration) {
+			// Get all DynamicRestController annotations and gather information from the specified
+			// entity in order to create a ControllerConfiguration.
+			this.findControllerValues(roundEnvironment).forEach(wrapper -> {
+				ControllerConfiguration config = ControllerConfigurationFromAnnotationBuilder.create()
+						.withElement(wrapper.element())
+						.withUtils(this.elementUtils)
+						.withEnvironment(roundEnvironment)
+						.withAnnotatedValues(wrapper.values())
+						.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
+						.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
+						.withResponseWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
+						.withDtoClasses(this.findDtoClasses(roundEnvironment, generatedConfig.getOrDefault("dtoNamespace", "")))
+						.build();
+				controllers.put(config.getControllerClassName().simpleName(), config);
+			});
+
+			// Get all DynamicRestSecurity annotations and add them to the matching controllers.
+			for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessSecurity.class)) {
+				if (element.getKind() != ElementKind.CLASS) {
+					return true;
+				}
+				SecurityConfiguration security = SecurityConfigurationFromAnnotationBuilder.create()
+						.withElement(element)
+						.withUtils(this.elementUtils)
+						.withEnvironment(roundEnvironment)
+						.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
+						.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
+						.build();
+				if (controllers.containsKey(security.getControllerClassName().simpleName())) {
+					controllers.get(security.getControllerClassName().simpleName()).setSecurityConfiguration(security);
+				}
 			}
 		}
 
+		String exporterClassName = generatedConfig.getOrDefault("exporter", null);
+		String exportPath = generatedConfig.getOrDefault("exportPath", "");
+		if (exporterClassName != null && !exporterClassName.isEmpty() && !exportPath.isEmpty()) {
+			// todo: Export the configuration to a file.
+
+		}
+
 		// Take the ControllerConfigurations and build new classes from them.
-		String exporterClassName = generatedConfig.getOrDefault("exporter", JavaClassExporter.class.getCanonicalName());
+		String generatorClassName = generatedConfig.getOrDefault("generator", JavaClassGenerator.class.getCanonicalName());
 		try {
 			// todo: maybe a factory is better?
-			Class cls = Class.forName(exporterClassName);
-			RestnessExporter exporter = (RestnessExporter) cls.getDeclaredConstructor().newInstance();
-			exporter.withFiler(this.filer)
-					.export(generatedConfig, controllers);
+			Class cls = Class.forName(generatorClassName);
+			RestnessGenerator generator = (RestnessGenerator) cls.getDeclaredConstructor().newInstance();
+			generator.withFiler(this.filer).generate(generatedConfig, controllers);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

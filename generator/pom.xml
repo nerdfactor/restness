@@ -8,7 +8,7 @@
 		<groupId>eu.nerdfactor.restness</groupId>
 		<version>0.0.20</version>
 	</parent>
-	<artifactId>restness-exporter</artifactId>
+	<artifactId>restness-generator</artifactId>
 	<version>0.0.20</version>
 	<dependencies>
 		<dependency>

@@ -1,6 +1,6 @@
 package eu.nerdfactor.restness.annotation;
 
-import eu.nerdfactor.restness.export.JavaClassExporter;
+import eu.nerdfactor.restness.generate.JavaClassGenerator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -57,5 +57,32 @@ public @interface RestnessConfiguration {
 	 */
 	String dtoNamespace() default "";
 
-	Class<?> exporter() default JavaClassExporter.class;
+	/**
+	 * Class used to generate the classes.
+	 */
+	Class<?> generator() default JavaClassGenerator.class;
+
+	/**
+	 * Class that will be used for optional exporting of the configuration.
+	 */
+	Class<?> exporter() default Object.class;
+
+	/**
+	 * Path to the export file. This will be used to export the configuration
+	 * if an exporter is provided.
+	 */
+	String exportPath() default "";
+
+	/**
+	 * Class that will be used for optional importing of the configuration.
+	 * If this class is provided, the imported configuration will be used
+	 * instead of the discovered configuration.
+	 */
+	Class<?> importer() default Object.class;
+
+	/**
+	 * Path to the import file. This will be used to import the configuration
+	 * if an importer is provided.
+	 */
+	String importPath() default "";
 }

@@ -1,4 +1,4 @@
-package eu.nerdfactor.restness.export;
+package eu.nerdfactor.restness.generate;
 
 import com.squareup.javapoet.JavaFile;
 import eu.nerdfactor.restness.code.RestnessControllerBuilder;
@@ -10,18 +10,18 @@ import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
-public class JavaClassExporter implements RestnessExporter {
+public class JavaClassGenerator implements RestnessGenerator {
 
 	private Filer filer;
 
-	public JavaClassExporter withFiler(Filer filer) {
+	public JavaClassGenerator withFiler(Filer filer) {
 		this.filer = filer;
 		return this;
 	}
 
 
 	@Override
-	public void export(Map<String, String> config, Map<String, ControllerConfiguration> controllers) {
+	public void generate(Map<String, String> config, Map<String, ControllerConfiguration> controllers) {
 		controllers.values().forEach(controllerConfiguration -> {
 			try {
 				log.info("Generating {} for {}.", controllerConfiguration.getControllerClassName().canonicalName(), controllerConfiguration.getEntityClassName().toString());

@@ -29,7 +29,7 @@
 		<module>example</module>
 		<module>processing</module>
 		<module>config</module>
-		<module>exporter</module>
+		<module>generator</module>
 	</modules>
 	<distributionManagement>
 		<repository>
