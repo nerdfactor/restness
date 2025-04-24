@@ -87,7 +87,7 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		return MethodSpec.methodBuilder("delete")
 				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", requestUrl).build())
 				.addModifiers(Modifier.PUBLIC)
-				.returns(ResponseEntity.class)
+				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), WildcardTypeName.subtypeOf(Object.class)))
 				.addParameter(ParameterSpec.builder(identifyingType, "id").addModifiers(Modifier.FINAL).addAnnotation(PathVariable.class).build());
 	}
 

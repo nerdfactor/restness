@@ -38,7 +38,7 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).build())
 				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
-				.returns(ClassName.get(ResponseEntity.class))
+				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), WildcardTypeName.subtypeOf(Object.class)))
 				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
