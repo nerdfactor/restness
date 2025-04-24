@@ -49,7 +49,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 				configuration.hasExistingRequest(RequestMethod.PUT, configuration.getRequestBasePath() + "/{id}"),
 				configuration.getRequestBasePath() + "/{id}",
 				configuration.getRequestType(),
-				configuration.getSingleResponseType(),
+				configuration.getResponseType(),
 				configuration.getEntityClassName(),
 				configuration.getIdClassName(),
 				configuration.isUsingDto(),

@@ -251,28 +251,7 @@ public class ControllerConfiguration {
 	 */
 	@JsonIgnore
 	public TypeName getResponseType() {
-		return this.getSingleResponseType();
-	}
-
-	/**
-	 * Get the Type of the single response object.
-	 *
-	 * @return The Type of the response object.
-	 */
-	@Deprecated(since = "0.0.20")
-	@JsonIgnore
-	public TypeName getSingleResponseType() {
 		return this.isUsingDto() ? this.responseObjectClassName : this.entityClassName;
-	}
-
-	/**
-	 * Get the {@link TypeName} of the list response object.
-	 *
-	 * @return The {@link TypeName} of the list response object.
-	 */
-	@JsonIgnore
-	public TypeName getListResponseType() {
-		return this.isUsingDto() ? this.responseListClassName : this.entityClassName;
 	}
 
 	/**

@@ -46,7 +46,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 				configuration.hasExistingRequest(RequestMethod.POST, configuration.getRequestBasePath()),
 				configuration.getRequestBasePath(),
 				configuration.getRequestType(),
-				configuration.getSingleResponseType(),
+				configuration.getResponseType(),
 				configuration.getEntityClassName(),
 				configuration.isUsingDto(),
 				configuration.getSecurityConfiguration(),

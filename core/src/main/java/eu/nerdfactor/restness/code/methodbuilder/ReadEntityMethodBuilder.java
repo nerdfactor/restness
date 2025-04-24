@@ -45,7 +45,7 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 		return new ReadEntityMethodBuilder(
 				configuration.hasExistingRequest(RequestMethod.GET, configuration.getRequestBasePath() + "/{id}"),
 				configuration.getRequestBasePath() + "/{id}",
-				configuration.getSingleResponseType(),
+				configuration.getResponseType(),
 				configuration.getEntityClassName(),
 				configuration.getIdClassName(),
 				configuration.isUsingDto(),
