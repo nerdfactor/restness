@@ -97,13 +97,13 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	public SetEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.PUT))
 				.withBasePath(configuration.getRequestBasePath() + "/{id}")
-				.withRequestBodyType(configuration.getRequestType())
-				.withResponseBodyType(configuration.getResponseType())
-				.withEntityType(configuration.getEntityClassName())
-				.withIdType(configuration.getIdClassName())
+				.withRequestBodyType(configuration.getRequestBodyType())
+				.withResponseBodyType(configuration.getResponseBodyType())
+				.withEntityType(configuration.getEntityType())
+				.withIdType(configuration.getIdType())
 				.withUsingDto(configuration.isUsingDto())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**

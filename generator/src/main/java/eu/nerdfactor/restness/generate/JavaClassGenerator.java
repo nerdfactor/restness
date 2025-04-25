@@ -24,7 +24,7 @@ public class JavaClassGenerator implements RestnessGenerator {
 	public void generate(Map<String, String> config, Map<String, ControllerConfiguration> controllers) {
 		controllers.values().forEach(controllerConfiguration -> {
 			try {
-				log.info("Generating {} for {}.", controllerConfiguration.getControllerClassName().canonicalName(), controllerConfiguration.getEntityClassName().toString());
+				log.info("Generating {} for {}.", controllerConfiguration.getControllerClassName().canonicalName(), controllerConfiguration.getEntityType().toString());
 				JavaFile.builder(
 								controllerConfiguration.getControllerClassName().packageName(),
 								RestnessControllerBuilder.create().withConfiguration(controllerConfiguration).build()

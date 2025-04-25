@@ -110,10 +110,10 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	public SetSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestMappings(configuration.getExistingRequestMappings())
 				.withBasePath(configuration.getRequestBasePath())
-				.withIdType(configuration.getIdClassName())
-				.withEntityType(configuration.getEntityClassName())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withIdType(configuration.getIdType())
+				.withEntityType(configuration.getEntityType())
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**
@@ -124,14 +124,14 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	 */
 	public SetSingleRelationMethodBuilder withRelation(RelationConfiguration relation) {
 		// Determine the class name for request/response based on DTO usage
-		TypeName dtoOrEntity = relation.isUsingDto() && relation.getResponseObjectClassName() != null && !relation.getResponseObjectClassName().equals(TypeName.OBJECT)
-				? relation.getResponseObjectClassName()
-				: relation.getEntityClassName();
+		TypeName dtoOrEntity = relation.isUsingDto() && relation.getResponseObjectType() != null && !relation.getResponseObjectType().equals(TypeName.OBJECT)
+				? relation.getResponseObjectType()
+				: relation.getEntityType();
 
 		return this.withRelationName(relation.getRelationName())
 				.withUsingDto(relation.isUsingDto())
 				.withRelationResponseType(dtoOrEntity) // Use the determined class
-				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationEntityType(relation.getEntityType())
 				.withRelationSetter(relation.getSetterMethodName());
 	}
 

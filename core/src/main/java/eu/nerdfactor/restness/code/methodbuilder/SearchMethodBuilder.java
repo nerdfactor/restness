@@ -99,11 +99,11 @@ public class SearchMethodBuilder extends MethodBuilder {
 	public SearchMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/search", RequestMethod.GET))
 				.withBasePath(configuration.getRequestBasePath())
-				.withResponseBodyType(configuration.getResponseType())
-				.withEntityType(configuration.getEntityClassName())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseBodyType(configuration.getResponseBodyType())
+				.withEntityType(configuration.getEntityType())
+				.withSecurityConfig(configuration.getSecurityConfig())
 				.withUsingDto(configuration.isUsingDto())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 

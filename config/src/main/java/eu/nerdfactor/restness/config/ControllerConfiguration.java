@@ -55,7 +55,7 @@ public class ControllerConfiguration {
 	 * <li>{@code com.example.entity.UserEntity}</li>
 	 * <li>{@code com.example.model.OrderModel}</li>
 	 */
-	protected TypeName entityClassName;
+	protected TypeName entityType;
 
 	/**
 	 * The {@link TypeName} for the entities id field. This includes the full
@@ -67,7 +67,7 @@ public class ControllerConfiguration {
 	 * <li>{@code java.lang.String}</li>
 	 * <li>{@code java.util.UUID}</li>
 	 */
-	protected TypeName idClassName;
+	protected TypeName idType;
 
 	/**
 	 * The method name to access the id of the entity. This will be used in the
@@ -156,7 +156,7 @@ public class ControllerConfiguration {
 	 * <li>{@code com.example.data.ResponseContainer}</li>
 	 * <li>{@code eu.nerdfactor.restness.data.DataWrapper}</li>
 	 */
-	protected TypeName responseWrapperClassName;
+	protected TypeName responseWrapperType;
 
 	/**
 	 * The {@link ParameterizedTypeName} of the service used to access entities.
@@ -174,7 +174,7 @@ public class ControllerConfiguration {
 	 * java.lang.Integer>}</li>
 	 * <li>{@code com.example.data.OrderDao<com.example.model.OrderModel>}</li>
 	 */
-	protected ParameterizedTypeName dataAccessorClassName;
+	protected ParameterizedTypeName dataAccessorType;
 
 	/**
 	 * The {@link TypeName} of the data merger that will be used to merge
@@ -187,7 +187,7 @@ public class ControllerConfiguration {
 	 * <li>{@code com.example.util.EntityUpdater}</li>
 	 * <li>{@code eu.nerdfactor.restness.data.DataMerger}</li>
 	 */
-	protected TypeName dataMergerClassName;
+	protected TypeName dataMergerType;
 
 	/**
 	 * The {@link TypeName} of the data mapper that will be used to map between
@@ -205,7 +205,7 @@ public class ControllerConfiguration {
 	 * <li>{@code com.example.util.DtoMapping}</li>
 	 * <li>{@code eu.nerdfactor.restness.data.DataMapper}</li>
 	 */
-	protected TypeName dataMapperClassName;
+	protected TypeName dataMapperType;
 
 	/**
 	 * A {@link List} of existing RequestMappings that will be skipped during
@@ -219,7 +219,7 @@ public class ControllerConfiguration {
 	 */
 	@Setter
 	@JsonIgnore
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 
 	/**
 	 * A {@link Map} of {@link RelationConfiguration}s used during generation of
@@ -265,8 +265,8 @@ public class ControllerConfiguration {
 	 * @return The {@link TypeName} of the response object.
 	 */
 	@JsonIgnore
-	public TypeName getResponseType() {
-		return this.isUsingDto() ? this.responseObjectClassName : this.entityClassName;
+	public TypeName getResponseBodyType() {
+		return this.isUsingDto() ? this.responseObjectClassName : this.entityType;
 	}
 
 	/**
@@ -275,8 +275,8 @@ public class ControllerConfiguration {
 	 * @return The {@link TypeName} of the request object.
 	 */
 	@JsonIgnore
-	public TypeName getRequestType() {
-		return this.isUsingDto() ? this.responseObjectClassName : this.entityClassName;
+	public TypeName getRequestBodyType() {
+		return this.isUsingDto() ? this.responseObjectClassName : this.entityType;
 	}
 
 	/**

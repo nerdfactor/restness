@@ -91,11 +91,11 @@ public class ListMethodBuilder extends MethodBuilder {
 	public ListMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath(), RequestMethod.GET))
 				.withBasePath(configuration.getRequestBasePath())
-				.withResponseBodyType(configuration.getResponseType())
-				.withEntityType(configuration.getEntityClassName())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseBodyType(configuration.getResponseBodyType())
+				.withEntityType(configuration.getEntityType())
+				.withSecurityConfig(configuration.getSecurityConfig())
 				.withUsingDto(configuration.isUsingDto())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**

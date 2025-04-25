@@ -171,9 +171,9 @@ public class RelationConfigurationFromAnnotationBuilder {
 					final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = this.elementUtils.getElementValuesWithDefaults(annotation);
 					RelationConfiguration relation = new RelationConfiguration();
 					relation.setRelationName(field.getSimpleName().toString());
-					relation.setEntityClassName(fieldClass);
-					relation.setResponseObjectClassName(this.withDtos ? this.findDtoType(fieldClass, this.dtoClasses) : null);
-					relation.setIdClassName(idClass);
+					relation.setEntityType(fieldClass);
+					relation.setResponseObjectType(this.withDtos ? this.findDtoType(fieldClass, this.dtoClasses) : null);
+					relation.setIdType(idClass);
 					relation.setIdAccessorMethodName(idAccessor);
 					relation.setRelationType(this.findRelationType(relationType, elementValues));
 					relation.setAccessorMethodNames(this.findRelationAccessors(field.getSimpleName().toString(), fieldClass, entityElement, elementValues));
@@ -182,9 +182,9 @@ public class RelationConfigurationFromAnnotationBuilder {
 					final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = this.elementUtils.getElementValuesWithDefaults(annotation);
 					RelationConfiguration relation = new RelationConfiguration();
 					relation.setRelationName(field.getSimpleName().toString());
-					relation.setEntityClassName(fieldClass);
-					relation.setResponseObjectClassName(this.withDtos ? this.findDtoType(fieldClass, this.dtoClasses) : null);
-					relation.setIdClassName(idClass);
+					relation.setEntityType(fieldClass);
+					relation.setResponseObjectType(this.withDtos ? this.findDtoType(fieldClass, this.dtoClasses) : null);
+					relation.setIdType(idClass);
 					relation.setIdAccessorMethodName(idAccessor);
 					relation.setRelationType(relationType);
 					relation.setAccessorMethodNames(this.findRelationAccessors(field.getSimpleName().toString(), fieldClass, entityElement, elementValues));

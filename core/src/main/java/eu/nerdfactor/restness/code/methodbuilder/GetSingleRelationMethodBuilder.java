@@ -111,10 +111,10 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 	public GetSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestMappings(configuration.getExistingRequestMappings())
 				.withBasePath(configuration.getRequestBasePath())
-				.withEntityType(configuration.getEntityClassName())
-				.withIdType(configuration.getIdClassName())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withEntityType(configuration.getEntityType())
+				.withIdType(configuration.getIdType())
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**
@@ -126,8 +126,8 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 	public GetSingleRelationMethodBuilder withRelation(RelationConfiguration relation) {
 		return this.withRelationName(relation.getRelationName())
 				.withUsingDto(relation.isUsingDto())
-				.withRelationResponseType(relation.getResponseObjectClassName())
-				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationResponseType(relation.getResponseObjectType())
+				.withRelationEntityType(relation.getEntityType())
 				.withRelationGetter(relation.getGetterMethodName());
 	}
 

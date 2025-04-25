@@ -113,10 +113,10 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	public GetMultipleRelationsMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestMappings(configuration.getExistingRequestMappings())
 				.withBasePath(configuration.getRequestBasePath())
-				.withIdType(configuration.getIdClassName())
-				.withEntityType(configuration.getEntityClassName())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withIdType(configuration.getIdType())
+				.withEntityType(configuration.getEntityType())
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**
@@ -128,8 +128,8 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	public GetMultipleRelationsMethodBuilder withRelation(RelationConfiguration relation) {
 		return this.withRelationName(relation.getRelationName())
 				.withUsingDto(relation.isUsingDto())
-				.withRelationResponseType(relation.getResponseObjectClassName())
-				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationResponseType(relation.getResponseObjectType())
+				.withRelationEntityType(relation.getEntityType())
 				.withRelationGetter(relation.getGetterMethodName());
 	}
 

@@ -113,7 +113,7 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 						.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
 						.build();
 				if (controllers.containsKey(security.getControllerClassName().simpleName())) {
-					controllers.get(security.getControllerClassName().simpleName()).setSecurityConfiguration(security);
+					controllers.get(security.getControllerClassName().simpleName()).setSecurityConfig(security);
 				}
 			}
 		}

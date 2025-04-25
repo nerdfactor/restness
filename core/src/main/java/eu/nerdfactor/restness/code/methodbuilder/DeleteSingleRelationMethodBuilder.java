@@ -103,7 +103,7 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	 */
 	public DeleteSingleRelationMethodBuilder withRelation(RelationConfiguration relation) {
 		return this.withRelationName(relation.getRelationName())
-				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationEntityType(relation.getEntityType())
 				.withRelationSetter(relation.getSetterMethodName());
 	}
 
@@ -116,10 +116,10 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	public DeleteSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestMappings(configuration.getExistingRequestMappings())
 				.withBasePath(configuration.getRequestBasePath())
-				.withIdType(configuration.getIdClassName())
-				.withEntityType(configuration.getEntityClassName())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withIdType(configuration.getIdType())
+				.withEntityType(configuration.getEntityType())
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**

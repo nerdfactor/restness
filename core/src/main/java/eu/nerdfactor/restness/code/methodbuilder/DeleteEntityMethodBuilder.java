@@ -83,10 +83,10 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	public DeleteEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.DELETE))
 				.withRequestPath(configuration.getRequestBasePath() + "/{id}")
-				.withEntityType(configuration.getEntityClassName())
-				.withIdType(configuration.getIdClassName())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withEntityType(configuration.getEntityType())
+				.withIdType(configuration.getIdType())
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**

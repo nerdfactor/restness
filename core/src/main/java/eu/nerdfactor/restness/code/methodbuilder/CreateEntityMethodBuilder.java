@@ -91,12 +91,12 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	public CreateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath(), RequestMethod.POST))
 				.withBasePath(configuration.getRequestBasePath())
-				.withRequestBodyType(configuration.getRequestType())
-				.withResponseBodyType(configuration.getResponseType())
-				.withEntityType(configuration.getEntityClassName())
+				.withRequestBodyType(configuration.getRequestBodyType())
+				.withResponseBodyType(configuration.getResponseBodyType())
+				.withEntityType(configuration.getEntityType())
 				.withUsingDto(configuration.isUsingDto())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**

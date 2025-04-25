@@ -98,13 +98,13 @@ public class UpdateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	public UpdateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.PATCH))
 				.withBasePath(configuration.getRequestBasePath() + "/{id}")
-				.withRequestBodyType(configuration.getRequestType())
-				.withResponseBodyType(configuration.getResponseType())
-				.withEntityType(configuration.getEntityClassName())
-				.withIdType(configuration.getIdClassName())
+				.withRequestBodyType(configuration.getRequestBodyType())
+				.withResponseBodyType(configuration.getResponseBodyType())
+				.withEntityType(configuration.getEntityType())
+				.withIdType(configuration.getIdType())
 				.withUsingDto(configuration.isUsingDto())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**

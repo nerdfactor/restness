@@ -67,9 +67,9 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 	 * @return The builder in a fluent api pattern.
 	 */
 	public ClassPropertiesBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		this.dataAccessorClassName = configuration.getDataAccessorClassName();
-		this.dataMergerClassName = configuration.getDataMergerClassName();
-		this.dataMapperClassName = configuration.getDataMapperClassName();
+		this.dataAccessorClassName = configuration.getDataAccessorType();
+		this.dataMergerClassName = configuration.getDataMergerType();
+		this.dataMapperClassName = configuration.getDataMapperType();
 		return this;
 	}
 

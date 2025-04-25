@@ -90,12 +90,12 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	public ReadEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.GET))
 				.withBasePath(configuration.getRequestBasePath() + "/{id}")
-				.withResponseBodyType(configuration.getResponseType())
-				.withEntityType(configuration.getEntityClassName())
-				.withIdType(configuration.getIdClassName())
+				.withResponseBodyType(configuration.getResponseBodyType())
+				.withEntityType(configuration.getEntityType())
+				.withIdType(configuration.getIdType())
 				.withUsingDto(configuration.isUsingDto())
-				.withSecurityConfig(configuration.getSecurityConfiguration())
-				.withResponseWrapperType(configuration.getResponseWrapperClassName());
+				.withSecurityConfig(configuration.getSecurityConfig())
+				.withResponseWrapperType(configuration.getResponseWrapperType());
 	}
 
 	/**

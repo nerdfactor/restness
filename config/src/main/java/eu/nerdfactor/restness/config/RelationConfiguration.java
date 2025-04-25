@@ -55,7 +55,7 @@ public class RelationConfiguration {
 	 * <li>{@code com.example.entity.UserEntity}</li>
 	 * <li>{@code com.example.model.OrderModel}</li>
 	 */
-	protected ClassName entityClassName;
+	protected ClassName entityType;
 
 	/**
 	 * The {@link TypeName} for the returned object from the relationship. This
@@ -70,7 +70,7 @@ public class RelationConfiguration {
 	 * <li>{@code com.example.viewmodel.OrderViewModel}</li>
 	 */
 	@Builder.Default
-	protected TypeName responseObjectClassName = TypeName.OBJECT;
+	protected TypeName responseObjectType = TypeName.OBJECT;
 
 	/**
 	 * The {@link TypeName} for the entities id field. This includes the full
@@ -82,7 +82,7 @@ public class RelationConfiguration {
 	 * <li>{@code java.lang.String}</li>
 	 * <li>{@code java.util.UUID}</li>
 	 */
-	protected TypeName idClassName;
+	protected TypeName idType;
 
 	/**
 	 * The method name to access the id of the entity. This will be used to get
@@ -102,7 +102,7 @@ public class RelationConfiguration {
 	 */
 	@JsonIgnore
 	public TypeName getResponseType() {
-		return this.isUsingDto() ? this.responseObjectClassName : this.entityClassName;
+		return this.isUsingDto() ? this.responseObjectType : this.entityType;
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class RelationConfiguration {
 	 */
 	@JsonIgnore
 	public boolean isUsingDto() {
-		return this.responseObjectClassName != null && !this.responseObjectClassName.equals(TypeName.OBJECT);
+		return this.responseObjectType != null && !this.responseObjectType.equals(TypeName.OBJECT);
 	}
 
 	/**
