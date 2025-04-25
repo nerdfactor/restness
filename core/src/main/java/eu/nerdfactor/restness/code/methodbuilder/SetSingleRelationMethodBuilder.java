@@ -107,7 +107,6 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	 * @param configuration The controller configuration.
 	 * @return The builder instance for chaining.
 	 */
-	@Override
 	public SetSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
 				.withRequestBasePath(configuration.getRequestBasePath())

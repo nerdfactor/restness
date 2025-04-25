@@ -105,7 +105,6 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	 * @param configuration The controller configuration.
 	 * @return The builder instance for chaining.
 	 */
-	@Override
 	public AddToRelationsMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
 				.withRequestBasePath(configuration.getRequestBasePath())

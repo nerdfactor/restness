@@ -113,7 +113,6 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	 * @param configuration The {@link ControllerConfiguration}.
 	 * @return The current {@link DeleteSingleRelationMethodBuilder} instance.
 	 */
-	@Override
 	public DeleteSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
 				.withRequestBasePath(configuration.getRequestBasePath())

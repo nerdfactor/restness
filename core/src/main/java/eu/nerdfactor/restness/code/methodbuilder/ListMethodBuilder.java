@@ -88,7 +88,6 @@ public class ListMethodBuilder extends MethodBuilder {
 	 * @param configuration The {@link ControllerConfiguration} for the controller.
 	 * @return A new configured instance of {@link ListMethodBuilder}.
 	 */
-	@Override
 	public ListMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath(), RequestMethod.GET))
 				.withRequestBasePath(configuration.getRequestBasePath())

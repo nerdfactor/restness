@@ -96,7 +96,6 @@ public class SearchMethodBuilder extends MethodBuilder {
 	 * @param configuration The {@link ControllerConfiguration} for the controller.
 	 * @return A new configured instance of {@link SearchMethodBuilder}.
 	 */
-	@Override
 	public SearchMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/search", RequestMethod.GET))
 				.withRequestBasePath(configuration.getRequestBasePath())
