@@ -4,6 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.annotation.IdAccessor;
+import eu.nerdfactor.restness.annotation.IdModifier;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.data.DataAccessor;
@@ -188,15 +189,8 @@ public class ControllerConfigurationFromAnnotationBuilder {
 		ClassName dataMapperClass = ClassName.get(DataMapper.class);
 
 		// Check how the id can be accessed in the entity.
-		String idAccessor = "getId";
-		for (ExecutableElement method : methodsIn(entityElement.getEnclosedElements())) {
-			for (AnnotationMirror anno : method.getAnnotationMirrors()) {
-				String annotationName = anno.getAnnotationType().toString();
-				if (annotationName.equals(IdAccessor.class.getName())) {
-					idAccessor = method.getSimpleName().toString();
-				}
-			}
-		}
+		String idAccessor = this.findIdActor(entityElement, IdAccessor.class);
+		String idModifier = this.findIdActor(entityElement, IdModifier.class);
 
 		// Check for existing requests in the annotated class.
 		List<String> existingRequests = new ArrayList<>();
@@ -246,7 +240,33 @@ public class ControllerConfigurationFromAnnotationBuilder {
 			relations = RelationConfigurationFromAnnotationBuilder.create().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
 		}
 
-		return new ControllerConfiguration(RestnessUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, null, relations);
+		return new ControllerConfiguration(RestnessUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, idModifier, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, null, relations);
+	}
+
+	/**
+	 * Find the id actor in the entity class.
+	 *
+	 * @param entityElement   The entity element.
+	 * @param annotationClass The annotation class to search for.
+	 * @return The name of the id actor.
+	 */
+	private String findIdActor(TypeElement entityElement, Class<?> annotationClass) {
+		String idActor = null;
+		for (ExecutableElement method : methodsIn(entityElement.getEnclosedElements())) {
+			for (AnnotationMirror anno : method.getAnnotationMirrors()) {
+				String annotationName = anno.getAnnotationType().toString();
+				if (annotationName.equals(annotationClass.getName())) {
+					idActor = method.getSimpleName().toString();
+				}
+			}
+		}
+		// todo: should also check for @ID to check for different id name
+		if (idActor == null) {
+			String verb = annotationClass == IdAccessor.class ? "get" : "set";
+			idActor = verb + "Id";
+		}
+		return idActor;
+
 	}
 
 	protected ClassName[] findDtoClasses(ClassName entityClass) {

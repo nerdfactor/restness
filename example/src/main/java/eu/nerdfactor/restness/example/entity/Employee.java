@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import eu.nerdfactor.restness.annotation.IdAccessor;
+import eu.nerdfactor.restness.annotation.IdModifier;
 import eu.nerdfactor.restness.annotation.RelationAccessor;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.example.customer.CustomerDao;
@@ -48,6 +49,11 @@ public class Employee {
 		return id;
 	}
 
+	/**
+	 * Uses IdModifier to provide access to the id. This is necessary, because
+	 * the setter for the id is not called setId() but uses a different name.
+	 */
+	@IdModifier
 	public void setPerNo(int perNo) {
 		this.id = perNo;
 	}

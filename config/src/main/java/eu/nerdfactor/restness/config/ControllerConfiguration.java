@@ -81,6 +81,17 @@ public class ControllerConfiguration {
 	protected String idAccessorMethodName = "getId";
 
 	/**
+	 * The method name to modify the id of the entity. This will be used in the
+	 * controller to set the id of entities.
+	 *
+	 * <li>{@code setId}</li>
+	 * <li>{@code setIdentifier}</li>
+	 * <li>{@code setOrderNumber}</li>
+	 */
+	@Builder.Default
+	protected String idModifierMethodName = "setId";
+
+	/**
 	 * The {@link TypeName} of the object that will be contained in the requests
 	 * handled by the controller. This includes the full namespace and the name
 	 * of the class. For example, the request object would be sent within a POST
