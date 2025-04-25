@@ -34,7 +34,7 @@ class SetEntityMethodBuilderTest {
 				.withResponseType(ClassName.get(Example.class))
 				.withIdentifyingType(ClassName.get(Integer.class))
 				.withSecurityConfiguration(null)
-				.withDataWrapperClass(TypeName.OBJECT)
+				.withDataWrapperType(TypeName.OBJECT)
 				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
@@ -70,7 +70,7 @@ class SetEntityMethodBuilderTest {
 				.withResponseType(ClassName.get(ExampleDto.class))
 				.withIdentifyingType(ClassName.get(Integer.class))
 				.withSecurityConfiguration(null)
-				.withDataWrapperClass(TypeName.OBJECT)
+				.withDataWrapperType(TypeName.OBJECT)
 				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();

@@ -158,7 +158,7 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		TypeName responseEntityType = this.relationIsUsingDto && this.relationResponseObjectClassName != null && !this.relationResponseObjectClassName.equals(TypeName.OBJECT) ? this.relationResponseObjectClassName : this.relationEntityClassName;
 		// DELETE by ID typically returns 204 No Content
-		TypeName responseTypeById = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), TypeName.VOID);
+		TypeName responseTypeById = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), TypeName.OBJECT);
 		// DELETE by DTO might delegate or return something else, but let's assume it delegates to ById for now.
 		// If it were to return the deleted item (less common for DELETE), the type would be needed.
 		// For delegation, the return type of the *delegating* method matters. Let's assume it also returns NoContent via delegation.

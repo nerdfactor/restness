@@ -189,15 +189,8 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 		if (isUsingDto) {
 			// Assuming dataMapper maps from requestType (dto) to entityType
 			method.addStatement("$T changed = this.dataMapper.map(dto, $T.class)", entityType, entityType);
-			// Ensure the ID from the path is used, not potentially from the DTO
-			// This requires the entity to have a setId method or similar mechanism.
-			// If direct field access or a different setter name is needed, adjust accordingly.
-			// Consider adding a check if the entity has an ID setter.
-			method.addStatement("changed.setId(id)"); // Or appropriate setter
 		} else {
 			method.addStatement("$T changed = dto", entityType);
-			// Ensure the ID from the path is used even if not using DTOs
-			method.addStatement("changed.setId(id)"); // Or appropriate setter
 		}
 		method.addStatement("changed = this.dataAccessor.updateData(changed)");
 		if (isUsingDto) {
