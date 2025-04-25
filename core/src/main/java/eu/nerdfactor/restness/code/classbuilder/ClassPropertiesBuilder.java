@@ -39,17 +39,17 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 	/**
 	 * The class name of the data access object.
 	 */
-	protected TypeName dataAccessorClassName;
+	protected TypeName dataAccessorType;
 
 	/**
 	 * The class name of the data merger object.
 	 */
-	protected TypeName dataMergerClassName;
+	protected TypeName dataMergerType;
 
 	/**
 	 * The class name of the data mapper object.
 	 */
-	protected TypeName dataMapperClassName;
+	protected TypeName dataMapperType;
 
 	/**
 	 * Create a new {@link ClassPropertiesBuilder}.
@@ -67,9 +67,9 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 	 * @return The builder in a fluent api pattern.
 	 */
 	public ClassPropertiesBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		this.dataAccessorClassName = configuration.getDataAccessorType();
-		this.dataMergerClassName = configuration.getDataMergerType();
-		this.dataMapperClassName = configuration.getDataMapperType();
+		this.dataAccessorType = configuration.getDataAccessorType();
+		this.dataMergerType = configuration.getDataMergerType();
+		this.dataMapperType = configuration.getDataMapperType();
 		return this;
 	}
 
@@ -83,9 +83,9 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 	public TypeSpec.Builder buildWith(final TypeSpec.Builder builder) {
 		final ConstructorBuilder constructor = new ConstructorBuilder();
 		List.of(
-				new PropertyPair("dataAccessor", this.dataAccessorClassName),
-				new PropertyPair("dataMerger", this.dataMergerClassName),
-				new PropertyPair("dataMapper", this.dataMapperClassName),
+				new PropertyPair("dataAccessor", this.dataAccessorType),
+				new PropertyPair("dataMerger", this.dataMergerType),
+				new PropertyPair("dataMapper", this.dataMapperType),
 				new PropertyPair("specificationBuilder", ClassName.get(DataSpecificationBuilder.class)),
 				new PropertyPair("entityManager", ClassName.get(EntityManager.class))
 		).forEach(pair -> {
