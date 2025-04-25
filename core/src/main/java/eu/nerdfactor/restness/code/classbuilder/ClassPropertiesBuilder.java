@@ -1,6 +1,7 @@
 package eu.nerdfactor.restness.code.classbuilder;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
@@ -12,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -29,14 +31,25 @@ import java.util.List;
  *
  * @author Daniel Klug
  */
+@With
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Buildable<TypeSpec.Builder>, Configurable<ControllerConfiguration> {
 
 	/**
-	 * The configuration used to create the controller.
+	 * The class name of the data access object.
 	 */
-	protected ControllerConfiguration configuration;
+	protected TypeName dataAccessorClassName;
+
+	/**
+	 * The class name of the data merger object.
+	 */
+	protected TypeName dataMergerClassName;
+
+	/**
+	 * The class name of the data mapper object.
+	 */
+	protected TypeName dataMapperClassName;
 
 	/**
 	 * Create a new {@link ClassPropertiesBuilder}.
@@ -53,9 +66,10 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 	 * @param configuration The {@link ControllerConfiguration}.
 	 * @return The builder in a fluent api pattern.
 	 */
-	@Override
 	public ClassPropertiesBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		this.configuration = configuration;
+		this.dataAccessorClassName = configuration.getDataAccessorClassName();
+		this.dataMergerClassName = configuration.getDataMergerClassName();
+		this.dataMapperClassName = configuration.getDataMapperClassName();
 		return this;
 	}
 
@@ -69,9 +83,9 @@ public class ClassPropertiesBuilder extends MultiStepBuilder<TypeSpec.Builder> i
 	public TypeSpec.Builder buildWith(final TypeSpec.Builder builder) {
 		final ConstructorBuilder constructor = new ConstructorBuilder();
 		List.of(
-				new PropertyPair("dataAccessor", configuration.getDataAccessorClassName()),
-				new PropertyPair("dataMerger", configuration.getDataMergerClassName()),
-				new PropertyPair("dataMapper", configuration.getDataMapperClassName()),
+				new PropertyPair("dataAccessor", this.dataAccessorClassName),
+				new PropertyPair("dataMerger", this.dataMergerClassName),
+				new PropertyPair("dataMapper", this.dataMapperClassName),
 				new PropertyPair("specificationBuilder", ClassName.get(DataSpecificationBuilder.class)),
 				new PropertyPair("entityManager", ClassName.get(EntityManager.class))
 		).forEach(pair -> {
