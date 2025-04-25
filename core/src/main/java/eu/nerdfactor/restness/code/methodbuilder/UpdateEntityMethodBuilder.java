@@ -31,6 +31,8 @@ import javax.lang.model.element.Modifier;
  * injecting authentication logic, defining the method body for retrieving the entity,
  * merging changes from the request DTO, saving the updated entity, mapping DTOs if
  * necessary, and wrapping the response.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

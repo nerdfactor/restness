@@ -28,6 +28,8 @@ import java.util.function.Consumer;
  * It generates two types of methods: one that accepts the related entity
  * object (or DTO) in the request body, and another that accepts the ID
  * of the related entity as a path variable.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

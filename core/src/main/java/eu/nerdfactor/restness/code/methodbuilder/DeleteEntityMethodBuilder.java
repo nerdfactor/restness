@@ -27,6 +27,8 @@ import javax.lang.model.element.Modifier;
  * annotated with {@code @DeleteMapping("/{id}")}. It handles checking for existing methods,
  * injecting authentication logic, defining the method body for deleting the entity,
  * and returning a no-content response.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

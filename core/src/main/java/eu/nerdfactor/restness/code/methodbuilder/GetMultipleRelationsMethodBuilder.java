@@ -31,6 +31,8 @@ import java.util.function.Consumer;
  * of related entities associated with a main entity within a REST controller.
  * The method identifies the main entity using its ID from the path variable
  * and returns the list of related entities (or DTOs).
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

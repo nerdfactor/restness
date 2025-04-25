@@ -28,6 +28,8 @@ import javax.lang.model.element.Modifier;
  * with {@code @PostMapping}. It handles checking for existing methods, injecting
  * authentication logic, defining the method body for creating the entity, mapping
  * DTOs if necessary, and wrapping the response.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

@@ -28,6 +28,8 @@ import java.util.function.Consumer;
  * The method identifies the main entity using its ID from the path variable,
  * takes the related entity (or DTO) from the request body, updates the relation,
  * and typically returns the updated related entity (or DTO) by delegating to the GET method.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

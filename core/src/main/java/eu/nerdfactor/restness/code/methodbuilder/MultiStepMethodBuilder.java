@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * to provide a common structure for method builders that operate based on a {@link ControllerConfiguration}.
  * Subclasses will typically override the {@link #buildWith(TypeSpec.Builder)} method to add specific
  * methods (like CRUD operations) to the controller being built.
- * 
+ *
  * @author Daniel Klug
  */
 public abstract class MultiStepMethodBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration>, Buildable<TypeSpec.Builder> {

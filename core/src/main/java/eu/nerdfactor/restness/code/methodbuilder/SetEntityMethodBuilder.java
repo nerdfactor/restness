@@ -30,6 +30,8 @@ import javax.lang.model.element.Modifier;
  * with {@code @PutMapping("/{id}")}. It handles checking for existing methods, injecting
  * authentication logic, defining the method body for retrieving and updating the entity,
  * handling DTO mapping, and wrapping the response.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

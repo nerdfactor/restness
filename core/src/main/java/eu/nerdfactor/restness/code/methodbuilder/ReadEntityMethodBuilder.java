@@ -28,6 +28,8 @@ import javax.lang.model.element.Modifier;
  * with {@code @GetMapping("/{id}")}. It handles checking for existing methods, injecting
  * authentication logic, defining the method body for retrieving the entity, and wrapping
  * the response.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With

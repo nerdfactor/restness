@@ -31,6 +31,8 @@ import java.util.function.Consumer;
  * The method identifies the main entity using its ID from the path variable,
  * sets the relation property to null, updates the main entity,
  * and returns a No Content response.
+ *
+ * @author Daniel Klug
  */
 @Slf4j
 @With
