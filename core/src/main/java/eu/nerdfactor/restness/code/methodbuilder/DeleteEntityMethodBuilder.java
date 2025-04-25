@@ -7,6 +7,7 @@ import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.NoContentStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -78,14 +79,12 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 */
 	@Override
 	public DeleteEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return new DeleteEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.DELETE, configuration.getRequestBasePath() + "/{id}"),
-				configuration.getRequestBasePath() + "/{id}",
-				configuration.getEntityClassName(),
-				configuration.getIdClassName(),
-				configuration.getSecurityConfiguration(),
-				configuration.getResponseWrapperClassName()
-		);
+		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.DELETE))
+				.withRequestUrl(configuration.getRequestBasePath() + "/{id}")
+				.withEntityType(configuration.getEntityClassName())
+				.withIdentifyingType(configuration.getIdClassName())
+				.withSecurityConfiguration(configuration.getSecurityConfiguration())
+				.withDataWrapperClass(configuration.getResponseWrapperClassName());
 	}
 
 	/**

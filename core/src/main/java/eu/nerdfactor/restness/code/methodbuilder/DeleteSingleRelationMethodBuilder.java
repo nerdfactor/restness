@@ -113,7 +113,6 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	 */
 	@Override
 	public DeleteSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		// Store individual configuration properties instead of the whole object
 		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
 				.withRequestBasePath(configuration.getRequestBasePath())
 				.withIdClassName(configuration.getIdClassName())

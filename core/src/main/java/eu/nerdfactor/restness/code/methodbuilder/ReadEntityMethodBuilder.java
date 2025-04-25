@@ -7,6 +7,7 @@ import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -85,16 +86,14 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	 */
 	@Override
 	public ReadEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return new ReadEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.GET, configuration.getRequestBasePath() + "/{id}"),
-				configuration.getRequestBasePath() + "/{id}",
-				configuration.getResponseType(),
-				configuration.getEntityClassName(),
-				configuration.getIdClassName(),
-				configuration.isUsingDto(),
-				configuration.getSecurityConfiguration(),
-				configuration.getResponseWrapperClassName()
-		);
+		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.GET))
+				.withRequestUrl(configuration.getRequestBasePath() + "/{id}")
+				.withResponseType(configuration.getResponseType())
+				.withEntityType(configuration.getEntityClassName())
+				.withIdentifyingType(configuration.getIdClassName())
+				.withUsingDto(configuration.isUsingDto())
+				.withSecurityConfiguration(configuration.getSecurityConfiguration())
+				.withDataWrapperClass(configuration.getResponseWrapperClassName());
 	}
 
 	/**

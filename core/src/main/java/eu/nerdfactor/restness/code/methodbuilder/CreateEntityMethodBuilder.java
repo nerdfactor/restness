@@ -7,6 +7,7 @@ import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -86,16 +87,14 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 */
 	@Override
 	public CreateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return new CreateEntityMethodBuilder(
-				configuration.hasExistingRequest(RequestMethod.POST, configuration.getRequestBasePath()),
-				configuration.getRequestBasePath(),
-				configuration.getRequestType(),
-				configuration.getResponseType(),
-				configuration.getEntityClassName(),
-				configuration.isUsingDto(),
-				configuration.getSecurityConfiguration(),
-				configuration.getResponseWrapperClassName()
-		);
+		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath(), RequestMethod.POST))
+				.withRequestUrl(configuration.getRequestBasePath())
+				.withRequestType(configuration.getRequestType())
+				.withResponseType(configuration.getResponseType())
+				.withEntityType(configuration.getEntityClassName())
+				.withUsingDto(configuration.isUsingDto())
+				.withSecurityConfiguration(configuration.getSecurityConfiguration())
+				.withDataWrapperClass(configuration.getResponseWrapperClassName());
 	}
 
 	/**
