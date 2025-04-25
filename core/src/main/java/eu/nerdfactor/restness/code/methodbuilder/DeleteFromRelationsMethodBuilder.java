@@ -4,11 +4,18 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.NoContentStatementInjector;
 import eu.nerdfactor.restness.config.AccessorType;
+import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.RelationConfiguration;
+import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.With;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,85 +24,300 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
+import java.util.function.Consumer;
 
+/**
+ * Builder class responsible for generating methods that remove entities
+ * from a collection relation of a main entity within a REST controller.
+ * It generates two types of methods: one that accepts the related entity
+ * object (or DTO) in the request body, and another that accepts the ID
+ * of the related entity as a path variable.
+ */
 @Slf4j
+@With
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 
-	RelationConfiguration relationConfiguration;
+	/**
+	 * List of existing request mappings in the controller to avoid duplicates.
+	 */
+	protected List<String> existingRequestMappings;
 
-	public DeleteFromRelationsMethodBuilder withRelation(RelationConfiguration relation) {
-		this.relationConfiguration = relation;
-		return this;
+	/**
+	 * The base request path from the main controller configuration.
+	 */
+	protected String requestBasePath;
+
+	/**
+	 * The class name of the main entity's ID.
+	 */
+	protected TypeName configurationIdClassName;
+
+	/**
+	 * The class name of the main entity.
+	 */
+	protected TypeName configurationEntityClassName;
+
+	/**
+	 * The security configuration from the main controller configuration.
+	 */
+	protected SecurityConfiguration securityConfiguration;
+
+	/**
+	 * The class name for the response wrapper, if configured.
+	 */
+	protected TypeName responseWrapperClassName;
+
+	/**
+	 * The name of the relation.
+	 */
+	protected String relationName;
+
+	/**
+	 * Indicates if the relation uses DTOs.
+	 */
+	protected boolean relationIsUsingDto;
+
+	/**
+	 * The class name of the response object for the relation, if using DTOs.
+	 */
+	protected TypeName relationResponseObjectClassName;
+
+	/**
+	 * The class name of the related entity.
+	 */
+	protected TypeName relationEntityClassName;
+
+	/**
+	 * The class name of the related entity's ID.
+	 */
+	protected TypeName relationIdClassName;
+
+	/**
+	 * The name of the method to access the ID of the related entity/DTO.
+	 */
+	protected String relationIdAccessorMethodName;
+
+	/**
+	 * The name of the method used to remove the relation from the main entity.
+	 */
+	protected String relationRemoverMethodName;
+
+	/**
+	 * Static factory method to create a new instance of {@link DeleteFromRelationsMethodBuilder}.
+	 *
+	 * @return A new instance of {@link DeleteFromRelationsMethodBuilder}.
+	 */
+	public static DeleteFromRelationsMethodBuilder create() {
+		return new DeleteFromRelationsMethodBuilder();
 	}
 
+	/**
+	 * Configures the builder with general controller settings.
+	 *
+	 * @param configuration The controller configuration.
+	 * @return The builder instance for chaining.
+	 */
+	@Override
+	public DeleteFromRelationsMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
+		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
+				.withRequestBasePath(configuration.getRequestBasePath())
+				.withConfigurationIdClassName(configuration.getIdClassName())
+				.withConfigurationEntityClassName(configuration.getEntityClassName())
+				.withSecurityConfiguration(configuration.getSecurityConfiguration())
+				.withResponseWrapperClassName(configuration.getResponseWrapperClassName());
+	}
+
+	/**
+	 * Configures the builder with specific relation settings.
+	 *
+	 * @param relation The relation configuration.
+	 * @return The builder instance for chaining.
+	 */
+	public DeleteFromRelationsMethodBuilder withRelation(@NotNull RelationConfiguration relation) {
+		return this.withRelationName(relation.getRelationName())
+				.withRelationIsUsingDto(relation.isUsingDto())
+				.withRelationResponseObjectClassName(relation.getResponseObjectClassName())
+				.withRelationEntityClassName(relation.getEntityClassName())
+				.withRelationIdClassName(relation.getIdClassName())
+				.withRelationIdAccessorMethodName(relation.getIdAccessorMethodName())
+				.withRelationRemoverMethodName(relation.getRemoverMethodName());
+	}
+
+	/**
+	 * Adds the generated "delete from relation" methods (by object and by ID)
+	 * to the provided {@link TypeSpec.Builder}, if they don't already exist.
+	 *
+	 * @param builder The {@link TypeSpec.Builder} for the controller class.
+	 * @return The modified {@link TypeSpec.Builder}.
+	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
-		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName())) {
-			return builder;
-		}
-		log.info("addDeleteFromRelationsMethod");
-		TypeName responseType = this.relationConfiguration.isUsingDto() && this.relationConfiguration.getResponseObjectClassName() != null && !this.relationConfiguration.getResponseObjectClassName().equals(TypeName.OBJECT) ? this.relationConfiguration.getResponseObjectClassName() : this.relationConfiguration.getEntityClassName();
-		ParameterizedTypeName responseList = ParameterizedTypeName.get(ClassName.get(List.class), responseType);
-		MethodSpec.Builder method = MethodSpec
-				.methodBuilder(RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.REMOVE))
-				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName()).build())
-				.addModifiers(Modifier.PUBLIC)
-				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList))
-				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
-						.addModifiers(Modifier.FINAL)
-						.addAnnotation(PathVariable.class)
-						.build()
-				)
-				.addParameter(ParameterSpec.builder(responseType, "dto")
-						.addAnnotation(RequestBody.class)
-						.addAnnotation(Valid.class)
-						.build()
-				);
-		method = new AuthenticationInjector()
-				.withMethod("UPDATE")
-				.withEntityClassName(this.configuration.getEntityClassName())
-				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
-				.withSecurityConfig(this.configuration.getSecurityConfiguration())
-				.inject(method);
-		if (this.configuration.getResponseWrapperClassName() != null && !this.configuration.getResponseWrapperClassName().equals(TypeName.OBJECT)) {
-			method.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.configuration.getResponseWrapperClassName().toString()), responseType)));
-		}
-		method.addStatement("return this." + RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.REMOVE) + "ById(id, dto." + this.relationConfiguration.getIdAccessorMethodName() + "())");
-		builder.addMethod(method.build());
+		TypeName responseEntityType = this.relationIsUsingDto && this.relationResponseObjectClassName != null && !this.relationResponseObjectClassName.equals(TypeName.OBJECT) ? this.relationResponseObjectClassName : this.relationEntityClassName;
+		// DELETE by ID typically returns 204 No Content
+		TypeName responseTypeById = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), TypeName.VOID);
+		// DELETE by DTO might delegate or return something else, but let's assume it delegates to ById for now.
+		// If it were to return the deleted item (less common for DELETE), the type would be needed.
+		// For delegation, the return type of the *delegating* method matters. Let's assume it also returns NoContent via delegation.
+		TypeName responseTypeByDto = responseTypeById; // Assuming delegation to ById which returns Void/NoContent
 
-		if (this.configuration.hasExistingRequest(RequestMethod.DELETE, this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}")) {
-			return builder;
+		if (!this.hasExistingRequestById()) {
+			addDeleteFromRelationsByIdMethod(builder, responseTypeById);
 		}
-		MethodSpec.Builder methodById = MethodSpec
-				.methodBuilder(RestnessUtil.getRelationMethodName(this.relationConfiguration.getRelationName(), AccessorType.REMOVE) + "ById")
-				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class).addMember("value", "$S", this.configuration.getRequestBasePath() + "/{id}/" + this.relationConfiguration.getRelationName() + "/{relationId}").build())
-				.addModifiers(Modifier.PUBLIC)
-				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList))
-				.addParameter(ParameterSpec.builder(this.configuration.getIdClassName(), "id")
+
+		if (!this.hasExistingRequest()) {
+			addDeleteFromRelationsMethod(builder, responseEntityType, responseTypeByDto);
+		}
+
+		return builder;
+	}
+
+	/**
+	 * Generates and adds the method for deleting a related entity by its ID.
+	 * The method retrieves the main entity, retrieves a reference to the related entity by ID,
+	 * removes the related entity from the main entity's collection, updates the main entity,
+	 * and returns 204 No Content.
+	 *
+	 * @param builder          The {@link TypeSpec.Builder} for the controller class.
+	 * @param responseTypeById The {@link TypeName} for the response (typically ResponseEntity<Void>).
+	 */
+	private void addDeleteFromRelationsByIdMethod(TypeSpec.Builder builder, TypeName responseTypeById) {
+		log.info("addDeleteFromRelationsByIdMethod");
+		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.REMOVE) + "ById";
+		String path = this.requestBasePath + "/{id}/" + this.relationName + "/{relationId}";
+
+		Consumer<MethodSpec.Builder> parameterConfigurer = mb -> mb.addParameter(
+				ParameterSpec.builder(this.relationIdClassName, "relationId")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
-				)
-				.addParameter(ParameterSpec.builder(this.relationConfiguration.getIdClassName(), "relationId")
+		);
+
+		Consumer<MethodSpec.Builder> bodyConfigurer = mb -> {
+			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.configurationEntityClassName, EntityNotFoundException.class);
+			// Use EntityManager.getReference to avoid fetching the full related entity
+			mb.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationEntityClassName, this.relationEntityClassName);
+			mb.addStatement("entity." + this.relationRemoverMethodName + "(rel)");
+			mb.addStatement("this.dataAccessor.updateData(entity)");
+			// Injector handles returning NoContent
+		};
+
+		// Use a separate injector for NoContent response
+		Consumer<MethodSpec.Builder> postBodyConfigurer = mb -> new NoContentStatementInjector()
+				.withWrapper(this.responseWrapperClassName) // Wrapper might influence headers even for NoContent
+				.inject(mb);
+
+		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseTypeById, parameterConfigurer, bodyConfigurer, postBodyConfigurer);
+		builder.addMethod(methodSpec);
+	}
+
+	/**
+	 * Generates and adds the method for deleting a related entity using its DTO/entity representation
+	 * provided in the request body. This method typically delegates to the "ById" version
+	 * after extracting the ID from the request body object.
+	 *
+	 * @param builder            The {@link TypeSpec.Builder} for the controller class.
+	 * @param responseEntityType The {@link TypeName} of the individual entity/DTO used in the request body.
+	 * @param responseTypeByDto  The {@link TypeName} for the response (typically ResponseEntity<Void> if delegating).
+	 */
+	private void addDeleteFromRelationsMethod(TypeSpec.Builder builder, TypeName responseEntityType, TypeName responseTypeByDto) {
+		log.info("addDeleteFromRelationsMethod");
+		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.REMOVE);
+		String path = this.requestBasePath + "/{id}/" + this.relationName;
+
+		Consumer<MethodSpec.Builder> parameterConfigurer = mb -> mb.addParameter(
+				ParameterSpec.builder(responseEntityType, "dto") // Use the determined type for the request body
+						.addAnnotation(RequestBody.class)
+						.addAnnotation(Valid.class) // Add validation
+						.build()
+		);
+
+		// Delegate to the ById method
+		Consumer<MethodSpec.Builder> bodyConfigurer = mb -> mb.addStatement(
+				"return this." + RestnessUtil.getRelationMethodName(this.relationName, AccessorType.REMOVE) + "ById(id, dto." + this.relationIdAccessorMethodName + "())"
+		);
+
+		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseTypeByDto, parameterConfigurer, bodyConfigurer, null); // No post-body configurer needed for simple delegation
+		builder.addMethod(methodSpec);
+	}
+
+	/**
+	 * Helper method to build the common structure of the {@link MethodSpec} for
+	 * the "delete from relation" methods. This includes annotations, modifiers,
+	 * the main entity ID path variable, security injection, and return type definition.
+	 *
+	 * @param methodName          The name for the generated method.
+	 * @param path                The request mapping path for the method.
+	 * @param returnType          The {@link TypeName} for the method's return value (e.g., ResponseEntity<Void>).
+	 * @param parameterConfigurer A {@link Consumer} to add specific parameters (like relationId or request body).
+	 * @param bodyConfigurer      A {@link Consumer} to add the main method body statements.
+	 * @param postBodyConfigurer  A {@link Consumer} (nullable) to add statements after the main body (e.g., for response generation).
+	 * @return The constructed {@link MethodSpec}.
+	 */
+	private MethodSpec buildRelationMethodSpec(String methodName, String path, TypeName returnType, Consumer<MethodSpec.Builder> parameterConfigurer, Consumer<MethodSpec.Builder> bodyConfigurer, Consumer<MethodSpec.Builder> postBodyConfigurer) {
+		MethodSpec.Builder methodBuilder = MethodSpec
+				.methodBuilder(methodName)
+				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class) // Use DeleteMapping
+						.addMember("value", "$S", path)
+						.build())
+				.addModifiers(Modifier.PUBLIC)
+				.addParameter(ParameterSpec.builder(this.configurationIdClassName, "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
 				);
-		methodById = new AuthenticationInjector()
-				.withMethod("UPDATE")
-				.withEntityClassName(this.configuration.getEntityClassName())
-				.withRelatedClassName(this.relationConfiguration.getEntityClassName())
-				.withSecurityConfig(this.configuration.getSecurityConfiguration())
-				.inject(methodById);
-		methodById.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.configuration.getEntityClassName(), EntityNotFoundException.class);
-		methodById.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationConfiguration.getEntityClassName(), this.relationConfiguration.getEntityClassName());
-		methodById.addStatement("entity." + this.relationConfiguration.getRemoverMethodName() + "(rel)");
-		methodById.addStatement("this.dataAccessor.updateData(entity)");
-		methodById = new NoContentStatementInjector()
-				.withWrapper(this.configuration.getResponseWrapperClassName())
-				.withResponse(responseType)
-				.inject(methodById);
-		builder.addMethod(methodById.build());
-		return builder;
+
+		// Add specific parameters (e.g., relationId or request body)
+		parameterConfigurer.accept(methodBuilder);
+
+		// Inject security checks
+		methodBuilder = new AuthenticationInjector()
+				.withMethod("UPDATE") // Removing from a relation modifies the parent, often treated as UPDATE permission-wise. Could be DELETE.
+				.withEntityClassName(this.configurationEntityClassName)
+				.withRelatedClassName(this.relationEntityClassName)
+				.withSecurityConfig(this.securityConfiguration)
+				.inject(methodBuilder);
+
+		// Set the return type (already determined before calling this method)
+		methodBuilder.returns(returnType);
+
+		// Add the main method body logic
+		bodyConfigurer.accept(methodBuilder);
+
+		// Add any post-body logic (like response generation)
+		if (postBodyConfigurer != null) {
+			postBodyConfigurer.accept(methodBuilder);
+		}
+
+		return methodBuilder.build();
+	}
+
+	/**
+	 * Checks if a request mapping for deleting a relation via request body
+	 * (DELETE on /base/{id}/relationName) already exists.
+	 *
+	 * @return {@code true} if a matching mapping exists, {@code false} otherwise.
+	 */
+	protected boolean hasExistingRequest() {
+		return RestnessUtil.hasExistingRequest(
+				this.existingRequestMappings,
+				this.requestBasePath + "/{id}/" + this.relationName,
+				RequestMethod.DELETE
+		);
+	}
+
+	/**
+	 * Checks if a request mapping for deleting a relation via relation ID
+	 * (DELETE on /base/{id}/relationName/{relationId}) already exists.
+	 *
+	 * @return {@code true} if a matching mapping exists, {@code false} otherwise.
+	 */
+	protected boolean hasExistingRequestById() {
+		return RestnessUtil.hasExistingRequest(
+				this.existingRequestMappings,
+				this.requestBasePath + "/{id}/" + this.relationName + "/{relationId}",
+				RequestMethod.DELETE
+		);
 	}
 }

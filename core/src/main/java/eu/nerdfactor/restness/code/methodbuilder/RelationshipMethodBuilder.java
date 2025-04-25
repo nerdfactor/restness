@@ -58,9 +58,9 @@ public class RelationshipMethodBuilder extends MultiStepMethodBuilder {
 				this.and(new DeleteSingleRelationMethodBuilder().withRelation(relation).withConfiguration(configuration));
 			}
 			if (relation.getRelationType() == RelationType.MULTIPLE) {
-				this.and(new GetMultipleRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
+				this.and(GetMultipleRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
 				this.and(AddToRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
-				this.and(new DeleteFromRelationsMethodBuilder().withRelation(relation).withConfiguration(configuration));
+				this.and(DeleteFromRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
 			}
 		}
 		this.buildAll(builder);

@@ -146,7 +146,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 		}
 
 		if (!this.hasExistingRequestById()) {
-			addAddToRelationsMethodById(builder, responseListType, responseEntityType);
+			addAddToRelationsByIdMethod(builder, responseListType, responseEntityType);
 		}
 
 		return builder;
@@ -162,8 +162,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	 * @param responseListType   The {@link ParameterizedTypeName} for the list of response entities (List<ResponseEntityType>).
 	 * @param responseEntityType The {@link TypeName} of the individual response entity (DTO or entity).
 	 */
-	private void addAddToRelationsMethodById(TypeSpec.Builder builder, ParameterizedTypeName responseListType, TypeName responseEntityType) {
-		log.info("addAddToRelationsMethodById");
+	private void addAddToRelationsByIdMethod(TypeSpec.Builder builder, ParameterizedTypeName responseListType, TypeName responseEntityType) {
+		log.info("addAddToRelationsByIdMethod");
 		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.ADD) + "ById";
 		String path = this.requestBasePath + "/{id}/" + this.relationName + "/{relationId}";
 
