@@ -25,14 +25,14 @@ class ReadEntityMethodBuilderTest {
 				.addModifiers(Modifier.PUBLIC);
 
 		ReadEntityMethodBuilder.create()
-				.withHasExistingRequest(false)
+				.withRequestExists(false)
 				.withUsingDto(false)
-				.withRequestUrl("/api/example")
+				.withBasePath("/api/example")
 				.withEntityType(ClassName.get(Example.class))
-				.withIdentifyingType(ClassName.get(Integer.class))
-				.withResponseType(ClassName.get(Example.class))
-				.withSecurityConfiguration(null)
-				.withDataWrapperClass(TypeName.OBJECT)
+				.withIdType(ClassName.get(Integer.class))
+				.withResponseBodyType(ClassName.get(Example.class))
+				.withSecurityConfig(null)
+				.withResponseWrapperType(TypeName.OBJECT)
 				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
@@ -57,14 +57,14 @@ class ReadEntityMethodBuilderTest {
 				.addModifiers(Modifier.PUBLIC);
 
 		ReadEntityMethodBuilder.create()
-				.withHasExistingRequest(false)
+				.withRequestExists(false)
 				.withUsingDto(true)
-				.withRequestUrl("/api/example")
+				.withBasePath("/api/example")
 				.withEntityType(ClassName.get(Example.class))
-				.withIdentifyingType(ClassName.get(Integer.class))
-				.withResponseType(ClassName.get(ExampleDto.class))
-				.withSecurityConfiguration(null)
-				.withDataWrapperClass(TypeName.OBJECT)
+				.withIdType(ClassName.get(Integer.class))
+				.withResponseBodyType(ClassName.get(ExampleDto.class))
+				.withSecurityConfig(null)
+				.withResponseWrapperType(TypeName.OBJECT)
 				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();

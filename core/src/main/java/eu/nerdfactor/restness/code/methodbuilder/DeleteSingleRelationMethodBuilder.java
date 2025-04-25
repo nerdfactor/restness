@@ -43,32 +43,32 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	/**
 	 * List of existing request mappings in the controller to avoid duplicates.
 	 */
-	protected List<String> existingRequestMappings;
+	protected List<String> requestMappings;
 
 	/**
 	 * The base path for the controller's request mappings.
 	 */
-	protected String requestBasePath;
+	protected String basePath;
 
 	/**
 	 * The {@link TypeName} of the entity's identifier.
 	 */
-	protected TypeName idClassName;
+	protected TypeName idType;
 
 	/**
 	 * The {@link TypeName} of the main entity managed by the controller.
 	 */
-	protected TypeName entityClassName;
+	protected TypeName entityType;
 
 	/**
 	 * The security configuration for the controller.
 	 */
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 
 	/**
 	 * The {@link TypeName} of the wrapper class used for responses, if any.
 	 */
-	protected TypeName responseWrapperClassName;
+	protected TypeName responseWrapperType;
 
 	/**
 	 * The name of the relation property in the entity.
@@ -78,12 +78,12 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	/**
 	 * The {@link TypeName} of the entity class on the other side of the relation.
 	 */
-	protected TypeName relationEntityClassName;
+	protected TypeName relationEntityType;
 
 	/**
 	 * The name of the setter method for the relation property in the main entity.
 	 */
-	protected String relationSetterMethodName;
+	protected String relationSetter;
 
 	/**
 	 * Static factory method to create a new instance of {@link DeleteSingleRelationMethodBuilder}.
@@ -103,8 +103,8 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	 */
 	public DeleteSingleRelationMethodBuilder withRelation(RelationConfiguration relation) {
 		return this.withRelationName(relation.getRelationName())
-				.withRelationEntityClassName(relation.getEntityClassName())
-				.withRelationSetterMethodName(relation.getSetterMethodName());
+				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationSetter(relation.getSetterMethodName());
 	}
 
 	/**
@@ -114,12 +114,12 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	 * @return The current {@link DeleteSingleRelationMethodBuilder} instance.
 	 */
 	public DeleteSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
-				.withRequestBasePath(configuration.getRequestBasePath())
-				.withIdClassName(configuration.getIdClassName())
-				.withEntityClassName(configuration.getEntityClassName())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withResponseWrapperClassName(configuration.getResponseWrapperClassName());
+		return this.withRequestMappings(configuration.getExistingRequestMappings())
+				.withBasePath(configuration.getRequestBasePath())
+				.withIdType(configuration.getIdClassName())
+				.withEntityType(configuration.getEntityClassName())
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -150,11 +150,11 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 		log.info("Adding delete single relation method for relation: {}", this.relationName);
 
 		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.REMOVE);
-		String path = this.requestBasePath + "/{id}/" + this.relationName;
+		String path = this.basePath + "/{id}/" + this.relationName;
 
 		// Define parameter configuration (just the ID path variable)
 		Consumer<MethodSpec.Builder> parameterConfigurer = mb -> mb.addParameter(
-				ParameterSpec.builder(this.idClassName, "id")
+				ParameterSpec.builder(this.idType, "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
@@ -162,14 +162,14 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 
 		// Define body configuration
 		Consumer<MethodSpec.Builder> bodyConfigurer = mb -> {
-			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.entityClassName, EntityNotFoundException.class);
-			mb.addStatement("entity." + this.relationSetterMethodName + "(null)");
+			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.entityType, EntityNotFoundException.class);
+			mb.addStatement("entity." + this.relationSetter + "(null)");
 			mb.addStatement("this.dataAccessor.updateData(entity)");
 		};
 
 		// Define post-body configuration (return no content)
 		Consumer<MethodSpec.Builder> postBodyConfigurer = mb -> new NoContentStatementInjector()
-				.withWrapper(this.responseWrapperClassName)
+				.withWrapper(this.responseWrapperType)
 				.inject(mb);
 
 		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, parameterConfigurer, bodyConfigurer, postBodyConfigurer);
@@ -203,9 +203,9 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 		// Inject security checks
 		methodBuilder = new AuthenticationInjector()
 				.withMethod("UPDATE") // Deleting (setting to null) requires UPDATE permission
-				.withEntityClassName(this.entityClassName)
-				.withRelatedClassName(this.relationEntityClassName) // Check based on the related entity
-				.withSecurityConfig(this.securityConfiguration)
+				.withEntityClassName(this.entityType)
+				.withRelatedClassName(this.relationEntityType) // Check based on the related entity
+				.withSecurityConfig(this.securityConfig)
 				.inject(methodBuilder);
 
 		// Define return type (ResponseEntity<?>)
@@ -232,8 +232,8 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	 */
 	protected boolean hasExistingRequest() {
 		return RestnessUtil.hasExistingRequest(
-				this.existingRequestMappings,
-				this.requestBasePath + "/{id}/" + this.relationName,
+				this.requestMappings,
+				this.basePath + "/{id}/" + this.relationName,
 				RequestMethod.DELETE
 		);
 	}

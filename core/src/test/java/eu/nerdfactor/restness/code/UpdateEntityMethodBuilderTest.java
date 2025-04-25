@@ -26,15 +26,15 @@ class UpdateEntityMethodBuilderTest {
 				.addModifiers(Modifier.PUBLIC);
 
 		UpdateEntityMethodBuilder.create()
-				.withHasExistingRequest(false)
+				.withRequestExists(false)
 				.withUsingDto(false)
-				.withRequestUrl("/api/example")
+				.withBasePath("/api/example")
 				.withEntityType(ClassName.get(Example.class))
-				.withRequestType(ClassName.get(Example.class))
-				.withResponseType(ClassName.get(Example.class))
-				.withIdentifyingType(ClassName.get(Integer.class))
-				.withSecurityConfiguration(null)
-				.withDataWrapperClass(TypeName.OBJECT)
+				.withRequestBodyType(ClassName.get(Example.class))
+				.withResponseBodyType(ClassName.get(Example.class))
+				.withIdType(ClassName.get(Integer.class))
+				.withSecurityConfig(null)
+				.withResponseWrapperType(TypeName.OBJECT)
 				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
@@ -63,15 +63,15 @@ class UpdateEntityMethodBuilderTest {
 				.addModifiers(Modifier.PUBLIC);
 
 		UpdateEntityMethodBuilder.create()
-				.withHasExistingRequest(false)
+				.withRequestExists(false)
 				.withUsingDto(true)
-				.withRequestUrl("/api/example")
+				.withBasePath("/api/example")
 				.withEntityType(ClassName.get(Example.class))
-				.withRequestType(ClassName.get(ExampleForm.class))
-				.withResponseType(ClassName.get(ExampleDto.class))
-				.withIdentifyingType(ClassName.get(Integer.class))
-				.withSecurityConfiguration(null)
-				.withDataWrapperClass(TypeName.OBJECT)
+				.withRequestBodyType(ClassName.get(ExampleForm.class))
+				.withResponseBodyType(ClassName.get(ExampleDto.class))
+				.withIdType(ClassName.get(Integer.class))
+				.withSecurityConfig(null)
+				.withResponseWrapperType(TypeName.OBJECT)
 				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();

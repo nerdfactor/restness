@@ -46,38 +46,38 @@ public class SearchMethodBuilder extends MethodBuilder {
 	/**
 	 * Flag indicating if a request mapping for searching entities already exists.
 	 */
-	protected boolean hasExistingRequest;
+	protected boolean requestExists;
 
 	/**
 	 * The base request path for the controller (e.g., "/entities").
 	 * The search path will be appended to this (e.g., "/entities/search").
 	 */
-	private String requestBasePath;
+	private String basePath;
 
 	/**
 	 * The {@link TypeName} of the response object (DTO or Entity) contained in the page.
 	 */
-	private TypeName responseType;
+	private TypeName responseBodyType;
 
 	/**
 	 * The {@link TypeName} of the entity class being searched.
 	 */
-	private TypeName entityClassName;
+	private TypeName entityType;
 
 	/**
 	 * The {@link SecurityConfiguration} for the controller method.
 	 */
-	private SecurityConfiguration securityConfiguration;
+	private SecurityConfiguration securityConfig;
 
 	/**
 	 * Flag indicating if Data Transfer Objects (DTOs) are used for the response.
 	 */
-	private boolean usingDto;
+	private boolean isUsingDto;
 
 	/**
 	 * The {@link TypeName} of the class used to wrap the response page, if any.
 	 */
-	private TypeName responseWrapperClassName;
+	private TypeName responseWrapperType;
 
 	/**
 	 * Create a new instance of {@link SearchMethodBuilder}.
@@ -97,13 +97,13 @@ public class SearchMethodBuilder extends MethodBuilder {
 	 * @return A new configured instance of {@link SearchMethodBuilder}.
 	 */
 	public SearchMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/search", RequestMethod.GET))
-				.withRequestBasePath(configuration.getRequestBasePath())
-				.withResponseType(configuration.getResponseType())
-				.withEntityClassName(configuration.getEntityClassName())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
+		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/search", RequestMethod.GET))
+				.withBasePath(configuration.getRequestBasePath())
+				.withResponseBodyType(configuration.getResponseType())
+				.withEntityType(configuration.getEntityClassName())
+				.withSecurityConfig(configuration.getSecurityConfiguration())
 				.withUsingDto(configuration.isUsingDto())
-				.withResponseWrapperClassName(configuration.getResponseWrapperClassName());
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 
@@ -119,14 +119,14 @@ public class SearchMethodBuilder extends MethodBuilder {
 	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
-		if (this.hasExistingRequest) {
+		if (this.requestExists) {
 			return builder;
 		}
 		log.info("addSearchAllEntitiesMethod");
-		ParameterizedTypeName responsePageType = ParameterizedTypeName.get(ClassName.get(Page.class), this.responseType);
+		ParameterizedTypeName responsePageType = ParameterizedTypeName.get(ClassName.get(Page.class), this.responseBodyType);
 		MethodSpec.Builder method = MethodSpec
 				.methodBuilder("searchAll")
-				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.requestBasePath + "/search").build())
+				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.basePath + "/search").build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responsePageType))
 				.addParameter(ParameterSpec.builder(String.class, "filter")
@@ -143,14 +143,14 @@ public class SearchMethodBuilder extends MethodBuilder {
 
 		new AuthenticationInjector()
 				.withMethod("READ")
-				.withEntityClassName(this.entityClassName)
-				.withSecurityConfig(this.securityConfiguration)
+				.withEntityClassName(this.entityType)
+				.withSecurityConfig(this.securityConfig)
 				.inject(method);
 
-		this.addMethodBody(method, this.entityClassName, this.responseType, this.usingDto);
+		this.addMethodBody(method, this.entityType, this.responseBodyType, this.isUsingDto);
 
 		new ReturnStatementInjector()
-				.withWrapper(this.responseWrapperClassName)
+				.withWrapper(this.responseWrapperType)
 				.withResponse(responsePageType) // Use the Page<ResponseType> for the injector
 				.withResponseVariable("responsePage")
 				.inject(method);

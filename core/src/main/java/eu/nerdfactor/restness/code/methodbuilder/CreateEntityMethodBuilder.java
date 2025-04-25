@@ -40,19 +40,19 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	/**
 	 * Flag indicating if a request mapping for creating an entity already exists.
 	 */
-	protected boolean hasExistingRequest;
+	protected boolean requestExists;
 	/**
 	 * The URL path for the create entity request (e.g., "/entities").
 	 */
-	protected String requestUrl;
+	protected String basePath;
 	/**
 	 * The {@link TypeName} of the request body object (DTO or entity).
 	 */
-	protected TypeName requestType;
+	protected TypeName requestBodyType;
 	/**
 	 * The {@link TypeName} of the response object (DTO or entity).
 	 */
-	protected TypeName responseType;
+	protected TypeName responseBodyType;
 	/**
 	 * The {@link TypeName} of the entity being created.
 	 */
@@ -64,11 +64,11 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	/**
 	 * Security configuration for the controller method.
 	 */
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 	/**
 	 * The {@link TypeName} of the class used to wrap the response data, if any.
 	 */
-	protected TypeName dataWrapperClass;
+	protected TypeName responseWrapperType;
 
 	/**
 	 * Creates a new instance of {@link CreateEntityMethodBuilder}.
@@ -89,14 +89,14 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 */
 	@Override
 	public CreateEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath(), RequestMethod.POST))
-				.withRequestUrl(configuration.getRequestBasePath())
-				.withRequestType(configuration.getRequestType())
-				.withResponseType(configuration.getResponseType())
+		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath(), RequestMethod.POST))
+				.withBasePath(configuration.getRequestBasePath())
+				.withRequestBodyType(configuration.getRequestType())
+				.withResponseBodyType(configuration.getResponseType())
 				.withEntityType(configuration.getEntityClassName())
 				.withUsingDto(configuration.isUsingDto())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withDataWrapperClass(configuration.getResponseWrapperClassName());
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -112,29 +112,29 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Post method with the Request Url.
-		if (this.hasExistingRequest) {
+		if (this.requestExists) {
 			return builder;
 		}
 		log.info("addCreateEntityMethod");
 
 		// Create the method declaration.
-		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.requestType, this.responseType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.basePath, this.requestBodyType, this.responseBodyType);
 
 		// Inject a Security Annotation that will require a role of "CREATE"
 		// for the Entity.
 		new AuthenticationInjector().withMethod("CREATE")
 				.withEntityClassName(this.entityType)
-				.withSecurityConfig(this.securityConfiguration)
+				.withSecurityConfig(this.securityConfig)
 				.inject(method);
 
 		// Add the method body.
-		this.addMethodBody(method, this.entityType, this.requestType, this.responseType, this.isUsingDto);
+		this.addMethodBody(method, this.entityType, this.requestBodyType, this.responseBodyType, this.isUsingDto);
 
 		// Inject a return statement that will return the response object in a ResponseEntity
 		// that may be wrapped inside the DataWrapper.
 		new ReturnStatementInjector()
-				.withWrapper(this.dataWrapperClass)
-				.withResponse(this.responseType)
+				.withWrapper(this.responseWrapperType)
+				.withResponse(this.responseBodyType)
 				.inject(method);
 
 		builder.addMethod(method.build());

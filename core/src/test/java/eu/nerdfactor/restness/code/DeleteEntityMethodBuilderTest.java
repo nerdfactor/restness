@@ -24,12 +24,12 @@ class DeleteEntityMethodBuilderTest {
 				.addModifiers(Modifier.PUBLIC);
 
 		DeleteEntityMethodBuilder.create()
-				.withHasExistingRequest(false)
-				.withRequestUrl("/api/example")
+				.withRequestExists(false)
+				.withRequestPath("/api/example")
 				.withEntityType(ClassName.get(Example.class))
-				.withIdentifyingType(ClassName.get(Integer.class))
-				.withSecurityConfiguration(null)
-				.withDataWrapperClass(TypeName.OBJECT)
+				.withIdType(ClassName.get(Integer.class))
+				.withSecurityConfig(null)
+				.withResponseWrapperType(TypeName.OBJECT)
 				.buildWith(builder);
 
 		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();

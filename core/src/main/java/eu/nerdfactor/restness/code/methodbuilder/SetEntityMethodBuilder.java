@@ -42,19 +42,19 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	/**
 	 * Flag indicating if a request mapping for updating an entity already exists.
 	 */
-	protected boolean hasExistingRequest;
+	protected boolean requestExists;
 	/**
-	 * The URL path for the update entity request (e.g., "/{id}").
+	 * The URL path for the request (e.g., "/{id}").
 	 */
-	protected String requestUrl;
+	protected String basePath;
 	/**
 	 * The {@link TypeName} of the request object (DTO or entity).
 	 */
-	protected TypeName requestType;
+	protected TypeName requestBodyType;
 	/**
 	 * The {@link TypeName} of the response object (DTO or entity).
 	 */
-	protected TypeName responseType;
+	protected TypeName responseBodyType;
 	/**
 	 * The {@link TypeName} of the entity being updated.
 	 */
@@ -62,7 +62,7 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	/**
 	 * The {@link TypeName} of the entity's identifier (e.g., Long, String).
 	 */
-	protected TypeName identifyingType;
+	protected TypeName idType;
 	/**
 	 * Flag indicating if Data Transfer Objects (DTOs) are used for request and response.
 	 */
@@ -70,11 +70,11 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	/**
 	 * Security configuration for the controller method.
 	 */
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 	/**
 	 * The {@link TypeName} of the class used to wrap the response data, if any.
 	 */
-	protected TypeName dataWrapperType;
+	protected TypeName responseWrapperType;
 
 	/**
 	 * Creates a new instance of {@link SetEntityMethodBuilder}.
@@ -95,15 +95,15 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	 */
 	@Override
 	public SetEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.PUT))
-				.withRequestUrl(configuration.getRequestBasePath() + "/{id}")
-				.withRequestType(configuration.getRequestType())
-				.withResponseType(configuration.getResponseType())
+		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.PUT))
+				.withBasePath(configuration.getRequestBasePath() + "/{id}")
+				.withRequestBodyType(configuration.getRequestType())
+				.withResponseBodyType(configuration.getResponseType())
 				.withEntityType(configuration.getEntityClassName())
-				.withIdentifyingType(configuration.getIdClassName())
+				.withIdType(configuration.getIdClassName())
 				.withUsingDto(configuration.isUsingDto())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withDataWrapperType(configuration.getResponseWrapperClassName());
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -119,24 +119,24 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Put method with the Request Url, an id parameter and a request body.
-		if (this.hasExistingRequest) {
+		if (this.requestExists) {
 			return builder;
 		}
 		log.info("addSetEntityMethod");
 
-		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType, this.requestType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.basePath, this.idType, this.responseBodyType, this.requestBodyType);
 
 		new AuthenticationInjector()
 				.withMethod("UPDATE")
 				.withEntityClassName(this.entityType)
-				.withSecurityConfig(this.securityConfiguration)
+				.withSecurityConfig(this.securityConfig)
 				.inject(method);
 
-		this.addMethodBody(method, this.entityType, this.responseType, this.isUsingDto);
+		this.addMethodBody(method, this.entityType, this.responseBodyType, this.isUsingDto);
 
 		new ReturnStatementInjector()
-				.withWrapper(this.dataWrapperType)
-				.withResponse(this.responseType) // Use responseType directly
+				.withWrapper(this.responseWrapperType)
+				.withResponse(this.responseBodyType) // Use responseType directly
 				.inject(method);
 		builder.addMethod(method.build());
 		return builder;

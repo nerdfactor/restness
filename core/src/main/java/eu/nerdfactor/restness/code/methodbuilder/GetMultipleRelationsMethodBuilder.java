@@ -43,32 +43,32 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	/**
 	 * List of existing request mappings in the controller to avoid duplicates.
 	 */
-	protected List<String> existingRequestMappings;
+	protected List<String> requestMappings;
 
 	/**
 	 * The base request path from the main controller configuration.
 	 */
-	protected String requestBasePath;
+	protected String basePath;
 
 	/**
 	 * The class name of the main entity's identifier (e.g., Long, String).
 	 */
-	protected TypeName idClassName;
+	protected TypeName idType;
 
 	/**
 	 * The class name of the main entity.
 	 */
-	protected TypeName entityClassName;
+	protected TypeName entityType;
 
 	/**
 	 * The security configuration for the controller.
 	 */
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 
 	/**
 	 * The class name of the response wrapper, if configured.
 	 */
-	protected TypeName responseWrapperClassName;
+	protected TypeName responseWrapperType;
 
 	/**
 	 * The name of the relation property or field.
@@ -78,22 +78,22 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	/**
 	 * Indicates if the relation should use DTOs.
 	 */
-	protected boolean relationIsUsingDto;
+	protected boolean isUsingDto;
 
 	/**
 	 * The class name of the response DTO for the relation, if used.
 	 */
-	protected TypeName relationResponseObjectClassName;
+	protected TypeName relationResponseType;
 
 	/**
 	 * The class name of the related entity.
 	 */
-	protected TypeName relationEntityClassName;
+	protected TypeName relationEntityType;
 
 	/**
 	 * The name of the getter method for the relation in the main entity.
 	 */
-	protected String relationGetterMethodName;
+	protected String relationGetter;
 
 	/**
 	 * Static factory method to create a new instance of {@link GetMultipleRelationsMethodBuilder}.
@@ -111,12 +111,12 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	 * @return The builder instance for chaining.
 	 */
 	public GetMultipleRelationsMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
-				.withRequestBasePath(configuration.getRequestBasePath())
-				.withIdClassName(configuration.getIdClassName())
-				.withEntityClassName(configuration.getEntityClassName())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withResponseWrapperClassName(configuration.getResponseWrapperClassName());
+		return this.withRequestMappings(configuration.getExistingRequestMappings())
+				.withBasePath(configuration.getRequestBasePath())
+				.withIdType(configuration.getIdClassName())
+				.withEntityType(configuration.getEntityClassName())
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -127,10 +127,10 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	 */
 	public GetMultipleRelationsMethodBuilder withRelation(RelationConfiguration relation) {
 		return this.withRelationName(relation.getRelationName())
-				.withRelationIsUsingDto(relation.isUsingDto())
-				.withRelationResponseObjectClassName(relation.getResponseObjectClassName())
-				.withRelationEntityClassName(relation.getEntityClassName())
-				.withRelationGetterMethodName(relation.getGetterMethodName());
+				.withUsingDto(relation.isUsingDto())
+				.withRelationResponseType(relation.getResponseObjectClassName())
+				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationGetter(relation.getGetterMethodName());
 	}
 
 	/**
@@ -162,11 +162,11 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 		log.info("addGetMultipleRelationsMethod for relation {}", this.relationName);
 
 		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.GET);
-		String path = this.requestBasePath + "/{id}/" + this.relationName;
+		String path = this.basePath + "/{id}/" + this.relationName;
 
-		TypeName responseEntityType = this.relationIsUsingDto && this.relationResponseObjectClassName != null && !this.relationResponseObjectClassName.equals(TypeName.OBJECT)
-				? this.relationResponseObjectClassName
-				: this.relationEntityClassName;
+		TypeName responseEntityType = this.isUsingDto && this.relationResponseType != null && !this.relationResponseType.equals(TypeName.OBJECT)
+				? this.relationResponseType
+				: this.relationEntityType;
 		ParameterizedTypeName responseListType = ParameterizedTypeName.get(ClassName.get(List.class), responseEntityType);
 
 		// No specific parameters beyond the main entity ID handled by the common builder.
@@ -174,10 +174,10 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 		};
 
 		Consumer<MethodSpec.Builder> bodyConfigurer = mb -> {
-			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.entityClassName, EntityNotFoundException.class);
+			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.entityType, EntityNotFoundException.class);
 			mb.addStatement("$T<$T> responseList = new $T<>()", List.class, responseEntityType, ArrayList.class);
-			mb.beginControlFlow("for($T rel : entity." + this.relationGetterMethodName + "())", this.relationEntityClassName);
-			if (this.relationIsUsingDto) {
+			mb.beginControlFlow("for($T rel : entity." + this.relationGetter + "())", this.relationEntityType);
+			if (this.isUsingDto) {
 				mb.addStatement("$T response = this.dataMapper.map(rel, $T.class)", responseEntityType, responseEntityType);
 			} else {
 				mb.addStatement("$T response = rel", responseEntityType);
@@ -188,7 +188,7 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 		};
 
 		Consumer<MethodSpec.Builder> postBodyConfigurer = mb -> new ReturnStatementInjector()
-				.withWrapper(this.responseWrapperClassName)
+				.withWrapper(this.responseWrapperType)
 				.withResponse(responseEntityType) // Injector needs the *element* type
 				.withResponseVariable("responseList") // The variable holding the list
 				.inject(mb);
@@ -218,7 +218,7 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 						.build())
 				.addAnnotation(ResponseBody.class) // Explicitly add for clarity, though often implicit with @RestController
 				.addModifiers(Modifier.PUBLIC)
-				.addParameter(ParameterSpec.builder(this.idClassName, "id")
+				.addParameter(ParameterSpec.builder(this.idType, "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
@@ -230,16 +230,16 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 		// Inject security checks
 		methodBuilder = new AuthenticationInjector()
 				.withMethod("READ") // Reading relations requires READ permission
-				.withEntityClassName(this.entityClassName)
-				.withRelatedClassName(this.relationEntityClassName)
-				.withSecurityConfig(this.securityConfiguration)
+				.withEntityClassName(this.entityType)
+				.withRelatedClassName(this.relationEntityType)
+				.withSecurityConfig(this.securityConfig)
 				.inject(methodBuilder);
 
 		// Determine the final return type (potentially wrapped)
 		TypeName finalReturnType;
-		if (this.responseWrapperClassName != null && !this.responseWrapperClassName.equals(TypeName.OBJECT)) {
+		if (this.responseWrapperType != null && !this.responseWrapperType.equals(TypeName.OBJECT)) {
 			// Wrap the list type if a response wrapper is specified
-			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.responseWrapperClassName.toString()), responseListType));
+			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.responseWrapperType.toString()), responseListType));
 		} else {
 			// Return ResponseEntity<List<ResponseEntityType>> directly
 			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseListType);
@@ -265,8 +265,8 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	 */
 	protected boolean hasExistingRequest() {
 		return RestnessUtil.hasExistingRequest(
-				this.existingRequestMappings,
-				this.requestBasePath + "/{id}/" + this.relationName,
+				this.requestMappings,
+				this.basePath + "/{id}/" + this.relationName,
 				RequestMethod.GET
 		);
 	}

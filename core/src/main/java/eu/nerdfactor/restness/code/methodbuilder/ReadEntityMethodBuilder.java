@@ -40,15 +40,15 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	/**
 	 * Flag indicating if a request mapping for reading a single entity already exists.
 	 */
-	protected boolean hasExistingRequest;
+	protected boolean requestExists;
 	/**
 	 * The URL path for the read entity request (e.g., "/{id}").
 	 */
-	protected String requestUrl;
+	protected String basePath;
 	/**
 	 * The {@link TypeName} of the response object (DTO or entity).
 	 */
-	protected TypeName responseType;
+	protected TypeName responseBodyType;
 	/**
 	 * The {@link TypeName} of the entity being read.
 	 */
@@ -56,7 +56,7 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	/**
 	 * The {@link TypeName} of the entity's identifier (e.g., Long, String).
 	 */
-	protected TypeName identifyingType;
+	protected TypeName idType;
 	/**
 	 * Flag indicating if Data Transfer Objects (DTOs) are used for the response.
 	 */
@@ -64,11 +64,11 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	/**
 	 * Security configuration for the controller method.
 	 */
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 	/**
 	 * The {@link TypeName} of the class used to wrap the response data, if any.
 	 */
-	protected TypeName dataWrapperClass;
+	protected TypeName responseWrapperType;
 
 	/**
 	 * Creates a new instance of {@link ReadEntityMethodBuilder}.
@@ -88,14 +88,14 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	 */
 	@Override
 	public ReadEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.GET))
-				.withRequestUrl(configuration.getRequestBasePath() + "/{id}")
-				.withResponseType(configuration.getResponseType())
+		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.GET))
+				.withBasePath(configuration.getRequestBasePath() + "/{id}")
+				.withResponseBodyType(configuration.getResponseType())
 				.withEntityType(configuration.getEntityClassName())
-				.withIdentifyingType(configuration.getIdClassName())
+				.withIdType(configuration.getIdClassName())
 				.withUsingDto(configuration.isUsingDto())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withDataWrapperClass(configuration.getResponseWrapperClassName());
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -110,24 +110,24 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		// Check, if the controller already contains a Get method with the Request Url and an id parameter.
-		if (this.hasExistingRequest) {
+		if (this.requestExists) {
 			return builder;
 		}
 		log.info("addGetEntityMethod");
 
-		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType, this.responseType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.basePath, this.idType, this.responseBodyType);
 
 		new AuthenticationInjector()
 				.withMethod("READ")
 				.withEntityClassName(this.entityType)
-				.withSecurityConfig(this.securityConfiguration)
+				.withSecurityConfig(this.securityConfig)
 				.inject(method);
 
-		this.addMethodBody(method, this.entityType, this.responseType, this.isUsingDto);
+		this.addMethodBody(method, this.entityType, this.responseBodyType, this.isUsingDto);
 
 		new ReturnStatementInjector()
-				.withWrapper(this.dataWrapperClass)
-				.withResponse(this.responseType)
+				.withWrapper(this.responseWrapperType)
+				.withResponse(this.responseBodyType)
 				.inject(method);
 
 		builder.addMethod(method.build());

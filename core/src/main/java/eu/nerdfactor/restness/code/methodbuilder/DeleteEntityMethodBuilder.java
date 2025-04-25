@@ -39,11 +39,11 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	/**
 	 * Flag indicating if a request mapping for deleting an entity already exists.
 	 */
-	protected boolean hasExistingRequest;
+	protected boolean requestExists;
 	/**
 	 * The URL path for the delete entity request (e.g., "/entities/{id}").
 	 */
-	protected String requestUrl;
+	protected String requestPath;
 	/**
 	 * The {@link TypeName} of the entity being deleted.
 	 */
@@ -51,16 +51,16 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	/**
 	 * The {@link TypeName} of the entity's identifier (e.g., Long, String).
 	 */
-	protected TypeName identifyingType;
+	protected TypeName idType;
 	/**
 	 * Security configuration for the controller method.
 	 */
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 	/**
 	 * The {@link TypeName} of the class used to wrap the response data, if any.
 	 * Although delete typically returns no content, a wrapper might be used for consistency.
 	 */
-	protected TypeName dataWrapperClass;
+	protected TypeName responseWrapperType;
 
 	/**
 	 * Creates a new instance of {@link DeleteEntityMethodBuilder}.
@@ -81,12 +81,12 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 */
 	@Override
 	public DeleteEntityMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withHasExistingRequest(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.DELETE))
-				.withRequestUrl(configuration.getRequestBasePath() + "/{id}")
+		return this.withRequestExists(RestnessUtil.hasExistingRequest(configuration.getExistingRequestMappings(), configuration.getRequestBasePath() + "/{id}", RequestMethod.DELETE))
+				.withRequestPath(configuration.getRequestBasePath() + "/{id}")
 				.withEntityType(configuration.getEntityClassName())
-				.withIdentifyingType(configuration.getIdClassName())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withDataWrapperClass(configuration.getResponseWrapperClassName());
+				.withIdType(configuration.getIdClassName())
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -101,23 +101,23 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
-		if (this.hasExistingRequest) {
+		if (this.requestExists) {
 			return builder;
 		}
 		log.info("addDeleteEntityMethod");
 
-		MethodSpec.Builder method = this.createMethodDeclaration(this.requestUrl, this.identifyingType);
+		MethodSpec.Builder method = this.createMethodDeclaration(this.requestPath, this.idType);
 
 		new AuthenticationInjector()
 				.withMethod("DELETE")
 				.withEntityClassName(this.entityType)
-				.withSecurityConfig(this.securityConfiguration)
+				.withSecurityConfig(this.securityConfig)
 				.inject(method);
 
 		this.addMethodBody(method);
 
 		new NoContentStatementInjector()
-				.withWrapper(this.dataWrapperClass)
+				.withWrapper(this.responseWrapperType)
 				.inject(method);
 
 		builder.addMethod(method.build());

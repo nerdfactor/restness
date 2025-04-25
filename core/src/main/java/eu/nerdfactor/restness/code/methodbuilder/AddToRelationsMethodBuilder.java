@@ -40,27 +40,27 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	/**
 	 * List of existing request mappings in the controller to avoid duplicates.
 	 */
-	protected List<String> existingRequestMappings;
+	protected List<String> requestMappings;
 	/**
 	 * Base path for the generated controller methods.
 	 */
-	protected String requestBasePath;
+	protected String basePath;
 	/**
 	 * Class name of the main entity's identifier.
 	 */
-	protected TypeName idClassName;
+	protected TypeName idType;
 	/**
 	 * Class name of the main entity.
 	 */
-	protected TypeName entityClassName;
+	protected TypeName entityType;
 	/**
 	 * Security configuration for the generated methods.
 	 */
-	protected SecurityConfiguration securityConfiguration;
+	protected SecurityConfiguration securityConfig;
 	/**
 	 * Class name for the response wrapper, if any.
 	 */
-	protected TypeName responseWrapperClassName;
+	protected TypeName responseWrapperType;
 	/**
 	 * Name of the relation.
 	 */
@@ -68,27 +68,27 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	/**
 	 * Flag indicating if Data Transfer Objects (DTOs) are used for the relation.
 	 */
-	protected boolean usingDto;
+	protected boolean isUsingDto;
 	/**
 	 * Class name of the response object for the relation (might be a DTO or the entity itself).
 	 */
-	protected TypeName relationResponseObjectClassName;
+	protected TypeName relationResponseType;
 	/**
 	 * Class name of the related entity.
 	 */
-	protected TypeName relationEntityClassName;
+	protected TypeName relationEntityType;
 	/**
 	 * Class name of the related entity's identifier.
 	 */
-	protected TypeName relationIdClassName;
+	protected TypeName relationIdType;
 	/**
 	 * Name of the method to access the ID of the related entity/DTO.
 	 */
-	protected String relationIdAccessorMethodName;
+	protected String relationIdAccessor;
 	/**
 	 * Name of the method on the main entity to add a related entity to the collection.
 	 */
-	protected String relationAdderMethodName;
+	protected String relationAdder;
 
 	/**
 	 * Static factory method to create a new instance of {@link AddToRelationsMethodBuilder}.
@@ -106,12 +106,12 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	 * @return The builder instance for chaining.
 	 */
 	public AddToRelationsMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
-				.withRequestBasePath(configuration.getRequestBasePath())
-				.withIdClassName(configuration.getIdClassName())
-				.withEntityClassName(configuration.getEntityClassName())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withResponseWrapperClassName(configuration.getResponseWrapperClassName());
+		return this.withRequestMappings(configuration.getExistingRequestMappings())
+				.withBasePath(configuration.getRequestBasePath())
+				.withIdType(configuration.getIdClassName())
+				.withEntityType(configuration.getEntityClassName())
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -123,11 +123,11 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	public AddToRelationsMethodBuilder withRelation(RelationConfiguration relation) {
 		return this.withRelationName(relation.getRelationName())
 				.withUsingDto(relation.isUsingDto())
-				.withRelationResponseObjectClassName(relation.getResponseObjectClassName())
-				.withRelationEntityClassName(relation.getEntityClassName())
-				.withRelationIdClassName(relation.getIdClassName())
-				.withRelationIdAccessorMethodName(relation.getIdAccessorMethodName())
-				.withRelationAdderMethodName(relation.getAdderMethodName());
+				.withRelationResponseType(relation.getResponseObjectClassName())
+				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationIdType(relation.getIdClassName())
+				.withRelationIdAccessor(relation.getIdAccessorMethodName())
+				.withRelationAdder(relation.getAdderMethodName());
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
-		TypeName responseEntityType = this.usingDto && this.relationResponseObjectClassName != null && !this.relationResponseObjectClassName.equals(TypeName.OBJECT) ? this.relationResponseObjectClassName : this.relationEntityClassName;
+		TypeName responseEntityType = this.isUsingDto && this.relationResponseType != null && !this.relationResponseType.equals(TypeName.OBJECT) ? this.relationResponseType : this.relationEntityType;
 		ParameterizedTypeName responseListType = ParameterizedTypeName.get(ClassName.get(List.class), responseEntityType);
 
 		if (!this.hasExistingRequest()) {
@@ -166,20 +166,20 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	private void addAddToRelationsByIdMethod(TypeSpec.Builder builder, ParameterizedTypeName responseListType, TypeName responseEntityType) {
 		log.info("addAddToRelationsByIdMethod");
 		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.ADD) + "ById";
-		String path = this.requestBasePath + "/{id}/" + this.relationName + "/{relationId}";
+		String path = this.basePath + "/{id}/" + this.relationName + "/{relationId}";
 
 		Consumer<MethodSpec.Builder> parameterConfigurer = mb -> mb.addParameter(
-				ParameterSpec.builder(this.relationIdClassName, "relationId")
+				ParameterSpec.builder(this.relationIdType, "relationId")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
 		);
 
 		Consumer<MethodSpec.Builder> bodyConfigurer = mb -> {
-			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.entityClassName, EntityNotFoundException.class);
+			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow($T::new)", this.entityType, EntityNotFoundException.class);
 			// Use EntityManager.getReference to avoid fetching the full related entity
-			mb.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationEntityClassName, this.relationEntityClassName);
-			mb.addStatement("entity." + this.relationAdderMethodName + "(rel)");
+			mb.addStatement("$T rel = this.entityManager.getReference($T.class, relationId)", this.relationEntityType, this.relationEntityType);
+			mb.addStatement("entity." + this.relationAdder + "(rel)");
 			mb.addStatement("this.dataAccessor.updateData(entity)");
 			// Delegate to the GET method to return the updated list
 			mb.addStatement("return this." + RestnessUtil.getRelationMethodName(this.relationName, AccessorType.GET) + "(id)");
@@ -201,7 +201,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	private void addAddToRelationsMethod(TypeSpec.Builder builder, TypeName responseEntityType, ParameterizedTypeName responseListType) {
 		log.info("addAddToRelationsMethod");
 		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.ADD);
-		String path = this.requestBasePath + "/{id}/" + this.relationName;
+		String path = this.basePath + "/{id}/" + this.relationName;
 
 		Consumer<MethodSpec.Builder> parameterConfigurer = mb -> mb.addParameter(
 				ParameterSpec.builder(responseEntityType, "dto") // Parameter name changed to 'dto' for clarity
@@ -212,7 +212,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 
 		// Delegate to the ById method
 		Consumer<MethodSpec.Builder> bodyConfigurer = mb -> mb.addStatement(
-				"return this." + RestnessUtil.getRelationMethodName(this.relationName, AccessorType.ADD) + "ById(id, dto." + this.relationIdAccessorMethodName + "())"
+				"return this." + RestnessUtil.getRelationMethodName(this.relationName, AccessorType.ADD) + "ById(id, dto." + this.relationIdAccessor + "())"
 		);
 
 		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseListType, responseEntityType, parameterConfigurer, bodyConfigurer);
@@ -242,7 +242,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 						.build())
 				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
-				.addParameter(ParameterSpec.builder(this.idClassName, "id")
+				.addParameter(ParameterSpec.builder(this.idType, "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
@@ -254,16 +254,16 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 		// Inject security checks
 		methodBuilder = new AuthenticationInjector()
 				.withMethod("UPDATE") // Adding to a relation is considered an UPDATE operation
-				.withEntityClassName(this.entityClassName)
-				.withRelatedClassName(this.relationEntityClassName)
-				.withSecurityConfig(this.securityConfiguration)
+				.withEntityClassName(this.entityType)
+				.withRelatedClassName(this.relationEntityType)
+				.withSecurityConfig(this.securityConfig)
 				.inject(methodBuilder);
 
 		// Determine the final return type (potentially wrapped)
 		TypeName finalReturnType;
-		if (this.responseWrapperClassName != null && !this.responseWrapperClassName.equals(TypeName.OBJECT)) {
+		if (this.responseWrapperType != null && !this.responseWrapperType.equals(TypeName.OBJECT)) {
 			// Wrap the list type if a response wrapper is specified
-			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.responseWrapperClassName.toString()), responseListType));
+			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.responseWrapperType.toString()), responseListType));
 		} else {
 			// Return ResponseEntity<List<ResponseEntityType>> directly
 			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseListType);
@@ -284,8 +284,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	 */
 	protected boolean hasExistingRequest() {
 		return RestnessUtil.hasExistingRequest(
-				this.existingRequestMappings,
-				this.requestBasePath + "/{id}/" + this.relationName,
+				this.requestMappings,
+				this.basePath + "/{id}/" + this.relationName,
 				RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH
 		);
 	}
@@ -298,8 +298,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	 */
 	protected boolean hasExistingRequestById() {
 		return RestnessUtil.hasExistingRequest(
-				this.existingRequestMappings,
-				this.requestBasePath + "/{id}/" + this.relationName + "/{relationId}",
+				this.requestMappings,
+				this.basePath + "/{id}/" + this.relationName + "/{relationId}",
 				RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH
 		);
 	}

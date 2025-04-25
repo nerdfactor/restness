@@ -40,32 +40,32 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	/**
 	 * List of existing request mappings in the controller to avoid duplicates.
 	 */
-	protected List<String> existingRequestMappings;
+	protected List<String> requestMappings;
 
 	/**
 	 * The base path for the controller's request mappings.
 	 */
-	private String requestBasePath;
+	private String basePath;
 
 	/**
 	 * The class name of the main entity's identifier.
 	 */
-	private TypeName idClassName;
+	private TypeName idType;
 
 	/**
 	 * The class name of the main entity.
 	 */
-	private TypeName entityClassName;
+	private TypeName entityType;
 
 	/**
 	 * The security configuration for the controller.
 	 */
-	private SecurityConfiguration securityConfiguration;
+	private SecurityConfiguration securityConfig;
 
 	/**
 	 * The class name of the response wrapper, if configured.
 	 */
-	private TypeName responseWrapperClassName;
+	private TypeName responseWrapperType;
 
 	/**
 	 * The name of the relation.
@@ -75,22 +75,22 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	/**
 	 * Indicates if the relation uses a DTO for request/response.
 	 */
-	private boolean relationIsUsingDto;
+	private boolean isUsingDto;
 
 	/**
 	 * The class name of the relation's request/response object (DTO or entity).
 	 */
-	private TypeName relationDtoOrEntityClassName; // Renamed for clarity
+	private TypeName relationResponseType;
 
 	/**
 	 * The class name of the related entity.
 	 */
-	private TypeName relationEntityClassName;
+	private TypeName relationEntityType;
 
 	/**
 	 * The name of the setter method for the relation on the main entity.
 	 */
-	private String relationSetterMethodName;
+	private String relationSetter;
 
 	/**
 	 * Static factory method to create a new instance of {@link SetSingleRelationMethodBuilder}.
@@ -108,12 +108,12 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	 * @return The builder instance for chaining.
 	 */
 	public SetSingleRelationMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
-		return this.withExistingRequestMappings(configuration.getExistingRequestMappings())
-				.withRequestBasePath(configuration.getRequestBasePath())
-				.withIdClassName(configuration.getIdClassName())
-				.withEntityClassName(configuration.getEntityClassName())
-				.withSecurityConfiguration(configuration.getSecurityConfiguration())
-				.withResponseWrapperClassName(configuration.getResponseWrapperClassName());
+		return this.withRequestMappings(configuration.getExistingRequestMappings())
+				.withBasePath(configuration.getRequestBasePath())
+				.withIdType(configuration.getIdClassName())
+				.withEntityType(configuration.getEntityClassName())
+				.withSecurityConfig(configuration.getSecurityConfiguration())
+				.withResponseWrapperType(configuration.getResponseWrapperClassName());
 	}
 
 	/**
@@ -129,10 +129,10 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 				: relation.getEntityClassName();
 
 		return this.withRelationName(relation.getRelationName())
-				.withRelationIsUsingDto(relation.isUsingDto())
-				.withRelationDtoOrEntityClassName(dtoOrEntity) // Use the determined class
-				.withRelationEntityClassName(relation.getEntityClassName())
-				.withRelationSetterMethodName(relation.getSetterMethodName());
+				.withUsingDto(relation.isUsingDto())
+				.withRelationResponseType(dtoOrEntity) // Use the determined class
+				.withRelationEntityType(relation.getEntityClassName())
+				.withRelationSetter(relation.getSetterMethodName());
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
 		if (this.hasExistingRequest()) {
-			log.warn("Existing request mapping found for POST/PUT/PATCH on {}/{id}/{}, skipping generation.", this.requestBasePath, this.relationName);
+			log.warn("Existing request mapping found for POST/PUT/PATCH on {}/{id}/{}, skipping generation.", this.basePath, this.relationName);
 			return builder;
 		}
 		addSetSingleRelationMethod(builder);
@@ -165,9 +165,9 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 		log.info("Adding set single relation method for relation: {}", this.relationName);
 
 		String methodName = RestnessUtil.getRelationMethodName(this.relationName, AccessorType.SET);
-		String path = this.requestBasePath + "/{id}/" + this.relationName;
-		TypeName requestBodyType = this.relationDtoOrEntityClassName; // Input type is DTO or Entity
-		TypeName responseBodyType = this.relationDtoOrEntityClassName; // Output type matches GET method (DTO or Entity)
+		String path = this.basePath + "/{id}/" + this.relationName;
+		TypeName requestBodyType = this.relationResponseType; // Input type is DTO or Entity
+		TypeName responseBodyType = this.relationResponseType; // Output type matches GET method (DTO or Entity)
 
 		Consumer<MethodSpec.Builder> parameterConfigurer = mb -> mb.addParameter(ParameterSpec.builder(requestBodyType, "requestObject") // Changed name
 				.addAnnotation(RequestBody.class)
@@ -175,16 +175,16 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 				.build());
 
 		Consumer<MethodSpec.Builder> bodyConfigurer = mb -> {
-			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow(() -> new $T(\"Entity with id \" + id + \" not found\"))", this.entityClassName, EntityNotFoundException.class);
+			mb.addStatement("$T entity = this.dataAccessor.readData(id).orElseThrow(() -> new $T(\"Entity with id \" + id + \" not found\"))", this.entityType, EntityNotFoundException.class);
 
-			if (this.relationIsUsingDto) {
-				mb.addStatement("$T rel = this.dataMapper.map(requestObject, $T.class)", this.relationEntityClassName, this.relationEntityClassName);
+			if (this.isUsingDto) {
+				mb.addStatement("$T rel = this.dataMapper.map(requestObject, $T.class)", this.relationEntityType, this.relationEntityType);
 			} else {
 				// If not using DTO, the request body 'requestObject' *is* the relation entity
-				mb.addStatement("$T rel = requestObject", this.relationEntityClassName);
+				mb.addStatement("$T rel = requestObject", this.relationEntityType);
 			}
 
-			mb.addStatement("entity." + this.relationSetterMethodName + "(rel)");
+			mb.addStatement("entity." + this.relationSetter + "(rel)");
 			mb.addStatement("this.dataAccessor.updateData(entity)");
 
 			// The return statement calls the corresponding GET method to ensure consistency and security checks.
@@ -222,7 +222,7 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 						.build())
 				.addAnnotation(ResponseBody.class)
 				.addModifiers(Modifier.PUBLIC)
-				.addParameter(ParameterSpec.builder(this.idClassName, "id")
+				.addParameter(ParameterSpec.builder(this.idType, "id")
 						.addModifiers(Modifier.FINAL)
 						.addAnnotation(PathVariable.class)
 						.build()
@@ -234,16 +234,16 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 		// Inject security checks
 		methodBuilder = new AuthenticationInjector()
 				.withMethod("UPDATE") // Setting a relation requires UPDATE permission
-				.withEntityClassName(this.entityClassName)
-				.withRelatedClassName(this.relationEntityClassName) // Check based on the actual related entity
-				.withSecurityConfig(this.securityConfiguration)
+				.withEntityClassName(this.entityType)
+				.withRelatedClassName(this.relationEntityType) // Check based on the actual related entity
+				.withSecurityConfig(this.securityConfig)
 				.inject(methodBuilder);
 
 		// Determine the final return type (matching the GET method's return type)
 		TypeName finalReturnType;
-		if (this.responseWrapperClassName != null && !this.responseWrapperClassName.equals(TypeName.OBJECT)) {
+		if (this.responseWrapperType != null && !this.responseWrapperType.equals(TypeName.OBJECT)) {
 			// Wrap the response body type if a response wrapper is specified
-			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.responseWrapperClassName.toString()), responseBodyType));
+			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(this.responseWrapperType.toString()), responseBodyType));
 		} else {
 			// Return ResponseEntity<ResponseBodyType> directly
 			finalReturnType = ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseBodyType);
@@ -268,9 +268,9 @@ public class SetSingleRelationMethodBuilder extends MethodBuilder {
 	 * @return {@code true} if a matching mapping exists, {@code false} otherwise.
 	 */
 	protected boolean hasExistingRequest() {
-		String path = this.requestBasePath + "/{id}/" + this.relationName;
-		return RestnessUtil.hasExistingRequest(this.existingRequestMappings, path, RequestMethod.POST) ||
-				RestnessUtil.hasExistingRequest(this.existingRequestMappings, path, RequestMethod.PUT) ||
-				RestnessUtil.hasExistingRequest(this.existingRequestMappings, path, RequestMethod.PATCH);
+		String path = this.basePath + "/{id}/" + this.relationName;
+		return RestnessUtil.hasExistingRequest(this.requestMappings, path, RequestMethod.POST) ||
+				RestnessUtil.hasExistingRequest(this.requestMappings, path, RequestMethod.PUT) ||
+				RestnessUtil.hasExistingRequest(this.requestMappings, path, RequestMethod.PATCH);
 	}
 }
