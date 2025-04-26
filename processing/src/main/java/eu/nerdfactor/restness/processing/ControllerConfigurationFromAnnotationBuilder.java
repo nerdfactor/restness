@@ -10,6 +10,7 @@ import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.data.DataAccessor;
 import eu.nerdfactor.restness.data.DataMapper;
 import eu.nerdfactor.restness.data.DataMerger;
+import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -203,7 +204,7 @@ public class ControllerConfigurationFromAnnotationBuilder {
 									.withUtils(this.elementUtils)
 									.withElement(method)
 									.forClass(cls)
-									.extract()
+									.extractUnsafe()
 									.values();
 
 							String requestMapping = requestMappingAnnotatedValues.getOrDefault("value", "/").replaceAll("\"$", "").replaceAll("^\"", "");

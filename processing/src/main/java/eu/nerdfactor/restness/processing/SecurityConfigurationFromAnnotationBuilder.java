@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.processing;
 
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
+import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -107,7 +108,7 @@ public class SecurityConfigurationFromAnnotationBuilder {
 				.forClass(RestnessSecurity.class)
 				.withElement(element)
 				.withUtils(elementUtils)
-				.extract()
+				.extractUnsafe()
 				.values();
 
 		// Combine the generated class name and package.

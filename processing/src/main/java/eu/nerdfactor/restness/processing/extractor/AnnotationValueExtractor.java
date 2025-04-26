@@ -1,5 +1,6 @@
-package eu.nerdfactor.restness.processing;
+package eu.nerdfactor.restness.processing.extractor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +18,7 @@ import java.util.*;
  *
  * @author Daniel Klug
  */
+@Slf4j
 public class AnnotationValueExtractor {
 
 	/**
@@ -50,15 +52,39 @@ public class AnnotationValueExtractor {
 		return this;
 	}
 
-	public ValueWrapper extract() {
-		return this.extract(new ValueWrapper(this.element, this.className, new HashMap<>()));
+	/**
+	 * Extracts the values from the annotation and returns them in a
+	 * {@link ValueWrapper}.
+	 *
+	 * @return The extracted values.
+	 * @deprecated Replace with typesafe extractList() during refactor.
+	 */
+	@Deprecated
+	public ValueWrapper extractUnsafe() {
+		return this.extractUnsafe(new ValueWrapper(this.element, this.className, new HashMap<>()));
 	}
 
-	public List<ValueWrapper> extractList() {
-		return this.extractList(new ArrayList<>());
+	/**
+	 * Extracts the values from the annotation and returns them in a
+	 * {@link ValueWrapper}.
+	 *
+	 * @return The extracted values.
+	 * @deprecated Replace with typesafe extractList() during refactor.
+	 */
+	@Deprecated
+	public List<ValueWrapper> extractListUnsafe() {
+		return this.extractListUnsafe(new ArrayList<>());
 	}
 
-	public List<ValueWrapper> extractList(List<ValueWrapper> values) {
+	/**
+	 * Extracts the values from the annotation and adds them to the given list.
+	 *
+	 * @param values The list to add the extracted values to.
+	 * @return The list with the extracted values.
+	 * @deprecated Replace with typesafe extractList(values) during refactor.
+	 */
+	@Deprecated
+	public List<ValueWrapper> extractListUnsafe(List<ValueWrapper> values) {
 		final AnnotationMirror annotationMirror = getAnnotationMirror(element, className);
 
 		if (annotationMirror != null) {
@@ -83,12 +109,28 @@ public class AnnotationValueExtractor {
 		return values;
 	}
 
-	public ValueWrapper extract(ValueWrapper values) {
-		this.extractInto(values.values);
+	/**
+	 * Extracts the values from the annotation and adds them to the given
+	 * {@link ValueWrapper}.
+	 *
+	 * @param values The {@link ValueWrapper} to add the extracted values to.
+	 * @return The {@link ValueWrapper} with the extracted values.
+	 * @deprecated Replace with typesafe extract(values) during refactor.
+	 */
+	@Deprecated
+	public ValueWrapper extractUnsafe(ValueWrapper values) {
+		this.extractIntoUnsafe(values.values);
 		return values;
 	}
 
-	public void extractInto(Map<String, String> values) {
+	/**
+	 * Extracts the values from the annotation and adds them to the given map.
+	 *
+	 * @param values The map to add the extracted values to.
+	 * @deprecated Replace with typesafe extractInto(values) during refactor.
+	 */
+	@Deprecated
+	public void extractIntoUnsafe(Map<String, String> values) {
 		final AnnotationMirror annotationMirror = getAnnotationMirror(element, className);
 		if (annotationMirror != null) {
 			this.addAnnotatedValues(annotationMirror, values);
@@ -105,16 +147,25 @@ public class AnnotationValueExtractor {
 			try {
 				String name = prefix + executableElement.getSimpleName().toString();
 				Object value = annotationValue.getValue();
+
 				if (value.getClass().isArray()) {
 					// todo: handle arrays
-				} else if (value instanceof AnnotationValue) {
-					// todo: handle nested annotations
-					addAnnotatedValues((AnnotationMirror) ((AnnotationValue) value).getValue(), values, name + "/");
+				} else if (value instanceof AnnotationMirror nestedMirror) {
+					// Handle nested annotations by recursively extracting their values
+					addAnnotatedValues(nestedMirror, values, name + "/");
+				} else if (value instanceof AnnotationValue nestedValue) {
+					// Handle nested annotation values by recursively extracting their values
+					Object innerValue = nestedValue.getValue();
+					if (innerValue instanceof AnnotationMirror innerMirror) {
+						addAnnotatedValues(innerMirror, values, name + "/");
+					} else {
+						values.put(name, innerValue.toString());
+					}
 				} else {
 					values.put(name, value.toString());
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.debug("Error extracting annotation value", e);
 			}
 		});
 	}

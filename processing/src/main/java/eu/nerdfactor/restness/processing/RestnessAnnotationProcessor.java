@@ -10,6 +10,7 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.generate.JavaClassGenerator;
 import eu.nerdfactor.restness.generate.RestnessGenerator;
+import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +68,7 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 					.withUtils(this.elementUtils)
 					.withElement(element)
 					.forClass(RestnessConfiguration.class)
-					.extractInto(generatedConfig);
+					.extractIntoUnsafe(generatedConfig);
 
 			log.info("GeneratedConfig");
 			generatedConfig.forEach((name, value) -> {
@@ -146,14 +147,14 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 					.forClass(RestnessController.List.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)
-					.extractList());
+					.extractListUnsafe());
 		}
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessController.class)) {
 			controllerValues.add(new AnnotationValueExtractor()
 					.forClass(RestnessController.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)
-					.extract());
+					.extractUnsafe());
 
 		}
 		return controllerValues;
