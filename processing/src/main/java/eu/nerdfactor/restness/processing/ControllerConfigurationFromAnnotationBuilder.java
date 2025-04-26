@@ -7,6 +7,7 @@ import eu.nerdfactor.restness.annotation.IdAccessor;
 import eu.nerdfactor.restness.annotation.IdModifier;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.RelationConfiguration;
+import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.data.DataAccessor;
 import eu.nerdfactor.restness.data.DataMapper;
 import eu.nerdfactor.restness.data.DataMerger;
@@ -23,6 +24,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 import static javax.lang.model.util.ElementFilter.methodsIn;
@@ -163,20 +165,14 @@ public class ControllerConfigurationFromAnnotationBuilder {
 		String packageName = this.element != null ? elementUtils.getPackageOf(element).getQualifiedName().toString() : "";
 		String className = this.element != null ? element.getSimpleName().toString() : "";
 
-		// Create class names from the information.
+		// Find the entity class, the dto classes and class of the id from annotation values.
 		ClassName entityClass = ClassName.bestGuess(this.annotatedValues.get("entity"));
 		ClassName[] dtoClasses = this.findDtoClasses(entityClass);
 		boolean withDto = !entityClass.equals(dtoClasses[0]);
 		ClassName idClass = ClassName.bestGuess(this.annotatedValues.get("id"));
 
 		// Combine the generated class name and package.
-		String generatedClassName = this.annotatedValues.getOrDefault("className", "");
-		if (generatedClassName.length() <= 0) {
-			generatedClassName = this.classNamePattern.replace("{PREFIX}", this.classNamePrefix).replace("{NAME}", className).replace("{NAME_NORMALIZED}", className.replace("Controller", ""));
-		}
-		if (!generatedClassName.contains(".")) {
-			generatedClassName = packageName + "." + generatedClassName;
-		}
+		ClassName generatedClassName = findGeneratedClassName(className, packageName);
 
 		// Find elements for the specified entity.
 		TypeElement entityElement = this.element;
@@ -186,47 +182,12 @@ public class ControllerConfigurationFromAnnotationBuilder {
 			}
 		}
 
-		ParameterizedTypeName dataAccessorClass = ParameterizedTypeName.get(ClassName.get(DataAccessor.class), entityClass, idClass);
-		ClassName dataMergerClass = ClassName.get(DataMerger.class);
-		ClassName dataMapperClass = ClassName.get(DataMapper.class);
-
 		// Check how the id can be accessed in the entity.
 		String idAccessor = this.findIdActor(entityElement, IdAccessor.class);
 		String idModifier = this.findIdActor(entityElement, IdModifier.class);
 
 		// Check for existing requests in the annotated class.
-		List<String> existingRequests = new ArrayList<>();
-		if (this.element != null) {
-			for (ExecutableElement method : methodsIn(this.element.getEnclosedElements())) {
-				for (AnnotationMirror anno : method.getAnnotationMirrors()) {
-					Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, PatchMapping.class, DeleteMapping.class).forEach(cls -> {
-						if (cls.getCanonicalName().equals(anno.getAnnotationType().toString())) {
-							ValueContainer annotatedValues = new AnnotationValueExtractor()
-									.withUtils(this.elementUtils)
-									.withElement(method)
-									.forClass(cls)
-									.extract();
-
-							String requestMapping = annotatedValues.getStringOrDefault("value", "/").replaceAll("\"$", "").replaceAll("^\"", "");
-							if (requestMapping.length() > 1) {
-								String clsName = cls.getSimpleName();
-								String methodName = clsName.substring(0, clsName.indexOf('M')).toUpperCase();
-								List<String> methodNames = new ArrayList<>(Collections.singletonList(methodName));
-								if (cls == RequestMapping.class) {
-									String[] requestMethods = annotatedValues.getStringOrDefault("method", "GET").replaceAll("\"$", "").replaceAll("^\"", "").split(",");
-									Arrays.stream(requestMethods).forEach(s -> methodNames.add(s.substring(s.lastIndexOf(".") + 1)));
-								}
-								methodNames.forEach(m -> {
-									if (!m.equals("REQUEST")) {
-										existingRequests.add(m + requestMapping.toLowerCase());
-									}
-								});
-							}
-						}
-					});
-				}
-			}
-		}
+		List<String> existingRequests = checkForExistingRequestMethods();
 
 		// Get the path for the request mapping from the annotation.
 		String requestMapping = this.annotatedValues.getOrDefault("value", "");
@@ -234,14 +195,117 @@ public class ControllerConfigurationFromAnnotationBuilder {
 		// If the controller should contain relations, collect them from the entity.
 		Map<String, RelationConfiguration> relations = new HashMap<>();
 		if (this.annotatedValues.get("withRelations").equals("true")) {
-			// Get all compiled classes in order to determine dto for entity.
-
-
+			// Get all compiled classes in order to determine dto for entity. <- why is this comment here but no matching code?
 			// Collect all the relations.
 			relations = RelationConfigurationFromAnnotationBuilder.create().withElement(entityElement).withUtils(this.elementUtils).withClasses(this.dtoClasses).withDtos(withDto).build();
 		}
 
-		return new ControllerConfiguration(RestnessUtil.toClassName(generatedClassName), requestMapping, entityClass, idClass, idAccessor, idModifier, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, null, relations);
+		// setup data manipulation classes.
+		ParameterizedTypeName dataAccessorClass = ParameterizedTypeName.get(ClassName.get(DataAccessor.class), entityClass, idClass);
+		ClassName dataMergerClass = ClassName.get(DataMerger.class);
+		ClassName dataMapperClass = ClassName.get(DataMapper.class);
+
+		// the security configuration will be injected later by the annotation processor
+		// this definition is just for clarity and understandability of the code.
+		SecurityConfiguration securityConfig = null;
+
+		return new ControllerConfiguration(generatedClassName, requestMapping, entityClass, idClass, idAccessor, idModifier, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, securityConfig, relations);
+	}
+
+	/**
+	 * Finds the correct name for the generated class from the annotations and the
+	 * name and package of the annotated class.
+	 *
+	 * @param className   The name of the annotated class.
+	 * @param packageName The package of the annotated class.
+	 * @return The name for the generated class.
+	 */
+	private @NotNull ClassName findGeneratedClassName(String className, String packageName) {
+		String generatedClassName = this.annotatedValues.getOrDefault("className", "");
+		if (generatedClassName.isEmpty()) {
+			// if there is no className annotation, generate the name from the class name and package name
+			generatedClassName = this.classNamePattern.replace("{PREFIX}", this.classNamePrefix).replace("{NAME}", className).replace("{NAME_NORMALIZED}", className.replace("Controller", ""));
+		}
+		if (!generatedClassName.contains(".")) {
+			// if the class name does not contain a package name, add the package name
+			generatedClassName = packageName + "." + generatedClassName;
+		}
+		return RestnessUtil.toClassName(generatedClassName);
+	}
+
+	/**
+	 * Check for existing RequestMappings in the annotated class to avoid implementing
+	 * the same request twice.
+	 *
+	 * @return A list of existing request mappings.
+	 */
+	private @NotNull List<String> checkForExistingRequestMethods() {
+		List<String> existingRequests = new ArrayList<>();
+		if (this.element != null) {
+			// get all methods in the annotated class
+			for (ExecutableElement method : methodsIn(this.element.getEnclosedElements())) {
+				// and check all annotations of the method
+				for (AnnotationMirror anno : method.getAnnotationMirrors()) {
+					// for existing request mappings annotations.
+					Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, PatchMapping.class, DeleteMapping.class).forEach(cls -> checkForExistingRequestMappingType(method, anno, cls, existingRequests));
+				}
+			}
+		}
+		return existingRequests;
+	}
+
+	/**
+	 * Check for an existing Mapping Annotation of a given type.
+	 *
+	 * @param method           The element of the method to check for an existing mapping annotation.
+	 * @param anno             The annotation mirror of the method.
+	 * @param cls              The class of the mapping annotation to check for.
+	 * @param existingRequests The list of existing requests to add the new request to.
+	 */
+	private void checkForExistingRequestMappingType(ExecutableElement method, AnnotationMirror anno, Class<? extends Annotation> cls, List<String> existingRequests) {
+		if (cls.getCanonicalName().equals(anno.getAnnotationType().toString())) {
+			ValueContainer annotatedValues = new AnnotationValueExtractor()
+					.withUtils(this.elementUtils)
+					.withElement(method)
+					.forClass(cls)
+					.extract();
+
+			// get the url path from the annotation
+			String requestMapping = getRequestMappingPath(annotatedValues);
+			// todo: why are we just checking for urls that are not empty?
+			if (requestMapping.length() > 1) {
+				// cut the RequestMethod from the RequestMapping class name
+				// todo: this is a bit hacky, but it works for now. change this to a better solution.
+				String clsName = cls.getSimpleName();
+				String methodName = clsName.substring(0, clsName.indexOf('M')).toUpperCase();
+				List<String> methodNames = new ArrayList<>(Collections.singletonList(methodName));
+				if (cls == RequestMapping.class) {
+					// if the class is RequestMapping, we need to get the method from the annotation
+					// because it can handle multiple request methods (GET, POST, PUT, DELETE) like:
+					// @RequestMapping(value="/api/v1/entity/{id}", method={GET, POST, PUT, DELETE})
+					String[] requestMethods = annotatedValues.getStringOrDefault("method", "GET").replaceAll("\"$", "").replaceAll("^\"", "").split(",");
+					Arrays.stream(requestMethods).forEach(s -> methodNames.add(s.substring(s.lastIndexOf(".") + 1)));
+				}
+				// skip the REQUEST method, because it is not a real request method and just a artifact of the RequestMapping class
+				methodNames.stream().filter(x -> !x.equals("REQUEST")).forEach(m -> {
+					// add the request mapping to the list of existing RequestMethods
+					existingRequests.add(m + requestMapping.toLowerCase());
+				});
+			}
+		}
+	}
+
+	/**
+	 * Get the request mapping path from the annotated values.
+	 * This will be a url path like /api/v1/entity/{id}.
+	 * Will normalize the path by removing leading and trailing quotes that might be
+	 * added by the annotation processor.
+	 *
+	 * @param annotatedValues The annotated values.
+	 * @return The request mapping path.
+	 */
+	private static @NotNull String getRequestMappingPath(ValueContainer annotatedValues) {
+		return annotatedValues.getStringOrDefault("value", "/").replaceAll("\"$", "").replaceAll("^\"", "");
 	}
 
 	/**
@@ -270,6 +334,10 @@ public class ControllerConfigurationFromAnnotationBuilder {
 
 	}
 
+	/**
+	 * @deprecated todo: is this actually used?
+	 */
+	@Deprecated
 	protected ClassName[] findDtoClasses(ClassName entityClass) {
 		ClassName dtoClass = this.findConfiguredDtoClassInAnnotatedValues("dtoConfig/value", "dto", null);
 		if (dtoClass.equals(ClassName.OBJECT)) {
@@ -286,6 +354,13 @@ public class ControllerConfigurationFromAnnotationBuilder {
 		return List.of(dtoClass, dtoListClass, dtoRequestClass).toArray(new ClassName[]{});
 	}
 
+	/**
+	 * Find the configured Dto class in the annotated values by checking multiple possible
+	 * configuration options.
+	 *
+	 * @deprecated todo: is this actually used?
+	 */
+	@Deprecated
 	protected @NotNull ClassName findConfiguredDtoClassInAnnotatedValues(@NotNull String primaryChoice, @Nullable String secondaryChoice, @Nullable String tertiaryChoice) {
 		String className = Object.class.getCanonicalName();
 		if (!this.annotatedValues.getOrDefault(primaryChoice, className).equals(className)) {

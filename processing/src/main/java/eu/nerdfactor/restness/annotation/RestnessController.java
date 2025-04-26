@@ -42,14 +42,20 @@ public @interface RestnessController {
 	/**
 	 * Class of the data transfer objet that may be in the response of the
 	 * generated controller. Use the same as the entity to not map to a dto.
+	 *
+	 * @deprecated todo: what is the relation to dtoConfig()?
 	 */
+	@Deprecated
 	Class<?> dto() default Object.class;
 
 	/**
 	 * Configuration of data transfer object classes.
 	 * Will contain the classes for a single dto, a list dto and a request dto.
 	 * Those classes will be used if dto() is not set.
+	 *
+	 * @deprecated todo: is this ever used?
 	 */
+	@Deprecated
 	RestnessDto dtoConfig() default @RestnessDto(value = Object.class);
 
 	/**

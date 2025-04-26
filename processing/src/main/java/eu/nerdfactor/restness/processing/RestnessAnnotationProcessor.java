@@ -47,22 +47,26 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 
 	private Filer filer;
 	private Elements elementUtils;
+	private int rounds = 1;
 
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnvironment) {
 		super.init(processingEnvironment);
 		this.filer = processingEnvironment.getFiler();
 		this.elementUtils = processingEnvironment.getElementUtils();
+		log.info("RestnessAnnotationProcessor initialized");
 	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
+		log.debug("Processing round {} started.", this.rounds);
 		final Map<String, ControllerConfiguration> controllers = new HashMap<>();
 
 		// Get all values from DynamicRestConfiguration annotations into one map.
 		final Map<String, String> generatedConfig = new HashMap<>();
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessConfiguration.class)) {
 			if (element.getKind() != ElementKind.CLASS) {
+				log.debug("RestnessConfiguration annotation is only supported on classes. Ending round {}.", this.rounds);
 				return true;
 			}
 
@@ -108,6 +112,7 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 			// Get all DynamicRestSecurity annotations and add them to the matching controllers.
 			for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessSecurity.class)) {
 				if (element.getKind() != ElementKind.CLASS) {
+					log.debug("RestnessSecurity annotation is only supported on classes. Ending round {}.", this.rounds);
 					return true;
 				}
 				SecurityConfiguration security = SecurityConfigurationFromAnnotationBuilder.create()
@@ -141,6 +146,8 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 			e.printStackTrace();
 		}
 
+		log.debug("Processing round {} ended.", this.rounds);
+		this.rounds++;
 		return true;
 	}
 

@@ -1,6 +1,7 @@
 package eu.nerdfactor.restness.processing.extractor;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.lang.model.element.Element;
 import java.lang.reflect.Method;
@@ -9,6 +10,7 @@ import java.util.*;
 /**
  * A strongly typed wrapper for annotation values with conversion capabilities.
  */
+@Slf4j
 public class ValueContainer {
 	private final Map<String, Object> values;
 
@@ -22,6 +24,20 @@ public class ValueContainer {
 		this.element = element;
 		this.annotationClassName = annotationClassName;
 		this.values = new HashMap<>();
+	}
+
+	/**
+	 * Checks if the container has any values.
+	 */
+	public boolean hasValues() {
+		return !values.isEmpty();
+	}
+
+	/**
+	 * Checks if the container has a specific key.
+	 */
+	public boolean hasValue(String key) {
+		return values.containsKey(key);
 	}
 
 	/**
@@ -59,11 +75,10 @@ public class ValueContainer {
 	 */
 	public <T> Optional<List<T>> getList(String key, Class<T> elementType) {
 		Object value = values.get(key);
-		if (!(value instanceof List<?>)) {
+		if (!(value instanceof List<?> list)) {
 			return Optional.empty();
 		}
 
-		List<?> list = (List<?>) value;
 		List<T> result = list.stream()
 				.filter(elementType::isInstance)
 				.map(elementType::cast)
@@ -77,11 +92,10 @@ public class ValueContainer {
 	 */
 	public <K, V> Optional<Map<K, V>> getMap(String key, Class<K> keyType, Class<V> valueType) {
 		Object value = values.get(key);
-		if (!(value instanceof Map<?, ?>)) {
+		if (!(value instanceof Map<?, ?> map)) {
 			return Optional.empty();
 		}
 
-		Map<?, ?> map = (Map<?, ?>) value;
 		Map<K, V> result = new HashMap<>();
 
 		map.forEach((k, v) -> {
