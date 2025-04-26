@@ -10,7 +10,8 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.generate.JavaClassGenerator;
 import eu.nerdfactor.restness.generate.RestnessGenerator;
-import eu.nerdfactor.restness.processing.extractor.UnsafeAnnotationValueExtractor;
+import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
+import eu.nerdfactor.restness.processing.extractor.ValueContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,11 +65,14 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 			if (element.getKind() != ElementKind.CLASS) {
 				return true;
 			}
-			new UnsafeAnnotationValueExtractor()
+
+			ValueContainer annotatedValues = new AnnotationValueExtractor()
 					.withUtils(this.elementUtils)
 					.withElement(element)
 					.forClass(RestnessConfiguration.class)
-					.extractIntoUnsafe(generatedConfig);
+					.extract();
+
+			generatedConfig.putAll(annotatedValues.getStringValues());
 
 			log.info("GeneratedConfig");
 			generatedConfig.forEach((name, value) -> {
@@ -87,12 +91,12 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		if (!importedConfiguration) {
 			// Get all DynamicRestController annotations and gather information from the specified
 			// entity in order to create a ControllerConfiguration.
-			this.findControllerValues(roundEnvironment).forEach(wrapper -> {
+			this.findControllerValueContainer(roundEnvironment).forEach(container -> {
 				ControllerConfiguration config = ControllerConfigurationFromAnnotationBuilder.create()
-						.withElement(wrapper.element())
+						.withElement(container.getElement())
 						.withUtils(this.elementUtils)
 						.withEnvironment(roundEnvironment)
-						.withAnnotatedValues(wrapper.values())
+						.withAnnotatedValues(container.getStringValues())
 						.withPrefix(generatedConfig.getOrDefault("classNamePrefix", "Generated"))
 						.withPattern(generatedConfig.getOrDefault("classNamePattern", "{PREFIX}{NAME}"))
 						.withResponseWrapper(ClassName.bestGuess(generatedConfig.getOrDefault("dataWrapper", Object.class.getCanonicalName())))
@@ -140,22 +144,21 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		return true;
 	}
 
-	private List<UnsafeAnnotationValueExtractor.ValueWrapper> findControllerValues(RoundEnvironment roundEnvironment) {
-		List<UnsafeAnnotationValueExtractor.ValueWrapper> controllerValues = new ArrayList<>();
+	private List<ValueContainer> findControllerValueContainer(RoundEnvironment roundEnvironment) {
+		List<ValueContainer> controllerValues = new ArrayList<>();
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessController.List.class)) {
-			controllerValues.addAll(new UnsafeAnnotationValueExtractor()
+			controllerValues.add(new AnnotationValueExtractor()
 					.forClass(RestnessController.List.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)
-					.extractListUnsafe());
+					.extract());
 		}
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessController.class)) {
-			controllerValues.add(new UnsafeAnnotationValueExtractor()
+			controllerValues.add(new AnnotationValueExtractor()
 					.forClass(RestnessController.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)
-					.extractUnsafe());
-
+					.extract());
 		}
 		return controllerValues;
 	}

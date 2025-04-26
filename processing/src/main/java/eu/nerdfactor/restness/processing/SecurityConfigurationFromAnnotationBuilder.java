@@ -2,7 +2,8 @@ package eu.nerdfactor.restness.processing;
 
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.processing.extractor.UnsafeAnnotationValueExtractor;
+import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
+import eu.nerdfactor.restness.processing.extractor.ValueContainer;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +11,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import java.util.Map;
 
 /**
  * Builder that creates a new security configuration from annotations.
@@ -103,16 +103,15 @@ public class SecurityConfigurationFromAnnotationBuilder {
 		String packageName = elementUtils.getPackageOf(element).getQualifiedName().toString();
 		String className = element.getSimpleName().toString();
 
-		// Find all the annotated values in the annotation
-		Map<String, String> annotatedValues = new UnsafeAnnotationValueExtractor()
+		ValueContainer annotatedValues = new AnnotationValueExtractor()
 				.forClass(RestnessSecurity.class)
 				.withElement(element)
 				.withUtils(elementUtils)
-				.extractUnsafe()
-				.values();
+				.extract();
+
 
 		// Combine the generated class name and package.
-		String generatedClassName = annotatedValues.getOrDefault("className", "");
+		String generatedClassName = annotatedValues.getStringOrDefault("className", "");
 		if (generatedClassName.isEmpty()) {
 			// todo: remove duplicate code with ControllerConfigurationCollector
 			generatedClassName = this.classNamePattern
@@ -126,8 +125,8 @@ public class SecurityConfigurationFromAnnotationBuilder {
 
 		return new SecurityConfiguration(
 				RestnessUtil.toClassName(generatedClassName),
-				annotatedValues.getOrDefault("pattern", "{NAME}"),
-				annotatedValues.getOrDefault("inclusive", "true").equals("true")
+				annotatedValues.getStringOrDefault("pattern", "{NAME}"),
+				annotatedValues.getStringOrDefault("inclusive", "true").equals("true")
 		);
 	}
 }
