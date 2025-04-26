@@ -2,7 +2,7 @@ package eu.nerdfactor.restness.processing;
 
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
-import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
+import eu.nerdfactor.restness.processing.extractor.UnsafeAnnotationValueExtractor;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -104,7 +104,7 @@ public class SecurityConfigurationFromAnnotationBuilder {
 		String className = element.getSimpleName().toString();
 
 		// Find all the annotated values in the annotation
-		Map<String, String> annotatedValues = new AnnotationValueExtractor()
+		Map<String, String> annotatedValues = new UnsafeAnnotationValueExtractor()
 				.forClass(RestnessSecurity.class)
 				.withElement(element)
 				.withUtils(elementUtils)

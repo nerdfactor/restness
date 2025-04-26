@@ -10,7 +10,7 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.generate.JavaClassGenerator;
 import eu.nerdfactor.restness.generate.RestnessGenerator;
-import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
+import eu.nerdfactor.restness.processing.extractor.UnsafeAnnotationValueExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,7 +64,7 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 			if (element.getKind() != ElementKind.CLASS) {
 				return true;
 			}
-			new AnnotationValueExtractor()
+			new UnsafeAnnotationValueExtractor()
 					.withUtils(this.elementUtils)
 					.withElement(element)
 					.forClass(RestnessConfiguration.class)
@@ -140,17 +140,17 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		return true;
 	}
 
-	private List<AnnotationValueExtractor.ValueWrapper> findControllerValues(RoundEnvironment roundEnvironment) {
-		List<AnnotationValueExtractor.ValueWrapper> controllerValues = new ArrayList<>();
+	private List<UnsafeAnnotationValueExtractor.ValueWrapper> findControllerValues(RoundEnvironment roundEnvironment) {
+		List<UnsafeAnnotationValueExtractor.ValueWrapper> controllerValues = new ArrayList<>();
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessController.List.class)) {
-			controllerValues.addAll(new AnnotationValueExtractor()
+			controllerValues.addAll(new UnsafeAnnotationValueExtractor()
 					.forClass(RestnessController.List.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)
 					.extractListUnsafe());
 		}
 		for (Element element : roundEnvironment.getElementsAnnotatedWith(RestnessController.class)) {
-			controllerValues.add(new AnnotationValueExtractor()
+			controllerValues.add(new UnsafeAnnotationValueExtractor()
 					.forClass(RestnessController.class)
 					.withElement(element)
 					.withUtils(this.elementUtils)

@@ -10,7 +10,7 @@ import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.data.DataAccessor;
 import eu.nerdfactor.restness.data.DataMapper;
 import eu.nerdfactor.restness.data.DataMerger;
-import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
+import eu.nerdfactor.restness.processing.extractor.UnsafeAnnotationValueExtractor;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -200,7 +200,7 @@ public class ControllerConfigurationFromAnnotationBuilder {
 				for (AnnotationMirror anno : method.getAnnotationMirrors()) {
 					Arrays.asList(RequestMapping.class, GetMapping.class, PostMapping.class, PutMapping.class, PatchMapping.class, DeleteMapping.class).forEach(cls -> {
 						if (cls.getCanonicalName().equals(anno.getAnnotationType().toString())) {
-							Map<String, String> requestMappingAnnotatedValues = new AnnotationValueExtractor()
+							Map<String, String> requestMappingAnnotatedValues = new UnsafeAnnotationValueExtractor()
 									.withUtils(this.elementUtils)
 									.withElement(method)
 									.forClass(cls)

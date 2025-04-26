@@ -19,12 +19,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit tests for {@link AnnotationValueExtractor} which validates the extraction of values
+ * Unit tests for {@link UnsafeAnnotationValueExtractor} which validates the extraction of values
  * from Java annotations during compile-time annotation processing. These tests verify
  * the ability to extract simple values, arrays, nested annotations, and handle error cases.
  */
 @ExtendWith(MockitoExtension.class)
-class AnnotationValueExtractorTest {
+@SuppressWarnings("deprecation")
+class UnsafeAnnotationValueExtractorTest {
 
 	/**
 	 * Mock element representing an annotated class, method, or field
@@ -71,7 +72,7 @@ class AnnotationValueExtractorTest {
 	/**
 	 * The extractor instance being tested
 	 */
-	private AnnotationValueExtractor extractor;
+	private UnsafeAnnotationValueExtractor extractor;
 
 	/**
 	 * Set up a fresh extractor instance before each test.
@@ -79,7 +80,7 @@ class AnnotationValueExtractorTest {
 	@BeforeEach
 	void setUp() {
 		// Create new instance for each test to ensure clean state
-		extractor = new AnnotationValueExtractor();
+		extractor = new UnsafeAnnotationValueExtractor();
 	}
 
 	/**
@@ -123,7 +124,7 @@ class AnnotationValueExtractorTest {
 				.when(annotationValue).getValue();
 
 		// Execute the extraction process using our builder pattern
-		AnnotationValueExtractor.ValueWrapper result = extractor
+		UnsafeAnnotationValueExtractor.ValueWrapper result = extractor
 				.forClass(className)
 				.withElement(element)
 				.withUtils(utils)
@@ -175,7 +176,7 @@ class AnnotationValueExtractorTest {
 				.when(annotationValue).getValue();
 
 		// Perform the extraction
-		AnnotationValueExtractor.ValueWrapper result = extractor
+		UnsafeAnnotationValueExtractor.ValueWrapper result = extractor
 				.forClass(className)
 				.withElement(element)
 				.withUtils(utils)
@@ -237,7 +238,7 @@ class AnnotationValueExtractorTest {
 				.when(nestedElement).getSimpleName();
 
 		// Perform the nested extraction
-		AnnotationValueExtractor.ValueWrapper result = extractor
+		UnsafeAnnotationValueExtractor.ValueWrapper result = extractor
 				.forClass(className)
 				.withElement(element)
 				.withUtils(utils)
@@ -316,7 +317,7 @@ class AnnotationValueExtractorTest {
 				.when(nestedValueObj2).getValue();
 
 		// When
-		List<AnnotationValueExtractor.ValueWrapper> results = extractor
+		List<UnsafeAnnotationValueExtractor.ValueWrapper> results = extractor
 				.forClass(className)
 				.withElement(element)
 				.withUtils(utils)
@@ -364,7 +365,7 @@ class AnnotationValueExtractorTest {
 				.when(annotationValue).getValue();
 
 		// When
-		AnnotationValueExtractor.ValueWrapper result = extractor
+		UnsafeAnnotationValueExtractor.ValueWrapper result = extractor
 				.forClass(className)
 				.withElement(element)
 				.withUtils(utils)
@@ -391,7 +392,7 @@ class AnnotationValueExtractorTest {
 				.when(element).getAnnotationMirrors();
 
 		// When
-		AnnotationValueExtractor.ValueWrapper result = extractor
+		UnsafeAnnotationValueExtractor.ValueWrapper result = extractor
 				.forClass(className)
 				.withElement(element)
 				.withUtils(utils)

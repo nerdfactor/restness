@@ -13,8 +13,7 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
- * Extracts values from {@link Annotation Annotations} during annotation
- * processing.
+ * Extracts values from {@link Annotation Annotations} during annotation processing.
  *
  * @author Daniel Klug
  */
@@ -53,131 +52,155 @@ public class AnnotationValueExtractor {
 	}
 
 	/**
-	 * Extracts the values from the annotation and returns them in a
-	 * {@link ValueWrapper}.
+	 * Extracts values from an annotation into a new ValueContainer.
+	 * Fully supports arrays and nested annotations.
 	 *
-	 * @return The extracted values.
-	 * @deprecated Replace with typesafe extractList() during refactor.
+	 * @return A ValueContainer with the extracted values
 	 */
-	@Deprecated
-	public ValueWrapper extractUnsafe() {
-		return this.extractUnsafe(new ValueWrapper(this.element, this.className, new HashMap<>()));
+	public ValueContainer extract() {
+		ValueContainer container = new ValueContainer(this.element, this.className);
+		extractInto(container);
+		return container;
 	}
 
 	/**
-	 * Extracts the values from the annotation and returns them in a
-	 * {@link ValueWrapper}.
+	 * Extracts values from an annotation into a list of ValueContainers.
+	 * Used when the annotation contains a list or array of values.
 	 *
-	 * @return The extracted values.
-	 * @deprecated Replace with typesafe extractList() during refactor.
+	 * @return A list of ValueContainers with the extracted values
 	 */
-	@Deprecated
-	public List<ValueWrapper> extractListUnsafe() {
-		return this.extractListUnsafe(new ArrayList<>());
-	}
-
-	/**
-	 * Extracts the values from the annotation and adds them to the given list.
-	 *
-	 * @param values The list to add the extracted values to.
-	 * @return The list with the extracted values.
-	 * @deprecated Replace with typesafe extractList(values) during refactor.
-	 */
-	@Deprecated
-	public List<ValueWrapper> extractListUnsafe(List<ValueWrapper> values) {
+	public List<ValueContainer> extractList() {
+		List<ValueContainer> containers = new ArrayList<>();
 		final AnnotationMirror annotationMirror = getAnnotationMirror(element, className);
 
 		if (annotationMirror != null) {
-			Class<?> c = annotationMirror.getElementValues().values().stream().findFirst().orElseThrow().getValue().getClass();
-			if (List.class.isAssignableFrom(c) || Collection.class.isAssignableFrom(c) || c.isArray()) {
-				annotationMirror.getElementValues().forEach((executableElement, annotationValue) -> {
-					Object valueList = annotationValue.getValue();
-					if (valueList instanceof Iterable<?> iter) {
-						iter.forEach(mirror -> {
-							Map<String, String> val = new HashMap<>();
-							this.addAnnotatedValues((AnnotationMirror) mirror, val);
-							values.add(new ValueWrapper(this.element, this.className, val));
-						});
-					}
-				});
+			Object value = annotationMirror.getElementValues().values().stream()
+					.findFirst()
+					.map(AnnotationValue::getValue)
+					.orElse(null);
+
+			if (value != null && (value instanceof Iterable<?> || value.getClass().isArray())) {
+				extractIterableValues(annotationMirror, containers);
 			} else {
-				Map<String, String> val = new HashMap<>();
-				this.addAnnotatedValues(annotationMirror, val);
-				values.add(new ValueWrapper(this.element, this.className, val));
+				containers.add(extractSingleValue(annotationMirror));
 			}
 		}
-		return values;
+		return containers;
 	}
 
 	/**
-	 * Extracts the values from the annotation and adds them to the given
-	 * {@link ValueWrapper}.
+	 * Extracts values from an annotation into an existing ValueContainer.
 	 *
-	 * @param values The {@link ValueWrapper} to add the extracted values to.
-	 * @return The {@link ValueWrapper} with the extracted values.
-	 * @deprecated Replace with typesafe extract(values) during refactor.
+	 * @param container The container to store the extracted values
 	 */
-	@Deprecated
-	public ValueWrapper extractUnsafe(ValueWrapper values) {
-		this.extractIntoUnsafe(values.values);
-		return values;
-	}
-
-	/**
-	 * Extracts the values from the annotation and adds them to the given map.
-	 *
-	 * @param values The map to add the extracted values to.
-	 * @deprecated Replace with typesafe extractInto(values) during refactor.
-	 */
-	@Deprecated
-	public void extractIntoUnsafe(Map<String, String> values) {
+	public void extractInto(ValueContainer container) {
 		final AnnotationMirror annotationMirror = getAnnotationMirror(element, className);
 		if (annotationMirror != null) {
-			this.addAnnotatedValues(annotationMirror, values);
+			extractAnnotationValues(annotationMirror, container, "");
 		}
 	}
 
-	protected void addAnnotatedValues(AnnotationMirror annotationMirror, Map<String, String> values) {
-		this.addAnnotatedValues(annotationMirror, values, "");
-	}
-
-	protected void addAnnotatedValues(AnnotationMirror annotationMirror, Map<String, String> values, final String prefix) {
-		final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues = this.utils.getElementValuesWithDefaults(annotationMirror);
-		elementValues.forEach((executableElement, annotationValue) -> {
-			try {
-				String name = prefix + executableElement.getSimpleName().toString();
-				Object value = annotationValue.getValue();
-
-				if (value.getClass().isArray()) {
-					// todo: handle arrays
-				} else if (value instanceof AnnotationMirror nestedMirror) {
-					// Handle nested annotations by recursively extracting their values
-					addAnnotatedValues(nestedMirror, values, name + "/");
-				} else if (value instanceof AnnotationValue nestedValue) {
-					// Handle nested annotation values by recursively extracting their values
-					Object innerValue = nestedValue.getValue();
-					if (innerValue instanceof AnnotationMirror innerMirror) {
-						addAnnotatedValues(innerMirror, values, name + "/");
-					} else {
-						values.put(name, innerValue.toString());
+	private void extractIterableValues(AnnotationMirror annotationMirror, List<ValueContainer> containers) {
+		annotationMirror.getElementValues().forEach((executableElement, annotationValue) -> {
+			Object valueList = annotationValue.getValue();
+			if (valueList instanceof Iterable<?> iter) {
+				iter.forEach(mirror -> {
+					if (mirror instanceof AnnotationMirror nestedMirror) {
+						containers.add(extractSingleValue(nestedMirror));
 					}
-				} else {
-					values.put(name, value.toString());
-				}
-			} catch (Exception e) {
-				log.debug("Error extracting annotation value", e);
+				});
 			}
 		});
 	}
 
-	/**
-	 * Get the specified {@link AnnotationMirror} form a {@link Element}.
-	 *
-	 * @param element             The annotated {@link Element}.
-	 * @param annotationClassName The name of the {@link Annotation}.
-	 * @return The specified {@link AnnotationMirror} if the element is
-	 * annotated by the specified {@link Annotation}.
-	 */
+	private ValueContainer extractSingleValue(AnnotationMirror annotationMirror) {
+		ValueContainer container = new ValueContainer(this.element, this.className);
+		extractAnnotationValues(annotationMirror, container, "");
+		return container;
+	}
+
+	private void extractAnnotationValues(AnnotationMirror annotationMirror, ValueContainer container, String prefix) {
+		validateState();
+
+		final Map<? extends ExecutableElement, ? extends AnnotationValue> elementValues =
+				this.utils.getElementValuesWithDefaults(annotationMirror);
+
+		elementValues.forEach((executableElement, annotationValue) -> {
+			try {
+				String key = buildKey(prefix, executableElement);
+				Object value = extractValue(annotationValue);
+				storeValue(key, value, container);
+			} catch (Exception e) {
+				log.debug("Error extracting annotation value: {}", e.getMessage());
+			}
+		});
+	}
+
+	private void validateState() {
+		if (element == null) {
+			throw new IllegalStateException("Element not set. Call withElement() first.");
+		}
+		if (className == null) {
+			throw new IllegalStateException("Class name not set. Call forClass() first.");
+		}
+		if (utils == null) {
+			throw new IllegalStateException("Utils not set. Call withUtils() first.");
+		}
+	}
+
+	private String buildKey(String prefix, ExecutableElement element) {
+		return prefix + element.getSimpleName();
+	}
+
+	private Object extractValue(AnnotationValue value) {
+		if (value == null) return null;
+		Object extracted = value.getValue();
+		if (extracted instanceof List<?>) {
+			return handleListValue((List<?>) extracted);
+		}
+		if (extracted != null && extracted.getClass().isArray()) {
+			return handleArrayValue(extracted);
+		}
+		return extracted;
+	}
+
+	private List<?> handleListValue(List<?> list) {
+		return list.stream()
+				.map(item -> {
+					if (item instanceof AnnotationValue) {
+						return extractValue((AnnotationValue) item);
+					}
+					return item;
+				})
+				.toList();
+	}
+
+	private List<?> handleArrayValue(Object array) {
+		if (array instanceof Object[] arr) {
+			return Arrays.asList(arr);
+		}
+		// Handle primitive arrays
+		int length = java.lang.reflect.Array.getLength(array);
+		List<Object> result = new ArrayList<>(length);
+		for (int i = 0; i < length; i++) {
+			result.add(java.lang.reflect.Array.get(array, i));
+		}
+		return result;
+	}
+
+	private void storeValue(String key, Object value, ValueContainer container) {
+		if (value instanceof AnnotationMirror nestedMirror) {
+			// Handle nested annotation by recursing with a path prefix
+			extractAnnotationValues(nestedMirror, container, key + "/");
+		} else if (value instanceof Map<?, ?> map) {
+			// Store maps directly
+			container.putValue(key, new HashMap<>(map));
+		} else {
+			// Store simple values, lists, and arrays directly
+			container.putValue(key, value);
+		}
+	}
+
 	protected @Nullable AnnotationMirror getAnnotationMirror(@NotNull Element element, @NotNull final String annotationClassName) {
 		return element.getAnnotationMirrors().stream()
 				.filter(m -> m.getAnnotationType().toString().equals(annotationClassName))
@@ -186,12 +209,69 @@ public class AnnotationValueExtractor {
 	}
 
 	/**
-	 * A simple wrapper class containing the extracted values, the name of the
-	 * annotation and the element, that was annotated.
+	 * Create a typed annotation value extractor for a specific type.
+	 * @param type The class of the value type to extract
+	 * @param key The key in the annotation to extract
+	 * @return A typed value extractor
 	 */
-	public record ValueWrapper(Element element, String annotationClassName,
-	                           Map<String, String> values) {
-
+	public <T> TypedValueExtractor<T> forType(Class<T> type, String key) {
+		return new TypedValueExtractor<>(type, key, this);
 	}
 
+	/**
+	 * Creates a list value extractor for elements of a specific type.
+	 *
+	 * @param elementType The class of the list elements
+	 * @param key         The key in the annotation to extract
+	 * @return A typed list value extractor
+	 */
+	public <T> ListValueExtractor<T> forList(Class<T> elementType, String key) {
+		return new ListValueExtractor<>(elementType, key, this);
+	}
+
+	/**
+	 * Creates a map value extractor for a specific key/value type combination.
+	 *
+	 * @param keyType   The class of map keys
+	 * @param valueType The class of map values
+	 * @param key       The key in the annotation to extract
+	 * @return A typed map value extractor
+	 */
+	public <K, V> MapValueExtractor<K, V> forMap(Class<K> keyType, Class<V> valueType, String key) {
+		return new MapValueExtractor<>(keyType, valueType, key, this);
+	}
+
+	/**
+	 * Gets a type-safe value from the annotation.
+	 *
+	 * @param key  The key to extract
+	 * @param type The expected type
+	 * @return Optional containing the value if found and of correct type
+	 */
+	public <T> Optional<T> getValue(String key, Class<T> type) {
+		return extract().getValue(key, type);
+	}
+
+	/**
+	 * Gets a type-safe list from the annotation.
+	 *
+	 * @param key         The key to extract
+	 * @param elementType The type of elements in the list
+	 * @return Optional containing the list if found and elements match type
+	 */
+	public <T> Optional<List<T>> getList(String key, Class<T> elementType) {
+		return extract().getList(key, elementType);
+	}
+
+	/**
+	 * Gets a type-safe map from the annotation.
+	 *
+	 * @param key       The key to extract
+	 * @param keyType   The type of keys in the map
+	 * @param valueType The type of values in the map
+	 * @return Optional containing the map if found with matching types
+	 */
+	public <K, V> Optional<Map<K, V>> getMap(String key, Class<K> keyType, Class<V> valueType) {
+		return extract().getMap(key, keyType, valueType);
+	}
 }
