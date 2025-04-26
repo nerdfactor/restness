@@ -3,10 +3,6 @@ package eu.nerdfactor.restness.example.customer;
 import eu.nerdfactor.restness.annotation.RestnessController;
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,10 +30,11 @@ public class CustomerController {
 	 * @param id The id of the customer.
 	 * @return A fitting ResponseEntity.
 	 */
-	@DeleteMapping("/api/customers/{id}")
+	// todo: fix existing controller feature
+	/*@DeleteMapping("/api/customers/{id}")
 	@PreAuthorize("hasRole('ROLE_DELETE_CUSTOMER')")
 	public ResponseEntity<Void> delete(@PathVariable final String id) {
 		this.repository.deleteDataById(id);
 		return ResponseEntity.noContent().build();
-	}
+	}*/
 }
