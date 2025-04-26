@@ -404,6 +404,65 @@ class UnsafeAnnotationValueExtractorTest {
 	}
 
 	/**
+	 * Tests extraction when multiple annotations are present on an element.
+	 * Verifies that the extractor can:
+	 * - Find the correct target annotation among multiple annotations
+	 * - Extract values only from the target annotation
+	 * - Ignore other annotations present on the element
+	 */
+	@Test
+	void shouldExtractFromCorrectAnnotationWhenMultipleAnnotationsExist() {
+		// Test configuration
+		String targetClassName = "test.annotation.TargetClass";
+		String otherClassName = "test.annotation.OtherClass";
+		String expectedValue = "targetValue";
+
+		// Create a second annotation mirror for the other annotation
+		AnnotationMirror otherAnnotationMirror = mock(AnnotationMirror.class);
+		DeclaredType otherDeclaredType = mock(DeclaredType.class);
+		doReturn(otherDeclaredType)
+				.when(otherAnnotationMirror).getAnnotationType();
+		doReturn(otherClassName)
+				.when(otherDeclaredType).toString();
+
+		// Set up multiple annotations on the element
+		doReturn(List.of(otherAnnotationMirror, annotationMirror))
+				.when(element).getAnnotationMirrors();
+
+		// Set up the target annotation type
+		doReturn(declaredType)
+				.when(annotationMirror).getAnnotationType();
+		doReturn(targetClassName)
+				.when(declaredType).toString();
+
+		// Set up the value in the target annotation
+		Map<ExecutableElement, AnnotationValue> elementValues = new HashMap<>();
+		elementValues.put(executableElement, annotationValue);
+		doReturn(elementValues)
+				.when(utils).getElementValuesWithDefaults(annotationMirror);
+		doReturn(new TestName("key"))
+				.when(executableElement).getSimpleName();
+		doReturn(expectedValue)
+				.when(annotationValue).getValue();
+
+		// Perform the extraction targeting the second annotation
+		UnsafeAnnotationValueExtractor.ValueWrapper result = extractor
+				.forClass(targetClassName)
+				.withElement(element)
+				.withUtils(utils)
+				.extractUnsafe();
+
+		// Verify the extraction got the right value from the target annotation
+		assertNotNull(result);
+		assertEquals(expectedValue, result.values().get("key"));
+		assertEquals(targetClassName, result.annotationClassName());
+		assertEquals(element, result.element());
+
+		// Verify we never tried to extract values from the other annotation
+		verify(utils, never()).getElementValuesWithDefaults(otherAnnotationMirror);
+	}
+
+	/**
 	 * Helper class that implements the Name interface for testing.
 	 * Used to create mock annotation member names in a type-safe way.
 	 */
