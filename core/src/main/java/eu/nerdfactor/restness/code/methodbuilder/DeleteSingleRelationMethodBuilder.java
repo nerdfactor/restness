@@ -168,9 +168,7 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 		};
 
 		// Define post-body configuration (return no content)
-		Consumer<MethodSpec.Builder> postBodyConfigurer = mb -> new NoContentStatementInjector()
-				.withWrapper(this.responseWrapperType)
-				.inject(mb);
+		Consumer<MethodSpec.Builder> postBodyConfigurer = mb -> new NoContentStatementInjector().inject(mb);
 
 		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, parameterConfigurer, bodyConfigurer, postBodyConfigurer);
 		builder.addMethod(methodSpec);

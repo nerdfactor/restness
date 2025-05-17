@@ -117,7 +117,6 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		this.addMethodBody(method);
 
 		new NoContentStatementInjector()
-				.withWrapper(this.responseWrapperType)
 				.inject(method);
 
 		builder.addMethod(method.build());

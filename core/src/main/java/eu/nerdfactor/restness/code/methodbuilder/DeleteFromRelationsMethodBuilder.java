@@ -206,7 +206,6 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 
 		// Use a separate injector for NoContent response
 		Consumer<MethodSpec.Builder> postBodyConfigurer = mb -> new NoContentStatementInjector()
-				.withWrapper(this.responseWrapperType) // Wrapper might influence headers even for NoContent
 				.inject(mb);
 
 		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseTypeById, parameterConfigurer, bodyConfigurer, postBodyConfigurer);
