@@ -10,9 +10,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>eu.nerdfactor.restness</groupId>
-	<artifactId>restness</artifactId>
+	<artifactId>restness-parent</artifactId>
 	<version>0.0.20</version>
-	<name>RESTness</name>
 	<description>
 		A simple library to generate REST controllers for a spring boot
 		application.
@@ -30,6 +29,7 @@
 		<module>processing</module>
 		<module>config</module>
 		<module>generator</module>
+		<module>restness</module>
 	</modules>
 	<distributionManagement>
 		<repository>
