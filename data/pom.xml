@@ -6,10 +6,10 @@
 	<parent>
 		<artifactId>restness-parent</artifactId>
 		<groupId>eu.nerdfactor.restness</groupId>
-		<version>0.0.20</version>
+		<version>0.0.21</version>
 	</parent>
 	<artifactId>restness-data</artifactId>
-	<version>0.0.20</version>
+	<version>0.0.21</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -94,9 +94,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<argLine>-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar</argLine>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -96,6 +96,16 @@ public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 	}
 
 	/**
+	 * Update the provided entities.
+	 *
+	 * @param entities List of entities to update.
+	 * @return List of updated entities.
+	 */
+	default Iterable<E> updateData(@NotNull Iterable<E> entities) {
+		return this.getRepository().saveAll(entities);
+	}
+
+	/**
 	 * Delete the provided entity.
 	 *
 	 * @param entity The entity to delete.

@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>eu.nerdfactor.restness</groupId>
 	<artifactId>restness-parent</artifactId>
-	<version>0.0.20</version>
+	<version>0.0.21</version>
 	<description>
 		A simple library to generate REST controllers for a spring boot
 		application.
