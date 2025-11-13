@@ -66,6 +66,19 @@ public interface DataAccessService<E, ID> extends DataAccessor<E, ID> {
 	}
 
 	/**
+	 * Searches for data, filtered by the {@link Specification} and does not
+	 * restrict to a {@link Page}.
+	 * Supports {@link JpaSpecificationExecutor}.
+	 *
+	 * @param spec The {@link Specification} for filtering.
+	 * @return A filtered set of data.
+	 * @see #searchData(Specification, Pageable)
+	 */
+	default Page<E> searchData(Specification<E> spec) {
+		return this.searchData(spec, Pageable.unpaged());
+	}
+
+	/**
 	 * Create a new entity with the provided data.
 	 *
 	 * @param entity The new entity.
