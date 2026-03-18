@@ -5,6 +5,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import eu.nerdfactor.restness.annotation.IdAccessor;
 import eu.nerdfactor.restness.annotation.IdModifier;
+import jakarta.persistence.Id;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.RelationConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
@@ -23,10 +24,12 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import static javax.lang.model.util.ElementFilter.fieldsIn;
 import static javax.lang.model.util.ElementFilter.methodsIn;
 
 /**
@@ -313,22 +316,26 @@ public class ControllerConfigurationFromAnnotationBuilder {
 	 * @return The name of the id actor.
 	 */
 	private String findIdActor(TypeElement entityElement, Class<?> annotationClass) {
-		String idActor = null;
+		// First, check for explicit @IdAccessor or @IdModifier annotations on methods.
 		for (ExecutableElement method : methodsIn(entityElement.getEnclosedElements())) {
 			for (AnnotationMirror anno : method.getAnnotationMirrors()) {
-				String annotationName = anno.getAnnotationType().toString();
-				if (annotationName.equals(annotationClass.getName())) {
-					idActor = method.getSimpleName().toString();
+				if (anno.getAnnotationType().toString().equals(annotationClass.getName())) {
+					return method.getSimpleName().toString();
 				}
 			}
 		}
-		// todo: should also check for @ID to check for different id name
-		if (idActor == null) {
-			String verb = annotationClass == IdAccessor.class ? "get" : "set";
-			idActor = verb + "Id";
+		// Second, check for @jakarta.persistence.Id on fields to derive the accessor name.
+		String verb = annotationClass == IdAccessor.class ? "get" : "set";
+		for (VariableElement field : fieldsIn(entityElement.getEnclosedElements())) {
+			for (AnnotationMirror anno : field.getAnnotationMirrors()) {
+				if (anno.getAnnotationType().toString().equals(Id.class.getName())) {
+					String fieldName = field.getSimpleName().toString();
+					return verb + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+				}
+			}
 		}
-		return idActor;
-
+		// Fallback to default getId/setId.
+		return verb + "Id";
 	}
 
 	/**

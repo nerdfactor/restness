@@ -11,15 +11,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.Elements;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -149,5 +144,45 @@ class ControllerConfigurationFromAnnotationBuilderTest {
 		assertNotNull(config);
 		assertEquals("getId", config.getIdAccessorMethodName());
 		assertEquals("setId", config.getIdModifierMethodName());
+	}
+
+	@Test
+	void shouldDetectIdAnnotationOnField() {
+		// Arrange: create an entity with @Id on a field named "perNo"
+		VariableElement idField = mock(VariableElement.class);
+		when(idField.getKind()).thenReturn(ElementKind.FIELD);
+		Name fieldName = mock(Name.class);
+		when(fieldName.toString()).thenReturn("perNo");
+		when(idField.getSimpleName()).thenReturn(fieldName);
+
+		AnnotationMirror idAnnotation = mock(AnnotationMirror.class);
+		DeclaredType idAnnotationType = mock(DeclaredType.class);
+		when(idAnnotationType.toString()).thenReturn("jakarta.persistence.Id");
+		when(idAnnotation.getAnnotationType()).thenReturn(idAnnotationType);
+		when(idField.getAnnotationMirrors()).thenReturn((java.util.List) List.of(idAnnotation));
+
+		// Entity element has the @Id field and no methods
+		when(mockEntityElement.getEnclosedElements()).thenReturn((java.util.List) List.of(idField));
+
+		Map<String, String> annotatedValues = new HashMap<>();
+		annotatedValues.put("value", "/api/test");
+		annotatedValues.put("entity", "eu.nerdfactor.test.TestEntity");
+		annotatedValues.put("id", "java.lang.Integer");
+		annotatedValues.put("withRelations", "false");
+
+		// Act
+		ControllerConfiguration config = ControllerConfigurationFromAnnotationBuilder.create()
+				.withEnvironment(environment)
+				.withUtils(elementUtils)
+				.withElement(mockElement)
+				.withPrefix("Generated")
+				.withPattern("{PREFIX}{NAME}")
+				.withAnnotatedValues(annotatedValues)
+				.build();
+
+		// Assert: should derive accessor names from the field name "perNo"
+		assertNotNull(config);
+		assertEquals("getPerNo", config.getIdAccessorMethodName());
+		assertEquals("setPerNo", config.getIdModifierMethodName());
 	}
 }
