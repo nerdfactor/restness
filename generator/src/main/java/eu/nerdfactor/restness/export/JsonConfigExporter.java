@@ -1,6 +1,7 @@
 package eu.nerdfactor.restness.export;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auto.service.AutoService;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.generate.RestnessGenerator;
 
@@ -9,7 +10,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+@AutoService(RestnessGenerator.class)
 public class JsonConfigExporter implements RestnessGenerator {
+
+	private static final String NAME = "json";
+
+	@Override
+	public String getName() {
+		return NAME;
+	}
 
 	public JsonConfigExporter withFiler(Filer filer) {
 		return this;

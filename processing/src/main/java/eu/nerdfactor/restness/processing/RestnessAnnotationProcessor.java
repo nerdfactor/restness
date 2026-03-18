@@ -13,6 +13,7 @@ import eu.nerdfactor.restness.export.ConfigMapper;
 import eu.nerdfactor.restness.export.RestnessConfigFile;
 import eu.nerdfactor.restness.generate.JavaClassGenerator;
 import eu.nerdfactor.restness.generate.RestnessGenerator;
+import eu.nerdfactor.restness.generate.RestnessGeneratorFactory;
 import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
 import eu.nerdfactor.restness.processing.extractor.ValueContainer;
 import lombok.extern.slf4j.Slf4j;
@@ -154,16 +155,10 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		}
 
 		// Take the ControllerConfigurations and build new classes from them.
-		String generatorClassName = generatedConfig.getOrDefault("generator", JavaClassGenerator.class.getCanonicalName());
-		try {
-			// todo: maybe a factory is better?
-			Class<? extends RestnessGenerator> cls = Class.forName(generatorClassName).asSubclass(RestnessGenerator.class);
-			RestnessGenerator generator = cls.getDeclaredConstructor().newInstance();
-			generator.withFiler(this.filer).generate(generatedConfig, controllers);
-		} catch (Exception e) {
-			log.error("Failed to instantiate or run generator {}.", generatorClassName, e);
-			e.printStackTrace();
-		}
+		String generatorName = generatedConfig.getOrDefault("generator", JavaClassGenerator.class.getCanonicalName());
+		RestnessGeneratorFactory factory = new RestnessGeneratorFactory();
+		RestnessGenerator generator = factory.getGenerator(generatorName);
+		generator.withFiler(this.filer).generate(generatedConfig, controllers);
 
 		log.debug("Processing round {} ended.", this.rounds);
 		this.rounds++;
