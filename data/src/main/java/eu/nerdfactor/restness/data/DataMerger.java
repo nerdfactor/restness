@@ -14,7 +14,8 @@ public interface DataMerger {
 	 * @param original The original object.
 	 * @param updated  The object with updated values.
 	 * @param <T>      Type of the updated object.
-	 * @return The original object with the updated values.
+	 * @return The merged object. For mutable types this is the original instance
+	 *         with updated values. For immutable types (e.g. Records) this is a new instance.
 	 */
 	<T> T merge(T original, T updated);
 }

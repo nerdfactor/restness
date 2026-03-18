@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.data;
 
 import eu.nerdfactor.restness.entity.Example;
 import eu.nerdfactor.restness.entity.ExampleDto;
+import eu.nerdfactor.restness.entity.ExampleRecord;
 import eu.nerdfactor.restness.entity.WrapperTypesExample;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 class RestnessEntityMergerTest {
@@ -120,5 +122,95 @@ class RestnessEntityMergerTest {
 		Assertions.assertEquals(Double.valueOf(30.5), result.getDoubleValue());
 		Assertions.assertEquals(Boolean.TRUE, result.getBooleanValue());
 		Assertions.assertEquals(Character.valueOf('A'), result.getCharValue());
+	}
+
+	/**
+	 * Test that Record fields are merged correctly: String, int, boolean, and Long
+	 * are updated, while List (unsupported type) is preserved from the original.
+	 */
+	@Test
+	void shouldMergeRecordFields() {
+		ExampleRecord original = new ExampleRecord("original", 10, true, 100L, List.of("a", "b"));
+		ExampleRecord updated = new ExampleRecord("updated", 20, false, 200L, List.of("c"));
+
+		ExampleRecord result = this.merger.merge(original, updated);
+
+		Assertions.assertEquals("updated", result.name());
+		Assertions.assertEquals(20, result.value());
+		Assertions.assertFalse(result.active());
+		Assertions.assertEquals(200L, result.amount());
+		Assertions.assertEquals(List.of("a", "b"), result.tags());
+	}
+
+	/**
+	 * Test that unsupported types in Records (like List) are not merged.
+	 * The original value is preserved.
+	 */
+	@Test
+	void shouldNotMergeUnsupportedTypesInRecords() {
+		List<String> originalTags = List.of("original");
+		List<String> updatedTags = List.of("updated");
+		ExampleRecord original = new ExampleRecord("name", 1, true, 10L, originalTags);
+		ExampleRecord updated = new ExampleRecord("name", 1, true, 10L, updatedTags);
+
+		ExampleRecord result = this.merger.merge(original, updated);
+
+		Assertions.assertSame(originalTags, result.tags());
+	}
+
+	/**
+	 * Test that an empty string in the updated Record does not overwrite
+	 * the original value, consistent with POJO merge behavior.
+	 */
+	@Test
+	void shouldNotMergeEmptyStringInRecord() {
+		ExampleRecord original = new ExampleRecord("original", 10, true, 100L, List.of());
+		ExampleRecord updated = new ExampleRecord("", 10, true, 100L, List.of());
+
+		ExampleRecord result = this.merger.merge(original, updated);
+
+		Assertions.assertEquals("original", result.name());
+	}
+
+	/**
+	 * Test that primitive default values (0, false) in the updated Record DO
+	 * overwrite the original. This is consistent with POJO merger behavior where
+	 * primitive getters always return non-null boxed values.
+	 */
+	@Test
+	void shouldMergePrimitiveDefaultValuesInRecord() {
+		ExampleRecord original = new ExampleRecord("name", 42, true, 100L, List.of());
+		ExampleRecord updated = new ExampleRecord("name", 0, false, 100L, List.of());
+
+		ExampleRecord result = this.merger.merge(original, updated);
+
+		Assertions.assertEquals(0, result.value());
+		Assertions.assertFalse(result.active());
+	}
+
+	/**
+	 * Test that merging Records returns a new instance, not the original or updated.
+	 */
+	@Test
+	void shouldReturnNewInstanceWhenMergingRecords() {
+		ExampleRecord original = new ExampleRecord("original", 10, true, 100L, List.of());
+		ExampleRecord updated = new ExampleRecord("updated", 20, false, 200L, List.of());
+
+		ExampleRecord result = this.merger.merge(original, updated);
+
+		Assertions.assertNotSame(original, result);
+		Assertions.assertNotSame(updated, result);
+	}
+
+	/**
+	 * Test that null handling works correctly with Records:
+	 * null original returns updated, null updated returns original.
+	 */
+	@Test
+	void shouldHandleNullRecordInMerge() {
+		ExampleRecord record = new ExampleRecord("name", 10, true, 100L, List.of());
+
+		Assertions.assertSame(record, this.merger.merge(null, record));
+		Assertions.assertSame(record, this.merger.merge(record, null));
 	}
 }
