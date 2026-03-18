@@ -42,6 +42,7 @@ class SetEntityMethodBuilderTest {
 				@RestController
 				public class ExampleController {
 				  @PutMapping("/api/example")
+				  @ResponseStatus(HttpStatus.OK)
 				  public ResponseEntity<Example> set(@PathVariable final Integer id,
 				      @RequestBody @Valid Example dto) {
 				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
@@ -78,6 +79,7 @@ class SetEntityMethodBuilderTest {
 				@RestController
 				public class ExampleController {
 				  @PutMapping("/api/example")
+				  @ResponseStatus(HttpStatus.OK)
 				  public ResponseEntity<ExampleDto> set(@PathVariable final Integer id,
 				      @RequestBody @Valid ExampleForm dto) {
 				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);

@@ -37,6 +37,7 @@ class DeleteEntityMethodBuilderTest {
 				@RestController
 				public class ExampleController {
 				  @DeleteMapping("/api/example")
+				  @ResponseStatus(HttpStatus.NO_CONTENT)
 				  public ResponseEntity<?> delete(@PathVariable final Integer id) {
 				    this.dataAccessor.deleteDataById(id);
 				    return ResponseEntity.noContent().build();

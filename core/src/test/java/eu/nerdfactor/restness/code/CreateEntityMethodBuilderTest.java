@@ -41,11 +41,12 @@ class CreateEntityMethodBuilderTest {
 				@RestController
 				public class ExampleController {
 				  @PostMapping("/api/example")
+				  @ResponseStatus(HttpStatus.CREATED)
 				  public ResponseEntity<Example> create(@RequestBody @Valid Example dto) {
 				    Example created = dto;
 				    created = this.dataAccessor.createData(created);
 				    Example response = created;
-				    return new ResponseEntity<>(response, HttpStatus.OK);
+				    return new ResponseEntity<>(response, HttpStatus.CREATED);
 				  }
 				}
 				""";
@@ -74,11 +75,12 @@ class CreateEntityMethodBuilderTest {
 				@RestController
 				public class ExampleController {
 				  @PostMapping("/api/example")
+				  @ResponseStatus(HttpStatus.CREATED)
 				  public ResponseEntity<ExampleDto> create(@RequestBody @Valid ExampleForm dto) {
 				    Example created = this.dataMapper.map(dto, Example.class);
 				    created = this.dataAccessor.createData(created);
 				    ExampleDto response = this.dataMapper.map(created, ExampleDto.class);
-				    return new ResponseEntity<>(response, HttpStatus.OK);
+				    return new ResponseEntity<>(response, HttpStatus.CREATED);
 				  }
 				}
 				""";
@@ -107,7 +109,7 @@ class CreateEntityMethodBuilderTest {
 		Assertions.assertTrue(code.contains("@Operation("));
 		Assertions.assertTrue(code.contains("summary = \"Create a new Example\""));
 		Assertions.assertTrue(code.contains("operationId = \"createExample\""));
-		Assertions.assertTrue(code.contains("responseCode = \"200\""));
+		Assertions.assertTrue(code.contains("responseCode = \"201\""));
 		Assertions.assertTrue(code.contains("responseCode = \"400\""));
 	}
 

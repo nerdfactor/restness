@@ -1,14 +1,20 @@
 package eu.nerdfactor.restness.code.injector;
 
 import com.squareup.javapoet.MethodSpec;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 /**
  * An injector that adds an empty return statement to a method.
+ * Sets the HTTP status to {@link HttpStatus#NO_CONTENT} (204).
  *
  * @author Daniel Klug
  */
 public class NoContentStatementInjector extends ReturnStatementInjector {
+
+	public NoContentStatementInjector() {
+		this.httpStatus = HttpStatus.NO_CONTENT;
+	}
 
 	/**
 	 * Add a statement that returns an empty wrapper object.

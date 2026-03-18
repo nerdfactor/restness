@@ -1,11 +1,9 @@
 package eu.nerdfactor.restness.code.injector;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * An injector that adds a return statement to a method.
@@ -28,6 +26,11 @@ public class ReturnStatementInjector implements Injectable<MethodSpec.Builder> {
 	 * The name of the response variable used in the method.
 	 */
 	protected String responseVariableName = "response";
+
+	/**
+	 * The HTTP status code for the response. Defaults to {@link HttpStatus#OK}.
+	 */
+	protected HttpStatus httpStatus = HttpStatus.OK;
 
 	/**
 	 * @param wrapper The class of a wrapper object
@@ -57,17 +60,29 @@ public class ReturnStatementInjector implements Injectable<MethodSpec.Builder> {
 	}
 
 	/**
+	 * @param httpStatus The HTTP status code for the response.
+	 * @return The injector in a fluent api pattern.
+	 */
+	public ReturnStatementInjector withHttpStatus(HttpStatus httpStatus) {
+		this.httpStatus = httpStatus;
+		return this;
+	}
+
+	/**
 	 * Inject into a {@link MethodSpec.Builder} and add a return statement.
 	 *
 	 * @param builder An existing builder object that will be used.
 	 * @return The altered {@link MethodSpec.Builder}.
 	 */
 	public MethodSpec.Builder inject(MethodSpec.Builder builder) {
+		builder.addAnnotation(AnnotationSpec.builder(ResponseStatus.class)
+				.addMember("value", "$T.$L", HttpStatus.class, this.httpStatus.name())
+				.build());
 		if (wrapperType != null && !wrapperType.equals(TypeName.OBJECT)) {
 			builder.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), ParameterizedTypeName.get(ClassName.bestGuess(wrapperType.toString()), responseType)));
 			builder.addStatement("$T<$T> wrapper = new $T<>()", wrapperType, responseType, wrapperType);
 			this.addWrapperContent(builder);
-			builder.addStatement("return new $T<>(wrapper, $T.OK)", ResponseEntity.class, HttpStatus.class);
+			builder.addStatement("return new $T<>(wrapper, $T.$L)", ResponseEntity.class, HttpStatus.class, this.httpStatus.name());
 		} else {
 			this.addBasicReturn(builder);
 		}
@@ -89,6 +104,6 @@ public class ReturnStatementInjector implements Injectable<MethodSpec.Builder> {
 	 * @param builder An existing builder object that will be used.
 	 */
 	protected void addBasicReturn(MethodSpec.Builder builder) {
-		builder.addStatement("return new $T<>(" + responseVariableName + ", $T.OK)", ResponseEntity.class, HttpStatus.class);
+		builder.addStatement("return new $T<>(" + responseVariableName + ", $T.$L)", ResponseEntity.class, HttpStatus.class, this.httpStatus.name());
 	}
 }

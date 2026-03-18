@@ -10,6 +10,7 @@ import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -131,7 +132,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 				.withEnabled(this.openApi)
 				.withOperationSummary("Create a new " + entityName)
 				.withOperationId("create" + entityName)
-				.withResponseCode("200")
+				.withResponseCode("201")
 				.withResponseDescription(entityName + " created successfully")
 				.addErrorResponse("400", "Invalid request body")
 				.inject(method);
@@ -151,6 +152,7 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		new ReturnStatementInjector()
 				.withWrapper(this.responseWrapperType)
 				.withResponse(this.responseBodyType)
+				.withHttpStatus(HttpStatus.CREATED)
 				.inject(method);
 
 		builder.addMethod(method.build());

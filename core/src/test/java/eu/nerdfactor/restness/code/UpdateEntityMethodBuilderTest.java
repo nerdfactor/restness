@@ -42,6 +42,7 @@ class UpdateEntityMethodBuilderTest {
 				@RestController
 				public class ExampleController {
 				  @PatchMapping("/api/example")
+				  @ResponseStatus(HttpStatus.OK)
 				  public ResponseEntity<Example> update(@PathVariable final Integer id,
 				      @RequestBody @Valid Example dto) {
 				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);
@@ -79,6 +80,7 @@ class UpdateEntityMethodBuilderTest {
 				@RestController
 				public class ExampleController {
 				  @PatchMapping("/api/example")
+				  @ResponseStatus(HttpStatus.OK)
 				  public ResponseEntity<ExampleDto> update(@PathVariable final Integer id,
 				      @RequestBody @Valid ExampleForm dto) {
 				    Example entity = this.dataAccessor.readData(id).orElseThrow(EntityNotFoundException::new);

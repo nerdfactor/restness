@@ -69,7 +69,7 @@ class EmployeeControllerTest {
 		mockMvc.perform(post(API_PATH)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.jsonMapper.writeValueAsString(employee))
-		).andExpect(status().isOk());
+		).andExpect(status().isCreated());
 		Employee employeeCheck = this.repository.findById(employee.getPerNo()).orElse(null);
 		assertNotNull(employeeCheck);
 		assertEquals(employee.getName(), employeeCheck.getName());
