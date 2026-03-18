@@ -8,6 +8,9 @@ import eu.nerdfactor.restness.annotation.RestnessController;
 import eu.nerdfactor.restness.annotation.RestnessSecurity;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
+import eu.nerdfactor.restness.export.ConfigImporter;
+import eu.nerdfactor.restness.export.ConfigMapper;
+import eu.nerdfactor.restness.export.RestnessConfigFile;
 import eu.nerdfactor.restness.generate.JavaClassGenerator;
 import eu.nerdfactor.restness.generate.RestnessGenerator;
 import eu.nerdfactor.restness.processing.extractor.AnnotationValueExtractor;
@@ -88,8 +91,16 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		String importerClassName = generatedConfig.getOrDefault("importer", null);
 		String importPath = generatedConfig.getOrDefault("importPath", "");
 		if (importerClassName != null && !importerClassName.isEmpty() && !importPath.isEmpty()) {
-			// todo: Import the configuration from a file.
+			ConfigImporter importer = new ConfigImporter();
+			RestnessConfigFile configFile = importer.importFromFile(importPath);
+			if (configFile.controllers != null) {
+				controllers.putAll(configFile.controllers);
+			}
+			if (configFile.config != null) {
+				generatedConfig.putAll(configFile.config);
+			}
 			importedConfiguration = true;
+			log.info("Imported configuration from {}.", importPath);
 		}
 
 		if (!importedConfiguration) {
@@ -131,8 +142,15 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		String exporterClassName = generatedConfig.getOrDefault("exporter", null);
 		String exportPath = generatedConfig.getOrDefault("exportPath", "");
 		if (exporterClassName != null && !exporterClassName.isEmpty() && !exportPath.isEmpty()) {
-			// todo: Export the configuration to a file.
-
+			RestnessConfigFile configFile = new RestnessConfigFile();
+			configFile.config = generatedConfig;
+			configFile.controllers = controllers;
+			try {
+				ConfigMapper.forFile(exportPath).writeValue(new java.io.File(exportPath), configFile);
+				log.info("Exported configuration to {}.", exportPath);
+			} catch (Exception e) {
+				log.error("Failed to export configuration to {}.", exportPath, e);
+			}
 		}
 
 		// Take the ControllerConfigurations and build new classes from them.

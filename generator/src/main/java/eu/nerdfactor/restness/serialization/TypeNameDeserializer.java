@@ -4,13 +4,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 import java.io.IOException;
 
 /**
- * Deserializer for {@link TypeName}s.
+ * Deserializer for {@link TypeName}s. Delegates to
+ * {@link ParameterizedTypeNameDeserializer#parseTypeName(String)} to handle
+ * both simple and parameterized type strings.
  *
  * @author Daniel Klug
  */
@@ -26,7 +27,8 @@ public class TypeNameDeserializer extends StdDeserializer<TypeName> {
 
 	/**
 	 * Deserializes a {@link TypeName} from a Json Node. It assumes that the
-	 * Node contains the full clas name (i.e. namespace and name) as text.
+	 * Node contains the full class name (i.e. namespace and name) as text.
+	 * Supports both simple class names and parameterized types.
 	 *
 	 * @param jsonParser             The {@link JsonParser} used to read from.
 	 * @param deserializationContext The context of the deserialization.
@@ -36,6 +38,6 @@ public class TypeNameDeserializer extends StdDeserializer<TypeName> {
 	public TypeName deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 		JsonNode node = jsonParser.readValueAsTree();
 		String name = node.asText();
-		return ClassName.bestGuess(name);
+		return ParameterizedTypeNameDeserializer.parseTypeName(name);
 	}
 }
