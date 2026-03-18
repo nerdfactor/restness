@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
@@ -78,6 +79,10 @@ public class SearchMethodBuilder extends MethodBuilder {
 	 * The {@link TypeName} of the class used to wrap the response page, if any.
 	 */
 	private TypeName responseWrapperType;
+	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the method.
+	 */
+	private boolean openApi;
 
 	/**
 	 * Create a new instance of {@link SearchMethodBuilder}.
@@ -103,7 +108,8 @@ public class SearchMethodBuilder extends MethodBuilder {
 				.withEntityType(configuration.getEntityType())
 				.withSecurityConfig(configuration.getSecurityConfig())
 				.withUsingDto(configuration.isUsingDto())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 
@@ -140,6 +146,15 @@ public class SearchMethodBuilder extends MethodBuilder {
 						.addAnnotation(AnnotationSpec.builder(PageableDefault.class).addMember("size", "20").build()).
 						build()
 				);
+
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Search " + entityName + "s")
+				.withOperationId("search" + entityName + "s")
+				.withResponseCode("200")
+				.withResponseDescription("Search results for " + entityName)
+				.inject(method);
 
 		new AuthenticationInjector()
 				.withMethod("READ")

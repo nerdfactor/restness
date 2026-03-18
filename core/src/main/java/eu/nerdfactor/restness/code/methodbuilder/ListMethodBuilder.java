@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
@@ -70,6 +71,10 @@ public class ListMethodBuilder extends MethodBuilder {
 	 * The {@link TypeName} of the class used to wrap the response list, if any.
 	 */
 	private TypeName responseWrapperType;
+	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the method.
+	 */
+	private boolean openApi;
 
 	/**
 	 * Create a new {@link ListMethodBuilder}.
@@ -95,7 +100,8 @@ public class ListMethodBuilder extends MethodBuilder {
 				.withEntityType(configuration.getEntityType())
 				.withSecurityConfig(configuration.getSecurityConfig())
 				.withUsingDto(configuration.isUsingDto())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 	/**
@@ -120,6 +126,15 @@ public class ListMethodBuilder extends MethodBuilder {
 				.addAnnotation(AnnotationSpec.builder(GetMapping.class).addMember("value", "$S", this.basePath).build())
 				.addModifiers(Modifier.PUBLIC)
 				.returns(ParameterizedTypeName.get(ClassName.get(ResponseEntity.class), responseList));
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("List all " + entityName + "s")
+				.withOperationId("listAll" + entityName + "s")
+				.withResponseCode("200")
+				.withResponseDescription("List of " + entityName + " entities")
+				.inject(method);
+
 		method = new AuthenticationInjector()
 				.withMethod("READ")
 				.withEntityClassName(this.entityType)

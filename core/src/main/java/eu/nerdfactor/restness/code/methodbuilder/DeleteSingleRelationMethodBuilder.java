@@ -3,6 +3,7 @@ package eu.nerdfactor.restness.code.methodbuilder;
 import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.NoContentStatementInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.RelationConfiguration;
@@ -86,6 +87,11 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	protected String relationSetter;
 
 	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the method.
+	 */
+	protected boolean openApi;
+
+	/**
 	 * Static factory method to create a new instance of {@link DeleteSingleRelationMethodBuilder}.
 	 *
 	 * @return A new instance of {@link DeleteSingleRelationMethodBuilder}.
@@ -119,7 +125,8 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 				.withIdType(configuration.getIdType())
 				.withEntityType(configuration.getEntityType())
 				.withSecurityConfig(configuration.getSecurityConfig())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 	/**
@@ -170,23 +177,37 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 		// Define post-body configuration (return no content)
 		Consumer<MethodSpec.Builder> postBodyConfigurer = mb -> new NoContentStatementInjector().inject(mb);
 
-		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, parameterConfigurer, bodyConfigurer, postBodyConfigurer);
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		String relationCapitalized = this.relationName.substring(0, 1).toUpperCase() + this.relationName.substring(1);
+
+		Consumer<MethodSpec.Builder> openApiConfigurer = mb -> new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Remove " + relationCapitalized + " from " + entityName)
+				.withOperationId("remove" + entityName + relationCapitalized)
+				.withResponseCode("204")
+				.withResponseDescription(relationCapitalized + " removed from " + entityName)
+				.addErrorResponse("404", entityName + " not found")
+				.inject(mb);
+
+		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, parameterConfigurer, openApiConfigurer, bodyConfigurer, postBodyConfigurer);
 		builder.addMethod(methodSpec);
 	}
 
 	/**
 	 * Helper method to build the common structure of the {@link MethodSpec} for
 	 * the "delete single relation" method. This includes annotations, modifiers,
-	 * the main entity ID path variable, security injection, and return type definition.
+	 * the main entity ID path variable, OpenAPI annotations, security injection,
+	 * and return type definition.
 	 *
 	 * @param methodName          The name for the generated method.
 	 * @param path                The request mapping path for the method.
 	 * @param parameterConfigurer A {@link Consumer} to add specific parameters.
+	 * @param openApiConfigurer   A {@link Consumer} to add OpenAPI annotations to the method.
 	 * @param bodyConfigurer      A {@link Consumer} to add the main method body statements.
 	 * @param postBodyConfigurer  A {@link Consumer} to add statements after the main body (for response generation).
 	 * @return The constructed {@link MethodSpec}.
 	 */
-	private MethodSpec buildRelationMethodSpec(String methodName, String path, Consumer<MethodSpec.Builder> parameterConfigurer, Consumer<MethodSpec.Builder> bodyConfigurer, Consumer<MethodSpec.Builder> postBodyConfigurer) {
+	private MethodSpec buildRelationMethodSpec(String methodName, String path, Consumer<MethodSpec.Builder> parameterConfigurer, Consumer<MethodSpec.Builder> openApiConfigurer, Consumer<MethodSpec.Builder> bodyConfigurer, Consumer<MethodSpec.Builder> postBodyConfigurer) {
 		MethodSpec.Builder methodBuilder = MethodSpec
 				.methodBuilder(methodName)
 				.addAnnotation(AnnotationSpec.builder(DeleteMapping.class)
@@ -197,6 +218,9 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 
 		// Add parameters (ID path variable)
 		parameterConfigurer.accept(methodBuilder);
+
+		// Inject OpenAPI annotations
+		openApiConfigurer.accept(methodBuilder);
 
 		// Inject security checks
 		methodBuilder = new AuthenticationInjector()

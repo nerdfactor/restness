@@ -222,6 +222,14 @@ public class ControllerConfiguration {
 	protected SecurityConfiguration securityConfig;
 
 	/**
+	 * Flag to enable OpenAPI/Swagger annotation generation for this controller.
+	 * Set programmatically from global config; not serialized per-controller.
+	 */
+	@Setter
+	@JsonIgnore
+	protected boolean openApi = false;
+
+	/**
 	 * A {@link Map} of {@link RelationConfiguration}s used during generation of
 	 * the controller.
 	 */

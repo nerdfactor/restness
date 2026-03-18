@@ -4,6 +4,7 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
@@ -69,6 +70,10 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * The {@link TypeName} of the class used to wrap the response data, if any.
 	 */
 	protected TypeName responseWrapperType;
+	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the method.
+	 */
+	protected boolean openApi;
 
 	/**
 	 * Creates a new instance of {@link CreateEntityMethodBuilder}.
@@ -96,7 +101,8 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 				.withEntityType(configuration.getEntityType())
 				.withUsingDto(configuration.isUsingDto())
 				.withSecurityConfig(configuration.getSecurityConfig())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 	/**
@@ -119,6 +125,16 @@ public class CreateEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 
 		// Create the method declaration.
 		MethodSpec.Builder method = this.createMethodDeclaration(this.basePath, this.requestBodyType, this.responseBodyType);
+
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Create a new " + entityName)
+				.withOperationId("create" + entityName)
+				.withResponseCode("200")
+				.withResponseDescription(entityName + " created successfully")
+				.addErrorResponse("400", "Invalid request body")
+				.inject(method);
 
 		// Inject a Security Annotation that will require a role of "CREATE"
 		// for the Entity.

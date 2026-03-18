@@ -5,6 +5,7 @@ import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.NoContentStatementInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
@@ -61,6 +62,10 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 	 * Although delete typically returns no content, a wrapper might be used for consistency.
 	 */
 	protected TypeName responseWrapperType;
+	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the method.
+	 */
+	protected boolean openApi;
 
 	/**
 	 * Creates a new instance of {@link DeleteEntityMethodBuilder}.
@@ -86,7 +91,8 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 				.withEntityType(configuration.getEntityType())
 				.withIdType(configuration.getIdType())
 				.withSecurityConfig(configuration.getSecurityConfig())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 	/**
@@ -107,6 +113,16 @@ public class DeleteEntityMethodBuilder implements Buildable<TypeSpec.Builder>, C
 		log.info("addDeleteEntityMethod");
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.requestPath, this.idType);
+
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Delete " + entityName)
+				.withOperationId("delete" + entityName)
+				.withResponseCode("204")
+				.withResponseDescription(entityName + " deleted successfully")
+				.addErrorResponse("404", entityName + " not found")
+				.inject(method);
 
 		new AuthenticationInjector()
 				.withMethod("DELETE")

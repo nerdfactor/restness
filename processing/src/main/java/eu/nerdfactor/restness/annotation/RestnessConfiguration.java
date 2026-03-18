@@ -85,4 +85,12 @@ public @interface RestnessConfiguration {
 	 * if an importer is provided.
 	 */
 	String importPath() default "";
+
+	/**
+	 * Enable generation of OpenAPI/Swagger annotations on endpoints.
+	 * When enabled, generated controllers will include @Tag, @Operation,
+	 * and @ApiResponse annotations from io.swagger.v3.oas.annotations.
+	 * Consumer projects must have swagger-annotations (2.2.0+) on their classpath.
+	 */
+	boolean openApi() default false;
 }

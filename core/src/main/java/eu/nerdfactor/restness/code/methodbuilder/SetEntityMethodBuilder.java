@@ -4,6 +4,7 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.SecurityConfiguration;
@@ -75,6 +76,10 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 	 * The {@link TypeName} of the class used to wrap the response data, if any.
 	 */
 	protected TypeName responseWrapperType;
+	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the method.
+	 */
+	protected boolean openApi;
 
 	/**
 	 * Creates a new instance of {@link SetEntityMethodBuilder}.
@@ -103,7 +108,8 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 				.withIdType(configuration.getIdType())
 				.withUsingDto(configuration.isUsingDto())
 				.withSecurityConfig(configuration.getSecurityConfig())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 	/**
@@ -125,6 +131,16 @@ public class SetEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Conf
 		log.info("addSetEntityMethod");
 
 		MethodSpec.Builder method = this.createMethodDeclaration(this.basePath, this.idType, this.responseBodyType, this.requestBodyType);
+
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Replace " + entityName)
+				.withOperationId("set" + entityName)
+				.withResponseCode("200")
+				.withResponseDescription(entityName + " replaced successfully")
+				.addErrorResponse("404", entityName + " not found")
+				.inject(method);
 
 		new AuthenticationInjector()
 				.withMethod("UPDATE")

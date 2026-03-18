@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.config.RelationConfiguration;
@@ -91,6 +92,11 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 	protected String relationAdder;
 
 	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the methods.
+	 */
+	protected boolean openApi;
+
+	/**
 	 * Static factory method to create a new instance of {@link AddToRelationsMethodBuilder}.
 	 *
 	 * @return A new instance of {@link AddToRelationsMethodBuilder}.
@@ -111,7 +117,8 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 				.withIdType(configuration.getIdType())
 				.withEntityType(configuration.getEntityType())
 				.withSecurityConfig(configuration.getSecurityConfig())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 	/**
@@ -185,7 +192,19 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 			mb.addStatement("return this." + RestnessUtil.getRelationMethodName(this.relationName, AccessorType.GET) + "(id)");
 		};
 
-		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseListType, responseEntityType, parameterConfigurer, bodyConfigurer);
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		String relationCapitalized = this.relationName.substring(0, 1).toUpperCase() + this.relationName.substring(1);
+
+		Consumer<MethodSpec.Builder> openApiConfigurer = mb -> new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Add " + relationCapitalized + " to " + entityName)
+				.withOperationId("add" + entityName + relationCapitalized + "ById")
+				.withResponseCode("200")
+				.withResponseDescription(relationCapitalized + " added to " + entityName)
+				.addErrorResponse("404", entityName + " not found")
+				.inject(mb);
+
+		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseListType, responseEntityType, parameterConfigurer, openApiConfigurer, bodyConfigurer);
 		builder.addMethod(methodSpec);
 	}
 
@@ -215,24 +234,38 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 				"return this." + RestnessUtil.getRelationMethodName(this.relationName, AccessorType.ADD) + "ById(id, dto." + this.relationIdAccessor + "())"
 		);
 
-		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseListType, responseEntityType, parameterConfigurer, bodyConfigurer);
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		String relationCapitalized = this.relationName.substring(0, 1).toUpperCase() + this.relationName.substring(1);
+
+		Consumer<MethodSpec.Builder> openApiConfigurer = mb -> new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Add " + relationCapitalized + " to " + entityName)
+				.withOperationId("add" + entityName + relationCapitalized)
+				.withResponseCode("200")
+				.withResponseDescription(relationCapitalized + " added to " + entityName)
+				.addErrorResponse("404", entityName + " not found")
+				.inject(mb);
+
+		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseListType, responseEntityType, parameterConfigurer, openApiConfigurer, bodyConfigurer);
 		builder.addMethod(methodSpec);
 	}
 
 	/**
 	 * Helper method to build the common structure of the {@link MethodSpec} for
 	 * the "add to relation" methods. This includes annotations, modifiers,
-	 * the main entity ID path variable, security injection, and return type definition.
+	 * the main entity ID path variable, OpenAPI annotations, security injection,
+	 * and return type definition.
 	 *
 	 * @param methodName          The name for the generated method.
 	 * @param path                The request mapping path for the method.
 	 * @param responseListType    The {@link ParameterizedTypeName} for the list of response entities (List<ResponseEntityType>).
 	 * @param responseEntityType  The {@link TypeName} of the individual response entity (DTO or entity).
 	 * @param parameterConfigurer A {@link Consumer} to add specific parameters (like relationId or request body).
+	 * @param openApiConfigurer   A {@link Consumer} to add OpenAPI annotations to the method.
 	 * @param bodyConfigurer      A {@link Consumer} to add the method body statements.
 	 * @return The constructed {@link MethodSpec}.
 	 */
-	private MethodSpec buildRelationMethodSpec(String methodName, String path, ParameterizedTypeName responseListType, TypeName responseEntityType, Consumer<MethodSpec.Builder> parameterConfigurer, Consumer<MethodSpec.Builder> bodyConfigurer) {
+	private MethodSpec buildRelationMethodSpec(String methodName, String path, ParameterizedTypeName responseListType, TypeName responseEntityType, Consumer<MethodSpec.Builder> parameterConfigurer, Consumer<MethodSpec.Builder> openApiConfigurer, Consumer<MethodSpec.Builder> bodyConfigurer) {
 		MethodSpec.Builder methodBuilder = MethodSpec
 				.methodBuilder(methodName)
 				.addAnnotation(AnnotationSpec.builder(RequestMapping.class)
@@ -250,6 +283,9 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 
 		// Add specific parameters (e.g., relationId or request body)
 		parameterConfigurer.accept(methodBuilder);
+
+		// Inject OpenAPI annotations
+		openApiConfigurer.accept(methodBuilder);
 
 		// Inject security checks
 		methodBuilder = new AuthenticationInjector()

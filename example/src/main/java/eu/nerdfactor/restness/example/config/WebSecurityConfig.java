@@ -24,4 +24,13 @@ public class WebSecurityConfig {
 
 		return http.build();
 	}
+
+	@Bean
+	@org.springframework.core.annotation.Order(1)
+	public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
+		http.securityMatcher("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+				.csrf(csrf -> csrf.disable());
+		return http.build();
+	}
 }

@@ -2,6 +2,7 @@ package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
@@ -94,6 +95,11 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 	private String relationGetter;
 
 	/**
+	 * Flag indicating if OpenAPI annotations should be generated for the method.
+	 */
+	private boolean openApi;
+
+	/**
 	 * Static factory method to create a new instance of {@link GetSingleRelationMethodBuilder}.
 	 *
 	 * @return A new instance of {@link GetSingleRelationMethodBuilder}.
@@ -114,7 +120,8 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 				.withEntityType(configuration.getEntityType())
 				.withIdType(configuration.getIdType())
 				.withSecurityConfig(configuration.getSecurityConfig())
-				.withResponseWrapperType(configuration.getResponseWrapperType());
+				.withResponseWrapperType(configuration.getResponseWrapperType())
+				.withOpenApi(configuration.isOpenApi());
 	}
 
 	/**
@@ -186,24 +193,38 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 				.withResponseVariable("response") // The variable holding the response object
 				.inject(mb);
 
-		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseBodyType, parameterConfigurer, bodyConfigurer, postBodyConfigurer);
+		String entityName = RestnessUtil.toClassName(this.entityType).simpleName();
+		String relationCapitalized = this.relationName.substring(0, 1).toUpperCase() + this.relationName.substring(1);
+
+		Consumer<MethodSpec.Builder> openApiConfigurer = mb -> new OpenApiAnnotationInjector()
+				.withEnabled(this.openApi)
+				.withOperationSummary("Get " + relationCapitalized + " of " + entityName)
+				.withOperationId("get" + entityName + relationCapitalized)
+				.withResponseCode("200")
+				.withResponseDescription("Related " + relationCapitalized + " found")
+				.addErrorResponse("404", entityName + " not found")
+				.inject(mb);
+
+		MethodSpec methodSpec = buildRelationMethodSpec(methodName, path, responseBodyType, parameterConfigurer, openApiConfigurer, bodyConfigurer, postBodyConfigurer);
 		builder.addMethod(methodSpec);
 	}
 
 	/**
 	 * Helper method to build the common structure of the {@link MethodSpec} for
 	 * the "get single relation" method. This includes annotations, modifiers,
-	 * the main entity ID path variable, security injection, and return type definition.
+	 * the main entity ID path variable, OpenAPI annotations, security injection,
+	 * and return type definition.
 	 *
 	 * @param methodName          The name for the generated method.
 	 * @param path                The request mapping path for the method.
 	 * @param responseBodyType    The {@link TypeName} for the object in the response body (DTO or entity).
 	 * @param parameterConfigurer A {@link Consumer} to add specific parameters (usually none for GET single).
+	 * @param openApiConfigurer   A {@link Consumer} to add OpenAPI annotations to the method.
 	 * @param bodyConfigurer      A {@link Consumer} to add the main method body statements.
 	 * @param postBodyConfigurer  A {@link Consumer} to add statements after the main body (for response generation).
 	 * @return The constructed {@link MethodSpec}.
 	 */
-	private MethodSpec buildRelationMethodSpec(String methodName, String path, TypeName responseBodyType, Consumer<MethodSpec.Builder> parameterConfigurer, Consumer<MethodSpec.Builder> bodyConfigurer, Consumer<MethodSpec.Builder> postBodyConfigurer) {
+	private MethodSpec buildRelationMethodSpec(String methodName, String path, TypeName responseBodyType, Consumer<MethodSpec.Builder> parameterConfigurer, Consumer<MethodSpec.Builder> openApiConfigurer, Consumer<MethodSpec.Builder> bodyConfigurer, Consumer<MethodSpec.Builder> postBodyConfigurer) {
 		MethodSpec.Builder methodBuilder = MethodSpec
 				.methodBuilder(methodName)
 				.addAnnotation(AnnotationSpec.builder(GetMapping.class)
@@ -218,6 +239,9 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 
 		// Add specific parameters (usually none needed here)
 		parameterConfigurer.accept(methodBuilder);
+
+		// Inject OpenAPI annotations
+		openApiConfigurer.accept(methodBuilder);
 
 		// Inject security checks
 		methodBuilder = new AuthenticationInjector()

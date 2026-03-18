@@ -212,7 +212,7 @@ public class ControllerConfigurationFromAnnotationBuilder {
 		// this definition is just for clarity and understandability of the code.
 		SecurityConfiguration securityConfig = null;
 
-		return new ControllerConfiguration(generatedClassName, requestMapping, entityClass, idClass, idAccessor, idModifier, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, securityConfig, relations);
+		return new ControllerConfiguration(generatedClassName, requestMapping, entityClass, idClass, idAccessor, idModifier, withDto ? dtoClasses[0] : null, withDto ? dtoClasses[1] : null, withDto ? dtoClasses[2] : null, this.responseWrapperClassName, dataAccessorClass, dataMergerClass, dataMapperClass, existingRequests, securityConfig, false, relations);
 	}
 
 	/**

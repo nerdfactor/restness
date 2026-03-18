@@ -67,10 +67,12 @@ public class ConstructorBuilder implements Buildable<TypeSpec.Builder> {
 				.constructorBuilder()
 				.addAnnotation(Autowired.class)
 				.addModifiers(Modifier.PUBLIC);
-		this.properties.forEach(prop -> {
-			method.addParameter(prop.type(), prop.name());
-			method.addStatement("this." + prop.name() + " = " + prop.name());
-		});
+		this.properties.stream()
+				.filter(prop -> prop.type() != null && prop.name() != null && !prop.name().isBlank())
+				.forEach(prop -> {
+					method.addParameter(prop.type(), prop.name());
+					method.addStatement("this." + prop.name() + " = " + prop.name());
+				});
 		builder.addMethod(method.build());
 		return builder;
 	}

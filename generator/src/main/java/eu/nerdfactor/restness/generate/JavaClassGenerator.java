@@ -22,7 +22,9 @@ public class JavaClassGenerator implements RestnessGenerator {
 
 	@Override
 	public void generate(Map<String, String> config, Map<String, ControllerConfiguration> controllers) {
+		boolean openApi = Boolean.parseBoolean(config.getOrDefault("openApi", "false"));
 		controllers.values().forEach(controllerConfiguration -> {
+			controllerConfiguration.setOpenApi(openApi);
 			try {
 				log.info("Generating {} for {}.", controllerConfiguration.getControllerClassName().canonicalName(), controllerConfiguration.getEntityType().toString());
 				JavaFile.builder(

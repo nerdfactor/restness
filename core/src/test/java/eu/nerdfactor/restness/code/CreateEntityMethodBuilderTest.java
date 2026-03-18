@@ -84,4 +84,53 @@ class CreateEntityMethodBuilderTest {
 				""";
 		Assertions.assertTrue(code.contains(expected));
 	}
+
+	@Test
+	void shouldCreateMethodWithOpenApiAnnotations() {
+		TypeSpec.Builder builder = TypeSpec.classBuilder("ExampleController")
+				.addAnnotation(RestController.class)
+				.addModifiers(Modifier.PUBLIC);
+
+		CreateEntityMethodBuilder.create()
+				.withRequestExists(false)
+				.withUsingDto(false)
+				.withBasePath("/api/example")
+				.withEntityType(ClassName.get(Example.class))
+				.withRequestBodyType(ClassName.get(Example.class))
+				.withResponseBodyType(ClassName.get(Example.class))
+				.withSecurityConfig(null)
+				.withResponseWrapperType(TypeName.OBJECT)
+				.withOpenApi(true)
+				.buildWith(builder);
+
+		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
+		Assertions.assertTrue(code.contains("@Operation("));
+		Assertions.assertTrue(code.contains("summary = \"Create a new Example\""));
+		Assertions.assertTrue(code.contains("operationId = \"createExample\""));
+		Assertions.assertTrue(code.contains("responseCode = \"200\""));
+		Assertions.assertTrue(code.contains("responseCode = \"400\""));
+	}
+
+	@Test
+	void shouldCreateMethodWithoutOpenApiAnnotations() {
+		TypeSpec.Builder builder = TypeSpec.classBuilder("ExampleController")
+				.addAnnotation(RestController.class)
+				.addModifiers(Modifier.PUBLIC);
+
+		CreateEntityMethodBuilder.create()
+				.withRequestExists(false)
+				.withUsingDto(false)
+				.withBasePath("/api/example")
+				.withEntityType(ClassName.get(Example.class))
+				.withRequestBodyType(ClassName.get(Example.class))
+				.withResponseBodyType(ClassName.get(Example.class))
+				.withSecurityConfig(null)
+				.withResponseWrapperType(TypeName.OBJECT)
+				.withOpenApi(false)
+				.buildWith(builder);
+
+		String code = JavaFile.builder("eu.nerdfactor.test", builder.build()).build().toString();
+		Assertions.assertFalse(code.contains("@Operation("));
+		Assertions.assertFalse(code.contains("@ApiResponse"));
+	}
 }

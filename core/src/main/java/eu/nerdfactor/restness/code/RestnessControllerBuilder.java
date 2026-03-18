@@ -1,5 +1,7 @@
 package eu.nerdfactor.restness.code;
 
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.MultiStepBuilder;
@@ -9,6 +11,7 @@ import eu.nerdfactor.restness.code.methodbuilder.ListMethodBuilder;
 import eu.nerdfactor.restness.code.methodbuilder.RelationshipMethodBuilder;
 import eu.nerdfactor.restness.code.methodbuilder.SearchMethodBuilder;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
+import eu.nerdfactor.restness.util.RestnessUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -35,6 +38,9 @@ import javax.lang.model.element.Modifier;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder> implements Configurable<ControllerConfiguration> {
+
+	private static final ClassName TAG_CLASS =
+			ClassName.get("io.swagger.v3.oas.annotations.tags", "Tag");
 
 	/**
 	 * The {@link ControllerConfiguration} used to create the controller.
@@ -71,6 +77,15 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getControllerClassName())
 				.addAnnotation(RestController.class)
 				.addModifiers(Modifier.PUBLIC);
+
+		if (configuration.isOpenApi()) {
+			String entityName = RestnessUtil.toClassName(configuration.getEntityType()).simpleName();
+			builder.addAnnotation(AnnotationSpec.builder(TAG_CLASS)
+					.addMember("name", "$S", entityName)
+					.addMember("description", "$S", entityName + " management endpoints")
+					.build());
+		}
+
 		this.and(ClassPropertiesBuilder.create().withConfiguration(this.configuration));
 		this.and(CrudMethodBuilder.create().withConfiguration(this.configuration));
 		this.and(ListMethodBuilder.create().withConfiguration(this.configuration));
