@@ -43,3 +43,64 @@ bin/
 .vscode/
 
 /.idea/
+
+
+# ===================================================
+# AI Coding Assistants & Agents
+# ===================================================
+
+# Claude Code
+.claude/
+
+# Kilo
+.kilo/
+
+# Cursor
+.cursor/
+# (Note: Teams often commit .cursorrules to share project guidelines. 
+# Uncomment the next line if you want to keep rules strictly local.)
+# .cursorrules
+
+# Windsurf (Codeium)
+.windsurf/
+
+# Trae
+.trae/
+
+# Continue.dev
+.continue/
+
+# Aider
+.aider*/
+.aider.chat.history.md
+.aider.tags.cache.v3
+.aider.conf.yml
+
+# GitHub Copilot
+.copilot/
+
+# Cline / Roo Code
+.cline/
+.roo/
+# (Note: Teams often commit .clinerules or .roorules to share guidelines.
+# Uncomment the next lines to ignore them.)
+# .clinerules
+# .roorules
+
+# Mentat / Sweep / Tabby / Goose / Other Agents
+.mentat/
+.sweep/
+.tabby/
+.goose/
+.codex/
+.gemini/
+.kiro/
+.opencode/
+.agent/
+.agents/
+
+# Model Context Protocol (MCP) & Local Configs
+# These often contain API keys and tool routing logic
+.mcp.json
+mcp-servers.json
+mcp-tokens.json
