@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.lang.model.element.*;
 import javax.lang.model.util.Elements;
@@ -27,6 +28,7 @@ import static javax.lang.model.util.ElementFilter.methodsIn;
  *
  * @author Daniel Klug
  */
+@Slf4j
 public class RelationConfigurationFromAnnotationBuilder {
 
 	/**
@@ -214,7 +216,7 @@ public class RelationConfigurationFromAnnotationBuilder {
 					break;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.warn("Could not determine relation type from annotation value.", e);
 			}
 		}
 		return relationType;
@@ -268,7 +270,7 @@ public class RelationConfigurationFromAnnotationBuilder {
 							break;
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.warn("Could not extract relation accessor from annotation value.", e);
 				}
 			});
 		}
@@ -294,7 +296,7 @@ public class RelationConfigurationFromAnnotationBuilder {
 								});
 							}
 						} catch (Exception e) {
-							e.printStackTrace();
+							log.warn("Could not extract RelationAccessor annotation value.", e);
 						}
 					}
 					if (accessedRelationName.equals(relationName)) {

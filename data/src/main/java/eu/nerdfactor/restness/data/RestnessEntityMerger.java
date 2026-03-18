@@ -22,6 +22,12 @@ public class RestnessEntityMerger implements DataMerger {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T merge(T original, T updated) {
+		if (original == null) {
+			return updated;
+		}
+		if (updated == null) {
+			return original;
+		}
 		if (original instanceof PersistentEntity<?> entity) {
 			return (T) entity.mergeWithEntity((PersistentEntity<?>) updated);
 		}

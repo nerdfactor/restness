@@ -21,6 +21,9 @@ public class RestnessEntityMapper implements DataMapper {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T map(Object obj, Class<T> cls) {
+		if (obj == null) {
+			return null;
+		}
 		if (obj instanceof PersistentEntity) {
 			return (T) ((PersistentEntity<?>) obj).convertToDto();
 		}

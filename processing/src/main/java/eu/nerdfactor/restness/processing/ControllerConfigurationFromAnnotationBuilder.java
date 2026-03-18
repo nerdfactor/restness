@@ -221,16 +221,13 @@ public class ControllerConfigurationFromAnnotationBuilder {
 	 * @return The name for the generated class.
 	 */
 	private @NotNull ClassName findGeneratedClassName(String className, String packageName) {
-		String generatedClassName = this.annotatedValues.getOrDefault("className", "");
-		if (generatedClassName.isEmpty()) {
-			// if there is no className annotation, generate the name from the class name and package name
-			generatedClassName = this.classNamePattern.replace("{PREFIX}", this.classNamePrefix).replace("{NAME}", className).replace("{NAME_NORMALIZED}", className.replace("Controller", ""));
-		}
-		if (!generatedClassName.contains(".")) {
-			// if the class name does not contain a package name, add the package name
-			generatedClassName = packageName + "." + generatedClassName;
-		}
-		return RestnessUtil.toClassName(generatedClassName);
+		return RestnessUtil.resolveGeneratedClassName(
+				this.annotatedValues.getOrDefault("className", ""),
+				this.classNamePattern,
+				this.classNamePrefix,
+				className,
+				packageName
+		);
 	}
 
 	/**

@@ -99,6 +99,31 @@ public class RestnessUtil {
 	}
 
 	/**
+	 * Resolves a generated class name from configuration values, applying prefix
+	 * and pattern substitution if no explicit class name is provided.
+	 *
+	 * @param configuredClassName The explicitly configured class name (may be empty).
+	 * @param classNamePattern    The pattern for generating the class name (e.g. "{PREFIX}{NAME}").
+	 * @param classNamePrefix     The prefix to substitute into the pattern (e.g. "Generated").
+	 * @param className           The simple name of the annotated class.
+	 * @param packageName         The package name of the annotated class.
+	 * @return The resolved {@link ClassName}.
+	 */
+	public static ClassName resolveGeneratedClassName(@NotNull String configuredClassName, @NotNull String classNamePattern, @NotNull String classNamePrefix, @NotNull String className, @NotNull String packageName) {
+		String generatedClassName = configuredClassName;
+		if (generatedClassName.isEmpty()) {
+			generatedClassName = classNamePattern
+					.replace("{PREFIX}", classNamePrefix)
+					.replace("{NAME}", className)
+					.replace("{NAME_NORMALIZED}", className.replace("Controller", ""));
+		}
+		if (!generatedClassName.contains(".")) {
+			generatedClassName = packageName + "." + generatedClassName;
+		}
+		return RestnessUtil.toClassName(generatedClassName);
+	}
+
+	/**
 	 * Check if there already exists a request mapping for the given path and methods.
 	 *
 	 * @param existingRequestMappings The list of existing request mappings.

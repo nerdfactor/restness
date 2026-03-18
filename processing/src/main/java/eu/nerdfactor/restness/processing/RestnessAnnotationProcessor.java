@@ -139,10 +139,11 @@ public class RestnessAnnotationProcessor extends AbstractProcessor {
 		String generatorClassName = generatedConfig.getOrDefault("generator", JavaClassGenerator.class.getCanonicalName());
 		try {
 			// todo: maybe a factory is better?
-			Class cls = Class.forName(generatorClassName);
-			RestnessGenerator generator = (RestnessGenerator) cls.getDeclaredConstructor().newInstance();
+			Class<? extends RestnessGenerator> cls = Class.forName(generatorClassName).asSubclass(RestnessGenerator.class);
+			RestnessGenerator generator = cls.getDeclaredConstructor().newInstance();
 			generator.withFiler(this.filer).generate(generatedConfig, controllers);
 		} catch (Exception e) {
+			log.error("Failed to instantiate or run generator {}.", generatorClassName, e);
 			e.printStackTrace();
 		}
 

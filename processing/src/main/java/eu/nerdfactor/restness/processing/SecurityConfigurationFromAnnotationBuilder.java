@@ -111,20 +111,14 @@ public class SecurityConfigurationFromAnnotationBuilder {
 
 
 		// Combine the generated class name and package.
-		String generatedClassName = annotatedValues.getStringOrDefault("className", "");
-		if (generatedClassName.isEmpty()) {
-			// todo: remove duplicate code with ControllerConfigurationCollector
-			generatedClassName = this.classNamePattern
-					.replace("{PREFIX}", this.classNamePrefix)
-					.replace("{NAME}", className)
-					.replace("{NAME_NORMALIZED}", className.replace("Controller", ""));
-		}
-		if (!generatedClassName.contains(".")) {
-			generatedClassName = packageName + "." + generatedClassName;
-		}
-
 		return new SecurityConfiguration(
-				RestnessUtil.toClassName(generatedClassName),
+				RestnessUtil.resolveGeneratedClassName(
+						annotatedValues.getStringOrDefault("className", ""),
+						this.classNamePattern,
+						this.classNamePrefix,
+						className,
+						packageName
+				),
 				annotatedValues.getStringOrDefault("pattern", "{NAME}"),
 				annotatedValues.getStringOrDefault("inclusive", "true").equals("true")
 		);
