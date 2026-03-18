@@ -26,11 +26,6 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 	protected TypeName entityClassName;
 
 	/**
-	 * The class of the guarded related entity.
-	 */
-	protected TypeName relatedClassName;
-
-	/**
 	 * The {@link SecurityConfiguration} for basic security configurations.
 	 */
 	protected SecurityConfiguration securityConfig;
@@ -54,15 +49,6 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 	}
 
 	/**
-	 * @param relatedEntity The type of the related entity.
-	 * @return The injector in a fluent api pattern.
-	 */
-	public AuthenticationInjector withRelatedClassName(TypeName relatedEntity) {
-		this.relatedClassName = relatedEntity;
-		return this;
-	}
-
-	/**
 	 * @param config The used {@link SecurityConfiguration}.
 	 * @return The injector in a fluent api pattern.
 	 */
@@ -82,16 +68,9 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 		if (this.securityConfig == null) {
 			return builder;
 		}
-		// todo: separate relationship into separate injector or find a way to combine the underlying role generation.
-		String security = "";
 		String baseEntityClassName = RestnessUtil.toClassName(this.entityClassName).simpleName();
-		if (this.relatedClassName != null) {
-			String baseRealtedClassName = RestnessUtil.toClassName(this.relatedClassName).simpleName();
-			security = this.getSecurityExpression(baseEntityClassName, baseRealtedClassName, this.method, this.method);
-		} else {
-			String role = this.getSecurityRole(this.method, baseEntityClassName, baseEntityClassName);
-			security = "hasRole('" + role + "')";
-		}
+		String role = this.getSecurityRole(this.method, baseEntityClassName, baseEntityClassName);
+		String security = "hasRole('" + role + "')";
 		builder.addAnnotation(AnnotationSpec.builder(PreAuthorize.class).addMember("value", "$S", security).build());
 		return builder;
 	}
@@ -113,13 +92,4 @@ public class AuthenticationInjector implements Injectable<MethodSpec.Builder> {
 				.toUpperCase();
 	}
 
-	public String getSecurityExpression(String baseEntityName, String relationEntityName, String method, String methodBase) {
-		String relationRole = this.getSecurityRole(method, relationEntityName, relationEntityName);
-		String security = "hasRole('" + relationRole + "')";
-		if (this.securityConfig.isInclusiveRelationPermissions()) {
-			String baseRole = this.getSecurityRole(methodBase, baseEntityName, baseEntityName);
-			security += " and hasRole('" + baseRole + "')";
-		}
-		return security;
-	}
 }

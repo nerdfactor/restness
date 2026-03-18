@@ -1,7 +1,7 @@
 package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.RelationAuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.AccessorType;
@@ -244,7 +244,7 @@ public class GetSingleRelationMethodBuilder extends MethodBuilder {
 		openApiConfigurer.accept(methodBuilder);
 
 		// Inject security checks
-		methodBuilder = new AuthenticationInjector()
+		methodBuilder = new RelationAuthenticationInjector()
 				.withMethod("READ") // Reading a relation requires READ permission
 				.withEntityClassName(this.entityType)
 				.withRelatedClassName(this.relationEntityType) // Use the entity class name for security check

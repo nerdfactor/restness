@@ -1,7 +1,7 @@
 package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.RelationAuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.NoContentStatementInjector;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.config.AccessorType;
@@ -308,7 +308,7 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 		openApiConfigurer.accept(methodBuilder);
 
 		// Inject security checks
-		methodBuilder = new AuthenticationInjector()
+		methodBuilder = new RelationAuthenticationInjector()
 				.withMethod("UPDATE") // Removing from a relation modifies the parent, often treated as UPDATE permission-wise. Could be DELETE.
 				.withEntityClassName(this.entityType)
 				.withRelatedClassName(this.relationEntityType)

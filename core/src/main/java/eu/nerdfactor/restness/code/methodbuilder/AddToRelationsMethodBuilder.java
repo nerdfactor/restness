@@ -1,7 +1,7 @@
 package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
-import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.RelationAuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.config.AccessorType;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
@@ -288,7 +288,7 @@ public class AddToRelationsMethodBuilder extends MethodBuilder {
 		openApiConfigurer.accept(methodBuilder);
 
 		// Inject security checks
-		methodBuilder = new AuthenticationInjector()
+		methodBuilder = new RelationAuthenticationInjector()
 				.withMethod("UPDATE") // Adding to a relation is considered an UPDATE operation
 				.withEntityClassName(this.entityType)
 				.withRelatedClassName(this.relationEntityType)
