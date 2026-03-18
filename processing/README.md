@@ -7,5 +7,9 @@ Key functions:
 * Registers itself to process RESTness annotations (`@RestnessConfiguration`, `@RestnessController`, `@RestnessSecurity`).
 * Scans the annotated elements during the Maven build process.
 * Builds internal configuration models based on the extracted annotation data.
-* Triggers the code generation process, by invoking the configured components from the `generator` module.
+* Supports the `openApi` parameter in `@RestnessConfiguration` to enable OpenAPI annotation generation on endpoints.
+* Detects `@Id` annotations on entity fields for automatic accessor/modifier name derivation (e.g., a field `perNo` yields `getPerNo`/`setPerNo`).
+* Imports additional controller configurations from JSON or YAML files and merges them with annotation-based configurations.
+* Resolves generators dynamically via `RestnessGeneratorFactory` using Java's `ServiceLoader`.
+* Triggers the code generation process by invoking the resolved generator components.
 * Writes the generated Java source files.

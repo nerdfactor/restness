@@ -6,7 +6,7 @@ Key components include:
 
 * **`DataAccessor`**: An interface for basic CRUD operations, allowing integration with different data access strategies (e.g., Repositories, Services).
 * **`DataMapper`**: An interface for mapping between entity objects and Data Transfer Objects (DTOs). Includes a fallback `RestnessEntityMapper`.
-* **`DataMerger`**: An interface for merging updates from DTOs into existing entity objects. Includes a fallback `RestnessEntityMerger`.
+* **`DataMerger`**: An interface for merging updates from DTOs into existing entity objects. Includes a fallback `RestnessEntityMerger` that supports both standard POJOs (modifying the original) and Java Records (creating a new instance via the canonical constructor).
 * **`DataWrapper`**: An interface for wrapping responses, potentially adding metadata. Includes a default `RestnessEntityWrapper`.
 
 Provides default Spring beans for `DataMapper` and `DataMerger` if no custom implementations are found in the user's application context.

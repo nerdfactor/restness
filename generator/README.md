@@ -5,5 +5,15 @@ This module contains the primary logic for generating the REST controller source
 Key responsibilities include:
 
 * Orchestrating the code generation process using builders and injectors from the `core` module.
-* Potentially handling the export and import of RESTness configurations (e.g., using `ConfigMapper` for JSON/YAML serialization).
+* Handling the export and import of RESTness configurations as JSON or YAML (via `ConfigMapper`, `JsonConfigExporter`, `YamlConfigExporter`).
 * Translating the abstract configuration models into concrete Java code using JavaPoet.
+
+## Generator Discovery
+
+`RestnessGeneratorFactory` uses Java's `ServiceLoader` to discover `RestnessGenerator` implementations at runtime. Generators can be resolved by short name (e.g., `"java"`, `"json"`, `"yaml"`) or by fully qualified class name, with a fallback to `JavaClassGenerator` if no match is found.
+
+All built-in generators (`JavaClassGenerator`, `JsonConfigExporter`, `YamlConfigExporter`) are registered via `@AutoService` for automatic SPI discovery.
+
+## Serialization
+
+The `ParameterizedTypeNameDeserializer` supports deserialization of nested generic types (e.g., `Map<String, List<String>>`) when importing configurations from JSON or YAML files.

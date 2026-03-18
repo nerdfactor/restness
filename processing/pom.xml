@@ -6,20 +6,20 @@
 	<parent>
 		<artifactId>restness-parent</artifactId>
 		<groupId>eu.nerdfactor.restness</groupId>
-		<version>0.0.22</version>
+		<version>0.0.23</version>
 	</parent>
 	<artifactId>restness-processing</artifactId>
-	<version>0.0.22</version>
+	<version>0.0.23</version>
 	<dependencies>
 		<dependency>
 			<groupId>eu.nerdfactor.restness</groupId>
 			<artifactId>restness-core</artifactId>
-			<version>0.0.22</version>
+			<version>0.0.23</version>
 		</dependency>
 		<dependency>
 			<groupId>eu.nerdfactor.restness</groupId>
 			<artifactId>restness-generator</artifactId>
-			<version>0.0.22</version>
+			<version>0.0.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>

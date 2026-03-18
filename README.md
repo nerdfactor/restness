@@ -12,8 +12,11 @@ Unlike runtime solutions like [spring-data-rest](https://github.com/spring-proje
 * **Pagination & Sorting:** Supports pagination and sorting via Spring Data interfaces.
 * **Dynamic Filtering:** Integrates with libraries like [spring-filter](https://github.com/turkraft/spring-filter) for powerful query capabilities.
 * **Validation:** Leverages standard Java Bean Validation.
-* **Security:** Integrates with Spring Security for role-based access control on generated endpoints.
+* **Security:** Integrates with Spring Security for role-based access control on generated endpoints, including relationship-level security.
 * **DTO Mapping:** Supports mapping between entities and Data Transfer Objects (DTOs).
+* **OpenAPI / Swagger:** Optionally generates OpenAPI annotations (`@Operation`, `@ApiResponses`, `@Tag`) on endpoints for automatic API documentation.
+* **Extensibility (SPI):** Provides Service Provider Interfaces for custom method builders and injectors, discovered automatically via Java `ServiceLoader`.
+* **Configuration Import/Export:** Supports importing and exporting controller configurations as JSON or YAML files.
 
 ## Getting Started
 
@@ -44,7 +47,9 @@ Unlike runtime solutions like [spring-data-rest](https://github.com/spring-proje
 package com.example.controller;
 
 import com.example.entity.Product;
-import eu.nerdfactor.restness.data.DataAccessor; // Or your specific data access bean
+import eu.nerdfactor.restness.data.DataAccessor;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,10 +59,11 @@ import java.util.List;
 // ... other imports
 
 @RestController
-public class RestnessProductController { // Name might vary based on config
+@Tag(name = "Product", description = "Product management endpoints") // If OpenAPI is enabled
+public class RestnessProductController {
 
    @Autowired
-   private DataAccessor<Product, Integer> dataAccessor; // Injected data access
+   private DataAccessor<Product, Integer> dataAccessor;
 
    @Autowired
    private DataMapper dataMapper; // Injected if DTOs are used
@@ -67,38 +73,44 @@ public class RestnessProductController { // Name might vary based on config
 
    @GetMapping("/api/products")
    @Secured("ROLE_READ_PRODUCT") // If security is configured
+   @Operation(summary = "List all Products")
    public ResponseEntity<List<Product>> list(/* Paging/Filtering params */) {
       // Implementation using dataAccessor...
    }
 
    @GetMapping("/api/products/{id}")
    @Secured("ROLE_READ_PRODUCT")
+   @Operation(summary = "Read a Product")
    public ResponseEntity<Product> get(@PathVariable final Integer id) {
       // Implementation using dataAccessor...
    }
 
    @PostMapping("/api/products")
    @Secured("ROLE_CREATE_PRODUCT")
+   @Operation(summary = "Create a Product")
    public ResponseEntity<Product> create(@RequestBody @Valid Product dto) {
-      // Implementation using dataAccessor and dataMapper...
+      // Returns 201 Created
    }
 
    @PutMapping("/api/products/{id}")
    @Secured("ROLE_UPDATE_PRODUCT")
+   @Operation(summary = "Set a Product")
    public ResponseEntity<Product> set(@PathVariable final Integer id, @RequestBody @Valid Product dto) {
       // Implementation using dataAccessor and dataMapper/dataMerger...
    }
 
    @PatchMapping("/api/products/{id}")
    @Secured("ROLE_UPDATE_PRODUCT")
+   @Operation(summary = "Update a Product")
    public ResponseEntity<Product> update(@PathVariable final Integer id, @RequestBody @Valid Product dto) {
       // Implementation using dataAccessor and dataMerger...
    }
 
    @DeleteMapping("/api/products/{id}")
    @Secured("ROLE_DELETE_PRODUCT")
+   @Operation(summary = "Delete a Product")
    public ResponseEntity<Void> delete(@PathVariable final Integer id) {
-      // Implementation using dataAccessor...
+      // Returns 204 No Content
    }
 
    // Additional methods for relationship management might be generated here...
@@ -111,18 +123,15 @@ public class RestnessProductController { // Name might vary based on config
 * **`processing`**: Contains the Java Annotation Processor (`RestnessAnnotationProcessor`) that scans for `@RestnessController`, `@RestnessSecurity`, and `@RestnessConfiguration` annotations at compile time and builds the configuration models.
 * **`core`**: Provides the building blocks (Method Builders, Injectors, Utilities using JavaPoet) used by the generator module to construct the Java source code for the controllers.
 * **`data`**: Defines data access interfaces (`DataAccessor`, `DataMapper`, `DataMerger`, `DataWrapper`) and provides default fallback implementations (like `RestnessEntityMapper`, `RestnessEntityMerger`) via Spring AutoConfiguration. This abstracts the data layer interaction for the generated controllers.
-* **`generator`**: Contains the logic (`JavaClassGenerator`) to take the configuration models and use the `core` components to generate the final Java controller source files. Also includes utilities for potentially exporting/importing configurations (`ConfigMapper`, `JsonConfigExporter`, etc.).
-* **`example`**: A sample Spring Boot application demonstrating various ways to use and configure RESTness, including entity/DTO setup, repository/service integration, custom data beans, and security.
+* **`generator`**: Contains the logic (`JavaClassGenerator`) to take the configuration models and use the `core` components to generate the final Java controller source files. Includes `RestnessGeneratorFactory` for SPI-based generator discovery and utilities for exporting/importing configurations as JSON or YAML (`ConfigMapper`, `JsonConfigExporter`, `YamlConfigExporter`).
+* **`example`**: A sample Spring Boot application demonstrating various ways to use and configure RESTness, including entity/DTO setup, repository/service integration, custom data beans, security, and OpenAPI documentation.
+* **`example-extensions`**: Demonstrates how to extend RESTness via the SPI extension points, with examples of a custom method builder (`CountEndpointBuilder`) and a custom injector (`RateLimitedInjector`).
 
 ## Important Notice
 
-This is a very small and simple project I created because I could not
-get spring-data-rest to work in the way I wanted (Support for
-spring-security, dto mapping, complex searching and usage of services
-instead of direct access to repositories). Therefore, the generated
-classes are the way I like them and contain only the features I needed.
-Please use spring-data-rest instead for a full-fledged and super
-robust REST library.
+This is a very small and simple project I created because I could not get spring-data-rest to work in the way I wanted (Support for spring-security, dto mapping, complex searching and usage of services instead of direct access to repositories). Therefore, the generated classes are the way I like them and contain only the features I needed.
+
+Please use spring-data-rest instead for a full-fledged and super robust REST library.
 
 ## License
 

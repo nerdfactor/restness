@@ -6,15 +6,15 @@
 	<parent>
 		<artifactId>restness-parent</artifactId>
 		<groupId>eu.nerdfactor.restness</groupId>
-		<version>0.0.22</version>
+		<version>0.0.23</version>
 	</parent>
 	<artifactId>restness-config</artifactId>
-	<version>0.0.22</version>
+	<version>0.0.23</version>
 	<dependencies>
 		<dependency>
 			<groupId>eu.nerdfactor.restness</groupId>
 			<artifactId>restness-data</artifactId>
-			<version>0.0.22</version>
+			<version>0.0.23</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
