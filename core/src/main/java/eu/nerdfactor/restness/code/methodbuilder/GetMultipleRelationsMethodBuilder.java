@@ -1,6 +1,8 @@
 package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.restness.code.injector.MethodInjectorRegistry;
+import eu.nerdfactor.restness.code.injector.MethodContext;
 import eu.nerdfactor.restness.code.injector.RelationAuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
@@ -100,6 +102,11 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 	 * Flag indicating if OpenAPI annotations should be generated for the method.
 	 */
 	protected boolean openApi;
+
+	/**
+	 * The {@link MethodInjectorRegistry} for applying custom injectors to this method.
+	 */
+	private MethodInjectorRegistry injectorRegistry;
 
 	/**
 	 * Static factory method to create a new instance of {@link GetMultipleRelationsMethodBuilder}.
@@ -258,6 +265,17 @@ public class GetMultipleRelationsMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationEntityType)
 				.withSecurityConfig(this.securityConfig)
 				.inject(methodBuilder);
+
+		// Apply custom injectors from SPI registry.
+		if (this.injectorRegistry != null) {
+			methodBuilder = this.injectorRegistry.injectAll(methodBuilder, MethodContext.builder()
+					.withMethodName(methodName)
+					.withHttpMethod("GET")
+					.withEntityType(this.entityType)
+					.withRelatedEntityType(this.relationEntityType)
+					.withRelationName(this.relationName)
+					.build());
+		}
 
 		// Determine the final return type (potentially wrapped)
 		TypeName finalReturnType;

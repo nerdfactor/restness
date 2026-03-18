@@ -3,13 +3,12 @@ package eu.nerdfactor.restness.code;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeSpec;
+import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.MultiStepBuilder;
 import eu.nerdfactor.restness.code.classbuilder.ClassPropertiesBuilder;
-import eu.nerdfactor.restness.code.methodbuilder.CrudMethodBuilder;
-import eu.nerdfactor.restness.code.methodbuilder.ListMethodBuilder;
-import eu.nerdfactor.restness.code.methodbuilder.RelationshipMethodBuilder;
-import eu.nerdfactor.restness.code.methodbuilder.SearchMethodBuilder;
+import eu.nerdfactor.restness.code.injector.MethodInjectorRegistry;
+import eu.nerdfactor.restness.code.methodbuilder.*;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import eu.nerdfactor.restness.util.RestnessUtil;
 import lombok.AccessLevel;
@@ -74,6 +73,9 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 	 * @return The build {@link TypeSpec}.
 	 */
 	public TypeSpec build() {
+		MethodInjectorRegistry injectorRegistry = new MethodInjectorRegistry();
+		MethodBuilderRegistry builderRegistry = new MethodBuilderRegistry();
+
 		TypeSpec.Builder builder = TypeSpec.classBuilder(configuration.getControllerClassName())
 				.addAnnotation(RestController.class)
 				.addModifiers(Modifier.PUBLIC);
@@ -87,10 +89,15 @@ public class RestnessControllerBuilder extends MultiStepBuilder<TypeSpec.Builder
 		}
 
 		this.and(ClassPropertiesBuilder.create().withConfiguration(this.configuration));
-		this.and(CrudMethodBuilder.create().withConfiguration(this.configuration));
-		this.and(ListMethodBuilder.create().withConfiguration(this.configuration));
-		this.and(SearchMethodBuilder.create().withConfiguration(this.configuration));
-		this.and(RelationshipMethodBuilder.create().withConfiguration(this.configuration));
+		this.and(CrudMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(injectorRegistry));
+		this.and(ListMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(injectorRegistry));
+		this.and(SearchMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(injectorRegistry));
+		this.and(RelationshipMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(injectorRegistry));
+
+		for (Buildable<TypeSpec.Builder> customBuilder : builderRegistry.createBuilders(this.configuration)) {
+			this.and(customBuilder);
+		}
+
 		this.buildAll(builder);
 		return builder.build();
 	}

@@ -41,11 +41,11 @@ public class CrudMethodBuilder extends MultiStepMethodBuilder {
 	 */
 	@Override
 	public TypeSpec.Builder buildWith(TypeSpec.Builder builder) {
-		this.and(CreateEntityMethodBuilder.create().withConfiguration(this.configuration));
-		this.and(ReadEntityMethodBuilder.create().withConfiguration(this.configuration));
-		this.and(UpdateEntityMethodBuilder.create().withConfiguration(this.configuration));
-		this.and(SetEntityMethodBuilder.create().withConfiguration(this.configuration));
-		this.and(DeleteEntityMethodBuilder.create().withConfiguration(this.configuration));
+		this.and(CreateEntityMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(this.injectorRegistry));
+		this.and(ReadEntityMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(this.injectorRegistry));
+		this.and(UpdateEntityMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(this.injectorRegistry));
+		this.and(SetEntityMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(this.injectorRegistry));
+		this.and(DeleteEntityMethodBuilder.create().withConfiguration(this.configuration).withInjectorRegistry(this.injectorRegistry));
 		this.buildAll(builder);
 		return builder;
 	}

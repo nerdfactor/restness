@@ -4,6 +4,7 @@ import com.squareup.javapoet.TypeSpec;
 import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.builder.MultiStepBuilder;
+import eu.nerdfactor.restness.code.injector.MethodInjectorRegistry;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,6 +26,12 @@ public abstract class MultiStepMethodBuilder extends MultiStepBuilder<TypeSpec.B
 	protected ControllerConfiguration configuration;
 
 	/**
+	 * The {@link MethodInjectorRegistry} used to apply custom injectors to
+	 * generated methods. May be null if no custom injectors are registered.
+	 */
+	protected MethodInjectorRegistry injectorRegistry;
+
+	/**
 	 * Configures the builder with the provided {@link ControllerConfiguration}.
 	 * This configuration provides the necessary context (entity types, DTO usage, security, etc.)
 	 * for generating the controller methods.
@@ -35,6 +42,18 @@ public abstract class MultiStepMethodBuilder extends MultiStepBuilder<TypeSpec.B
 	@Override
 	public MultiStepMethodBuilder withConfiguration(@NotNull ControllerConfiguration configuration) {
 		this.configuration = configuration;
+		return this;
+	}
+
+	/**
+	 * Sets the {@link MethodInjectorRegistry} that will be propagated to
+	 * child builders for custom injection support.
+	 *
+	 * @param injectorRegistry The registry to use, may be null.
+	 * @return The current builder instance for fluent chaining.
+	 */
+	public MultiStepMethodBuilder withInjectorRegistry(MethodInjectorRegistry injectorRegistry) {
+		this.injectorRegistry = injectorRegistry;
 		return this;
 	}
 

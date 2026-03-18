@@ -2,6 +2,8 @@ package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.MethodContext;
+import eu.nerdfactor.restness.code.injector.MethodInjectorRegistry;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
@@ -85,6 +87,11 @@ public class SearchMethodBuilder extends MethodBuilder {
 	private boolean openApi;
 
 	/**
+	 * The {@link MethodInjectorRegistry} for applying custom injectors to this method.
+	 */
+	protected MethodInjectorRegistry injectorRegistry;
+
+	/**
 	 * Create a new instance of {@link SearchMethodBuilder}.
 	 *
 	 * @return A new {@link SearchMethodBuilder}.
@@ -161,6 +168,14 @@ public class SearchMethodBuilder extends MethodBuilder {
 				.withEntityClassName(this.entityType)
 				.withSecurityConfig(this.securityConfig)
 				.inject(method);
+
+		if (this.injectorRegistry != null) {
+			method = this.injectorRegistry.injectAll(method, MethodContext.builder()
+					.withMethodName("search")
+					.withHttpMethod("GET")
+					.withEntityType(this.entityType)
+					.build());
+		}
 
 		this.addMethodBody(method, this.entityType, this.responseBodyType, this.isUsingDto);
 

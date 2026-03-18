@@ -1,6 +1,8 @@
 package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.restness.code.injector.MethodInjectorRegistry;
+import eu.nerdfactor.restness.code.injector.MethodContext;
 import eu.nerdfactor.restness.code.injector.RelationAuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.NoContentStatementInjector;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
@@ -111,6 +113,11 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 	 * Flag indicating if OpenAPI annotations should be generated for the methods.
 	 */
 	protected boolean openApi;
+
+	/**
+	 * The {@link MethodInjectorRegistry} for applying custom injectors to this method.
+	 */
+	private MethodInjectorRegistry injectorRegistry;
 
 	/**
 	 * Static factory method to create a new instance of {@link DeleteFromRelationsMethodBuilder}.
@@ -314,6 +321,17 @@ public class DeleteFromRelationsMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationEntityType)
 				.withSecurityConfig(this.securityConfig)
 				.inject(methodBuilder);
+
+		// Apply custom injectors from SPI registry.
+		if (this.injectorRegistry != null) {
+			methodBuilder = this.injectorRegistry.injectAll(methodBuilder, MethodContext.builder()
+					.withMethodName(methodName)
+					.withHttpMethod("DELETE")
+					.withEntityType(this.entityType)
+					.withRelatedEntityType(this.relationEntityType)
+					.withRelationName(this.relationName)
+					.build());
+		}
 
 		// Set the return type (already determined before calling this method)
 		methodBuilder.returns(returnType);

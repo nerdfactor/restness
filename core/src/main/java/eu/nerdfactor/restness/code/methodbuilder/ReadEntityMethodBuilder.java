@@ -4,6 +4,8 @@ import com.squareup.javapoet.*;
 import eu.nerdfactor.restness.code.builder.Buildable;
 import eu.nerdfactor.restness.code.builder.Configurable;
 import eu.nerdfactor.restness.code.injector.AuthenticationInjector;
+import eu.nerdfactor.restness.code.injector.MethodContext;
+import eu.nerdfactor.restness.code.injector.MethodInjectorRegistry;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
 import eu.nerdfactor.restness.code.injector.ReturnStatementInjector;
 import eu.nerdfactor.restness.config.ControllerConfiguration;
@@ -74,6 +76,10 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 	 * Flag indicating if OpenAPI annotations should be generated for the method.
 	 */
 	protected boolean openApi;
+	/**
+	 * The {@link MethodInjectorRegistry} for applying custom injectors to this method.
+	 */
+	protected MethodInjectorRegistry injectorRegistry;
 
 	/**
 	 * Creates a new instance of {@link ReadEntityMethodBuilder}.
@@ -138,6 +144,14 @@ public class ReadEntityMethodBuilder implements Buildable<TypeSpec.Builder>, Con
 				.withEntityClassName(this.entityType)
 				.withSecurityConfig(this.securityConfig)
 				.inject(method);
+
+		if (this.injectorRegistry != null) {
+			method = this.injectorRegistry.injectAll(method, MethodContext.builder()
+					.withMethodName("read")
+					.withHttpMethod("GET")
+					.withEntityType(this.entityType)
+					.build());
+		}
 
 		this.addMethodBody(method, this.entityType, this.responseBodyType, this.isUsingDto);
 

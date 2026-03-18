@@ -1,6 +1,8 @@
 package eu.nerdfactor.restness.code.methodbuilder;
 
 import com.squareup.javapoet.*;
+import eu.nerdfactor.restness.code.injector.MethodInjectorRegistry;
+import eu.nerdfactor.restness.code.injector.MethodContext;
 import eu.nerdfactor.restness.code.injector.RelationAuthenticationInjector;
 import eu.nerdfactor.restness.code.injector.NoContentStatementInjector;
 import eu.nerdfactor.restness.code.injector.OpenApiAnnotationInjector;
@@ -90,6 +92,11 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 	 * Flag indicating if OpenAPI annotations should be generated for the method.
 	 */
 	protected boolean openApi;
+
+	/**
+	 * The {@link MethodInjectorRegistry} for applying custom injectors to this method.
+	 */
+	private MethodInjectorRegistry injectorRegistry;
 
 	/**
 	 * Static factory method to create a new instance of {@link DeleteSingleRelationMethodBuilder}.
@@ -229,6 +236,17 @@ public class DeleteSingleRelationMethodBuilder extends MethodBuilder {
 				.withRelatedClassName(this.relationEntityType) // Check based on the related entity
 				.withSecurityConfig(this.securityConfig)
 				.inject(methodBuilder);
+
+		// Apply custom injectors from SPI registry.
+		if (this.injectorRegistry != null) {
+			methodBuilder = this.injectorRegistry.injectAll(methodBuilder, MethodContext.builder()
+					.withMethodName(methodName)
+					.withHttpMethod("DELETE")
+					.withEntityType(this.entityType)
+					.withRelatedEntityType(this.relationEntityType)
+					.withRelationName(this.relationName)
+					.build());
+		}
 
 		// Define return type (ResponseEntity<?>)
 		// NoContentStatementInjector handles the actual return value, but the signature needs to be compatible.

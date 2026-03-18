@@ -53,14 +53,14 @@ public class RelationshipMethodBuilder extends MultiStepMethodBuilder {
 		}
 		for (RelationConfiguration relation : configuration.getRelationConfigurations().values()) {
 			if (relation.getRelationType() == RelationType.SINGLE) {
-				this.and(GetSingleRelationMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
-				this.and(SetSingleRelationMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
-				this.and(DeleteSingleRelationMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
+				this.and(GetSingleRelationMethodBuilder.create().withRelation(relation).withConfiguration(configuration).withInjectorRegistry(this.injectorRegistry));
+				this.and(SetSingleRelationMethodBuilder.create().withRelation(relation).withConfiguration(configuration).withInjectorRegistry(this.injectorRegistry));
+				this.and(DeleteSingleRelationMethodBuilder.create().withRelation(relation).withConfiguration(configuration).withInjectorRegistry(this.injectorRegistry));
 			}
 			if (relation.getRelationType() == RelationType.MULTIPLE) {
-				this.and(GetMultipleRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
-				this.and(AddToRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
-				this.and(DeleteFromRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration));
+				this.and(GetMultipleRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration).withInjectorRegistry(this.injectorRegistry));
+				this.and(AddToRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration).withInjectorRegistry(this.injectorRegistry));
+				this.and(DeleteFromRelationsMethodBuilder.create().withRelation(relation).withConfiguration(configuration).withInjectorRegistry(this.injectorRegistry));
 			}
 		}
 		this.buildAll(builder);
