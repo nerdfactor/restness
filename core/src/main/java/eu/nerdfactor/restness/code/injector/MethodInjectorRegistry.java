@@ -35,7 +35,7 @@ public class MethodInjectorRegistry {
 	 */
 	public MethodInjectorRegistry() {
 		this.injectors = new ArrayList<>();
-		ServiceLoader.load(ContextualInjectable.class).forEach(injector -> {
+		ServiceLoader.load(ContextualInjectable.class, ContextualInjectable.class.getClassLoader()).forEach(injector -> {
 			this.injectors.add(injector);
 			log.debug("Discovered custom injector '{}'.", injector.getName());
 		});

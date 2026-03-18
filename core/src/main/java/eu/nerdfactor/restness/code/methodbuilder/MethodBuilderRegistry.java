@@ -35,7 +35,7 @@ public class MethodBuilderRegistry {
 	 */
 	public MethodBuilderRegistry() {
 		this.providers = new ArrayList<>();
-		ServiceLoader.load(RestnessMethodBuilderProvider.class).forEach(provider -> {
+		ServiceLoader.load(RestnessMethodBuilderProvider.class, RestnessMethodBuilderProvider.class.getClassLoader()).forEach(provider -> {
 			this.providers.add(provider);
 			log.debug("Discovered custom method builder provider '{}'.", provider.getName());
 		});

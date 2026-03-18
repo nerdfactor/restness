@@ -25,11 +25,12 @@
 	<modules>
 		<module>core</module>
 		<module>data</module>
-		<module>example</module>
 		<module>processing</module>
 		<module>config</module>
 		<module>generator</module>
 		<module>restness</module>
+		<module>example-extensions</module>
+		<module>example</module>
 	</modules>
 	<distributionManagement>
 		<repository>
